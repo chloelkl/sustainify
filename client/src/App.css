@@ -1,5 +1,11 @@
 .AppBar a {
-  color: inherit;
+  color: white;
   text-decoration: none;
   margin-right: 16px;
+}
+
+html {
+  background-color: #F1FFE8;
+  height: 100%;
+  width: 100%;
 }
