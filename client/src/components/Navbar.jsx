@@ -43,8 +43,10 @@ function Navbar() {
           <StyledLink to="/events">
             <Typography>EVENTS</Typography>
           </StyledLink>
-
-          <Logo>LOGO</Logo>
+          <StyledLink to="/">
+            <Logo>LOGO</Logo>
+          </StyledLink>
+          
 
           <StyledLink to="/forum">
             <Typography>FORUM</Typography>
