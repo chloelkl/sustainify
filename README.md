@@ -17,3 +17,18 @@ to start on creating your page:
 1. /client/src/pages contains the folders for each feature
 --> this is where the jsx files are which is like the html, refer to Homepage.jsx
 2. After creating a file for your page, add the path and route in /client/src/App.jsx , at the bottom u can see examples
+
+
+```
+Commit changes:
+git commit -m "message"
+git checkout main
+git merge <branchname>
+git push -f
+
+git pull
+git checkout <branchname>
+git pull
+git merge main
+git push
+```
