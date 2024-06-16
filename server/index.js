@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -10,17 +11,33 @@ app.use(cors({
     origin: process.env.CLIENT_URL
 }));
 
-// Simple Route
+// Serve static file from the client folder
+app.use(express.static(path.join( '..', 'client')));
+
+// Simple Route - Define the route here
 app.get("/", (req, res) => {
-    res.send("Welcome to the learning space.");
+    res.sendFile(path.join('..', 'client', 'index.html'));
+    res.send("Sustainify Admin Side");
 });
 
-// Routes
-const tutorialRoute = require('./routes/tutorial');
-app.use("/tutorial", tutorialRoute);
+// app.get("/event", (req, res) => {
+//     res.send("Event Admin Side");
+// });
 
+// app.get("/test", (req, res) => {
+//     res.send("Test Admin Side");
+// });
+
+// Routes -> Add routes based on DB created
+const eventRoute = require('./routes/event');
+app.use("/event", eventRoute);
+
+const testRoute = require('./routes/test');
+app.use("/test", testRoute);
+
+// Start server after synchronising the DB files under models folder
 const db = require('./models');
-db.sequelize.sync({ alter: true })
+db.sequelize.sync({ alter: false })
     .then(() => {
         let port = process.env.APP_PORT;
         app.listen(port, () => {
