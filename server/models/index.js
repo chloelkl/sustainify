@@ -3,12 +3,10 @@
 const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
-const process = require('process');
 const basename = path.basename(__filename);
 const db = {};
 require('dotenv').config();
 
-// Create sequelize instance using config 
 let sequelize = new Sequelize(
   process.env.DB_NAME, process.env.DB_USER, process.env.DB_PWD,
   {
