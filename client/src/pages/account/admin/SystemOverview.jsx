@@ -86,141 +86,71 @@ const SystemOverview = () => {
             });
     };
 
+    if (error) {
+        return <div>Error: {error}</div>;
+    }
+
     return (
-        <div style={container}>
-            <div style={analyticsSection}>
+        <div style={containerStyle}>
+            <div style={sectionStyle}>
                 <h2>Analytics</h2>
-                <div style={chartContainer}>
-                    {/* Replace this with actual chart component */}
-                    <div style={chartPlaceholder}>Chart Placeholder</div>
-                </div>
+                {analytics.map((item, index) => (
+                    <div key={index}>{item.metric}: {item.value}</div>
+                ))}
             </div>
-
-            <div style={backupSection}>
-                <h2>Backup</h2>
-                <div style={backupOptions}>
-                    <label>
-                        Backup Type:
-                        <select value={backupType} onChange={(e) => setBackupType(e.target.value)}>
-                            <option value="full">Full</option>
-                            <option value="analytics">Analytics</option>
-                            <option value="users">Users</option>
-                            <option value="admin">Admin</option>
-                        </select>
-                    </label>
-                    <label>
-                        File Format:
-                        <select value={fileFormat} onChange={(e) => setFileFormat(e.target.value)}>
-                            <option value="csv">CSV</option>
-                            <option value="pdf">PDF</option>
-                        </select>
-                    </label>
-                    <button onClick={handleBackupNow} style={buttonStyle}>Backup Now</button>
-                </div>
-
-                <div style={backupHistoryContainer}>
-                    <h2>Backup History</h2>
+            <div style={sectionStyle}>
+                <h2>Backup History</h2>
+                <label>
+                    Backup Type:
+                    <select value={backupType} onChange={(e) => setBackupType(e.target.value)}>
+                        <option value="full">Full</option>
+                        <option value="analytics">Analytics</option>
+                        <option value="users">Users</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </label>
+                <label>
+                    File Format:
+                    <select value={fileFormat} onChange={(e) => setFileFormat(e.target.value)}>
+                        <option value="csv">CSV</option>
+                        <option value="pdf">PDF</option>
+                    </select>
+                </label>
+                <button onClick={handleBackupNow}>Backup Now</button>
+                <ul>
                     {backupHistory.map((backup, index) => (
-                        <div key={index} style={backupItem}>
-                            <span><strong>Name:</strong> {backup.name}</span>
-                            <span><strong>Date:</strong> {backup.date}</span>
-                            <span><strong>Type:</strong> {backup.type}</span>
-                            <button onClick={() => handleDeleteBackup(backup.id)} style={deleteButton}>Delete</button>
-                        </div>
+                        <li key={index}>
+                            <strong>Name:</strong> {backup.name} <br />
+                            <strong>Date:</strong> {backup.date} <br />
+                            <strong>Type:</strong> {backup.type}
+                            <button onClick={() => handleDeleteBackup(backup.id)}>Delete</button>
+                        </li>
                     ))}
-                </div>
-
-                <div style={adminSignup}>
-                    <h2>Create new Admin Account</h2>
-                    <button onClick={handleGenerateAdminSignupLink} style={buttonStyle}>Generate Link</button>
-                    {signupLink && (
-                        <div>
-                            <p>Admin Signup Link: <a href={signupLink} target="_blank" rel="noopener noreferrer">{signupLink}</a></p>
-                            <p>OTP: {otp}</p>
-                        </div>
-                    )}
-                </div>
+                </ul>
+            </div>
+            <div style={sectionStyle}>
+                <h2>Generate Admin Signup Link</h2>
+                <button onClick={handleGenerateAdminSignupLink}>Generate Link</button>
+                {signupLink && (
+                    <div>
+                        <p>Admin Signup Link: <a href={signupLink} target="_blank" rel="noopener noreferrer">{signupLink}</a></p>
+                        <p>OTP: {otp}</p>
+                    </div>
+                )}
             </div>
         </div>
     );
 };
 
-const container = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '20px',
-};
-
-const analyticsSection = {
-    backgroundColor: '#eef',
+const containerStyle = {
     padding: '20px',
+    backgroundColor: '#fff',
     borderRadius: '10px',
-    width: '100%',
-    maxWidth: '600px',
+    boxShadow: '0 0 10px rgba(0,0,0,0.1)',
 };
 
-const chartContainer = {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '200px',
-};
-
-const chartPlaceholder = {
-    width: '100%',
-    height: '100%',
-    backgroundColor: '#ddd',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: '10px',
-};
-
-const backupSection = {
-    backgroundColor: '#eef',
-    padding: '20px',
-    borderRadius: '10px',
-    width: '100%',
-    maxWidth: '600px',
-};
-
-const backupOptions = {
-    marginTop: '20px',
-};
-
-const backupHistoryContainer = {
-    marginTop: '20px',
-};
-
-const backupItem = {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '10px',
-    borderBottom: '1px solid #ccc',
-};
-
-const buttonStyle = {
-    padding: '10px',
-    borderRadius: '5px',
-    border: 'none',
-    backgroundColor: '#4CAF50',
-    color: 'white',
-    cursor: 'pointer',
-};
-
-const deleteButton = {
-    backgroundColor: '#ff4d4d',
-    color: 'white',
-    border: 'none',
-    padding: '5px 10px',
-    borderRadius: '5px',
-    cursor: 'pointer',
-};
-
-const adminSignup = {
-    marginTop: '20px',
+const sectionStyle = {
+    marginBottom: '20px',
 };
 
 export default SystemOverview;

@@ -1,103 +1,107 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import logo from '../../../assets/AdminLogo_XBG.png'; // Replace with the path to the admin logo
+import React, { useState } from 'react';
+import Dashboard from './Dashboard';
+import SystemOverview from './SystemOverview';
+import CommunicationTools from './CommunicationTools';
+import UserManagement from './UserManagement';
 
 const AdminMain = () => {
-    const navigate = useNavigate();
+    const [selectedSection, setSelectedSection] = useState(null);
+
+    const handleSectionClick = (section) => {
+        setSelectedSection(section);
+    };
+
+    const renderSection = () => {
+        switch (selectedSection) {
+            case 'dashboard':
+                return <Dashboard />;
+            case 'systemOverview':
+                return <SystemOverview />;
+            case 'communicationTools':
+                return <CommunicationTools />;
+            case 'userManagement':
+                return <UserManagement />;
+            default:
+                return null;
+        }
+    };
 
     return (
-        <div style={mainContainer}>
-            <div style={centerLogoContainer}>
-                <img src={logo} alt="Admin Logo" style={centerLogo} />
+        <div style={containerStyle}>
+            <div
+                style={{ ...logoStyle, ...(selectedSection ? logoPositionStyles[selectedSection] : {}) }}
+                onClick={() => setSelectedSection(null)}
+            >
+                <img src="/src/assets/AdminLogo_XBG.png" alt="Admin Logo" style={imageStyle} />
             </div>
-            <div style={sectionsContainer}>
-                <div onClick={() => navigate('/account/admin/user-management')} style={{ ...cardStyle, ...topSection }}>
-                    <h3>User Management</h3>
+            {selectedSection ? (
+                <div style={sectionContainerStyle}>{renderSection()}</div>
+            ) : (
+                <div style={mainOptionsStyle}>
+                    <div onClick={() => handleSectionClick('dashboard')} style={optionStyle}>Dashboard</div>
+                    <div onClick={() => handleSectionClick('systemOverview')} style={optionStyle}>System Overview</div>
+                    <div onClick={() => handleSectionClick('communicationTools')} style={optionStyle}>Communication Tools</div>
+                    <div onClick={() => handleSectionClick('userManagement')} style={optionStyle}>User Management</div>
                 </div>
-                <div onClick={() => navigate('/account/admin/communication-tools')} style={{ ...cardStyle, ...rightSection }}>
-                    <h3>Communication Tools</h3>
-                </div>
-                <div onClick={() => navigate('/account/admin/system-overview')} style={{ ...cardStyle, ...bottomSection }}>
-                    <h3>System Overview</h3>
-                </div>
-                <div onClick={() => navigate('/account/admin/dashboard')} style={{ ...cardStyle, ...leftSection }}>
-                    <h3>Dashboard</h3>
-                </div>
-            </div>
+            )}
         </div>
     );
 };
 
-const mainContainer = {
-    position: 'relative',
-    textAlign: 'center',
-    height: '100vh',
-    backgroundColor: '#f0f4f7',
+const containerStyle = {
     display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center'
+    height: '100vh',
+    textAlign: 'center',
+    position: 'relative',
 };
 
-const centerLogoContainer = {
-    position: 'absolute',
-    width: '200px',
-    height: '200px',
+const logoStyle = {
+    width: '150px',
+    height: '150px',
     borderRadius: '50%',
-    backgroundColor: '#fff',
+    backgroundColor: '#f0f0f0',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-    zIndex: 1
+    cursor: 'pointer',
+    transition: 'all 0.5s ease',
 };
 
-const centerLogo = {
+const logoPositionStyles = {
+    dashboard: { transform: 'translate(-50%, -50%)', top: '10%', left: '10%' },
+    systemOverview: { transform: 'translate(-50%, 0)', bottom: '10%', left: '50%' },
+    communicationTools: { transform: 'translate(0, -50%)', top: '50%', right: '10%' },
+    userManagement: { transform: 'translate(-50%, -50%)', top: '10%', left: '50%' },
+};
+
+const mainOptionsStyle = {
+    display: 'flex',
+    justifyContent: 'space-around',
+    width: '100%',
+};
+
+const optionStyle = {
+    flex: 1,
+    margin: '20px',
+    padding: '20px',
+    borderRadius: '10px',
+    backgroundColor: '#e0e0e0',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s ease',
+};
+
+const sectionContainerStyle = {
+    width: '80%',
+    marginTop: '20px',
+};
+
+const imageStyle = {
     width: '100%',
     height: '100%',
-    objectFit: 'contain',
-};
-
-const sectionsContainer = {
-    position: 'relative',
-    width: '100%',
-    height: '100%'
-};
-
-const cardStyle = {
-    position: 'absolute',
-    padding: '20px',
-    border: '1px solid #ccc',
-    borderRadius: '10px',
-    cursor: 'pointer',
-    width: '150px',
-    textAlign: 'center',
-    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-    backgroundColor: '#fff',
-    zIndex: 0
-};
-
-const topSection = {
-    top: '10%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)'
-};
-
-const rightSection = {
-    top: '50%',
-    left: '90%',
-    transform: 'translate(-50%, -50%)'
-};
-
-const bottomSection = {
-    top: '90%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)'
-};
-
-const leftSection = {
-    top: '50%',
-    left: '10%',
-    transform: 'translate(-50%, -50%)'
+    objectFit: 'cover',
 };
 
 export default AdminMain;
