@@ -1,45 +1,114 @@
 const express = require('express');
 const router = express.Router();
-const { User } = require('../models');
-const yup = require("yup");
+const jwt = require('jsonwebtoken');
+const { User, Analytics, BackupHistory } = require('../models');
+const crypto = require('crypto');
 
-// Analytics route
+// Analytics endpoint
 router.get('/analytics', async (req, res) => {
-    const analytics = [
-        { metric: 'Total Users', value: 500 },
-        { metric: 'Active Users', value: 300 },
-        { metric: 'Challenges Completed', value: 200 }
-    ];
-    res.json(analytics);
+    try {
+        const analytics = await Analytics.findAll(); // Fetch from database
+        console.log('Fetched analytics:', analytics); // Log the response
+        res.json(analytics); // Ensure it returns an array
+    } catch (error) {
+        console.error('Failed to fetch analytics:', error);
+        res.status(500).json({ error: 'Failed to fetch analytics.' });
+    }
 });
 
-// Backup history route
+// Backup history endpoint
 router.get('/backup-history', async (req, res) => {
-    const backupHistory = [
-        { id: 1, name: 'Backup A', date: '2024-01-01', type: 'Full' },
-        { id: 2, name: 'Backup B', date: '2024-02-01', type: 'Incremental' }
-    ];
-    res.json(backupHistory);
+    try {
+        const backupHistory = await BackupHistory.findAll(); // Fetch from database
+        console.log('Fetched backup history:', backupHistory); // Log the response
+        res.json(backupHistory); // Ensure it returns an array
+    } catch (error) {
+        console.error('Failed to fetch backup history:', error);
+        res.status(500).json({ error: 'Failed to fetch backup history.' });
+    }
 });
 
 // Create backup route
 router.post('/backup', async (req, res) => {
-    const newBackup = { id: 3, name: 'Backup C', date: '2024-03-01', type: 'Full' };
-    res.json(newBackup);
+    const { type, format } = req.body;
+    let data;
+
+    try {
+        switch (type) {
+            case 'analytics':
+                data = await Analytics.findAll();
+                break;
+            case 'users':
+                data = await User.findAll();
+                break;
+            case 'admin':
+                // Assuming you have an Admin model
+                data = await Admin.findAll();
+                break;
+            case 'full':
+            default:
+                data = {
+                    analytics: await Analytics.findAll(),
+                    users: await User.findAll(),
+                    // Add more data types as needed
+                };
+                break;
+        }
+
+        let filePath;
+
+        if (format === 'csv') {
+            const json2csvParser = new Parser();
+            const csv = json2csvParser.parse(data);
+            filePath = path.join(__dirname, '..', 'backups', `backup_${type}_${Date.now()}.csv`);
+            fs.writeFileSync(filePath, csv);
+        } else if (format === 'pdf') {
+            const doc = new PDFDocument();
+            filePath = path.join(__dirname, '..', 'backups', `backup_${type}_${Date.now()}.pdf`);
+            doc.pipe(fs.createWriteStream(filePath));
+            doc.text(JSON.stringify(data, null, 2));
+            doc.end();
+        }
+
+        const newBackup = await BackupHistory.create({
+            name: `Backup ${type}`,
+            date: new Date(),
+            type,
+            filePath
+        });
+
+        res.json(newBackup);
+    } catch (error) {
+        console.error('Failed to create backup:', error);
+        res.status(500).json({ error: 'Failed to create backup.' });
+    }
 });
 
 // Delete backup route
 router.delete('/backup/:id', async (req, res) => {
     const id = req.params.id;
-    res.json({ message: `Backup with id ${id} deleted successfully` });
+    try {
+        const backup = await BackupHistory.findByPk(id);
+        if (backup) {
+            fs.unlinkSync(backup.filePath); // Delete the file from the filesystem
+            await backup.destroy(); // Delete the record from the database
+            res.json({ message: `Backup with id ${id} deleted successfully` });
+        } else {
+            res.status(404).json({ error: 'Backup not found.' });
+        }
+    } catch (error) {
+        console.error('Failed to delete backup:', error);
+        res.status(500).json({ error: 'Failed to delete backup.' });
+    }
 });
 
-// Users route
-router.get("/users", async (req, res) => {
-    let users = await User.findAll({
-        order: [['createdAt', 'DESC']]
-    });
-    res.json(users);
+// Generate OTP and Admin Signup Link
+router.post('/generate-admin-signup', (req, res) => {
+    const otp = crypto.randomInt(100000, 999999).toString();
+    const token = jwt.sign({ otp }, process.env.APP_SECRET, { expiresIn: '1h' });
+    const signupLink = `http://localhost:3000/account/admin/signup?token=${token}`;
+
+    res.json({ signupLink, otp });
 });
 
 module.exports = router;

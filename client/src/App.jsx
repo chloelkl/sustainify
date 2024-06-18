@@ -19,6 +19,9 @@ import UserMain from './pages/account/user/UserMain';
 import AdminMain from './pages/account/admin/AdminMain';
 import Dashboard from './pages/account/admin/Dashboard';
 import Chatbot from './components/Chatbot';
+import Signup from './pages/account/main/Signup';
+import Login from './pages/account/main/Login';
+import AdminSignup from './pages/account/admin/AdminSignup';
 
 function App() {
   return (
@@ -39,6 +42,9 @@ function App() {
             <Route path="/account/admin/communication-tools" element={<CommunicationTools />} />
             <Route path="/account/admin/system-overview" element={<SystemOverview />} />
             <Route path="/account/admin/dashboard" element={<Dashboard />} />
+            <Route path="/account/admin/signup" element={<AdminSignup />} />
+            <Route path="/account/signup" element={<Signup />} />
+            <Route path="/account/login" element={<Login />} />
           </Routes>
         </Container>
         <Chatbot />
