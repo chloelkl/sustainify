@@ -8,6 +8,7 @@ import './fonts/Poppins.css';
 // import pages here
 import Homepage from './pages/Homepage';
 import Navbar from './components/Navbar';
+import RewardPage from './pages/rewards/RewardPage';
 
 function App() {
   return (
@@ -21,6 +22,8 @@ function App() {
             {/* add paths for each page */}
             <Route path={"/"} element={<Homepage />} />
             <Route path={"/homepage"} element={<Homepage />} />
+            <Route path={"/"} element={<RewardPage />} />
+            <Route path={"/rewards/RewardPage"} element={<RewardPage />} />
 
           </Routes>
         </Container>
