@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { IconButton } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 const AdminSignup = () => {
-    const [formData, setFormData] = useState({ fullName: '', email: '', password: '', otp: '' });
+    const [formData, setFormData] = useState({ fullName: '', email: '', password: '', confirmPassword: '', otp: '' });
     const [errors, setErrors] = useState([]);
     const [success, setSuccess] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
-    const location = useLocation();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -18,28 +20,41 @@ const AdminSignup = () => {
         setErrors([]);
         setSuccess('');
 
-        const query = new URLSearchParams(location.search);
-        const token = query.get('token');
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{4,}$/;
+        if (!passwordRegex.test(formData.password)) {
+            setErrors([{ msg: 'Password must be at least 4 characters long, contain one uppercase, one lowercase, one number, and one special character.' }]);
+            return;
+        }
+
+        if (formData.password !== formData.confirmPassword) {
+            setErrors([{ msg: 'Passwords do not match.' }]);
+            return;
+        }
 
         try {
-            const response = await axios.post(`http://localhost:3000/auth/admin-signup?token=${token}`, formData);
-            const { token: authToken, role } = response.data;
-            localStorage.setItem('token', authToken);
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/admin-signup`, formData);
             setSuccess('Admin registered successfully!');
-            navigate('/account/admin/main');
+            setTimeout(() => {
+                navigate('/account/login');
+            }, 2000);
         } catch (error) {
             setErrors(error.response ? error.response.data.errors : [{ msg: 'Server error' }]);
         }
     };
 
+    const handleClickShowPassword = () => {
+        setShowPassword(!showPassword);
+    };
+
     return (
         <div style={container}>
             <div style={leftContainer}>
-                <img src="/path/to/your/image.png" alt="Admin Signup" style={imageStyle} />
+                <img src="/mnt/data/image.png" alt="Admin Signup" style={imageStyle} />
             </div>
             <div style={rightContainer}>
-                <h2>Admin Sign Up</h2>
+                <h2 style={titleStyle}>Admin Sign Up</h2>
                 <button style={googleButtonStyle}>Continue with Google</button>
+                <div style={dividerStyle}>or</div>
                 <form onSubmit={handleSubmit} style={formStyle}>
                     <input
                         type="text"
@@ -59,15 +74,7 @@ const AdminSignup = () => {
                         required
                         style={inputStyle}
                     />
-                    <input
-                        type="password"
-                        name="password"
-                        placeholder="Password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                        style={inputStyle}
-                    />
+                    <label style={inputLabelStyle}>Enter OTP</label>
                     <input
                         type="text"
                         name="otp"
@@ -77,7 +84,45 @@ const AdminSignup = () => {
                         required
                         style={inputStyle}
                     />
-                    <button type="submit" style={buttonStyle}>Sign Up</button>
+                    <label style={inputLabelStyle}>Enter your password</label>
+                    <div style={inputContainerStyle}>
+                        <input
+                            type={showPassword ? 'text' : 'password'}
+                            name="password"
+                            placeholder="Password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            required
+                            style={passwordInputStyle}
+                        />
+                        <IconButton
+                            onClick={handleClickShowPassword}
+                            onMouseDown={(e) => e.preventDefault()}
+                            style={iconButtonStyle}
+                        >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                    </div>
+                    <label style={inputLabelStyle}>Confirm your password</label>
+                    <div style={inputContainerStyle}>
+                        <input
+                            type={showPassword ? 'text' : 'password'}
+                            name="confirmPassword"
+                            placeholder="Confirm Password"
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                            required
+                            style={passwordInputStyle}
+                        />
+                        <IconButton
+                            onClick={handleClickShowPassword}
+                            onMouseDown={(e) => e.preventDefault()}
+                            style={iconButtonStyle}
+                        >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                    </div>
+                    <button type="submit" style={submitButtonStyle}>Sign Up</button>
                 </form>
                 {errors.length > 0 && (
                     <div style={errorStyle}>
@@ -92,12 +137,12 @@ const AdminSignup = () => {
 
 const container = {
     display: 'flex',
-    height: '100vh',
+    height: 'calc(100vh - 64px)',
+    marginTop: '64px',
 };
 
 const leftContainer = {
     flex: 1,
-    backgroundColor: '#f0f0f0',
 };
 
 const imageStyle = {
@@ -113,7 +158,12 @@ const rightContainer = {
     justifyContent: 'center',
     alignItems: 'center',
     padding: '20px',
-    backgroundColor: '#fff',
+    backgroundColor: '#f0fff0',
+};
+
+const titleStyle = {
+    fontSize: '32px',
+    marginBottom: '20px',
 };
 
 const formStyle = {
@@ -123,20 +173,46 @@ const formStyle = {
     maxWidth: '400px',
 };
 
+const inputLabelStyle = {
+    fontSize: '16px',
+    marginBottom: '5px',
+};
+
 const inputStyle = {
     marginBottom: '10px',
     padding: '10px',
     borderRadius: '5px',
     border: '1px solid #ccc',
+    width: '100%',
 };
 
-const buttonStyle = {
+const inputContainerStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: '10px',
+    borderRadius: '5px',
+    border: '1px solid #ccc',
+};
+
+const passwordInputStyle = {
+    flex: 1,
+    padding: '10px',
+    border: 'none',
+    outline: 'none',
+};
+
+const iconButtonStyle = {
+    padding: '10px',
+};
+
+const submitButtonStyle = {
     padding: '10px',
     borderRadius: '5px',
     border: 'none',
     backgroundColor: '#4CAF50',
     color: 'white',
     cursor: 'pointer',
+    marginTop: '10px',
 };
 
 const googleButtonStyle = {
@@ -147,6 +223,13 @@ const googleButtonStyle = {
     borderRadius: '5px',
     cursor: 'pointer',
     marginBottom: '20px',
+    width: '100%',
+};
+
+const dividerStyle = {
+    textAlign: 'center',
+    margin: '10px 0',
+    width: '100%',
 };
 
 const errorStyle = {

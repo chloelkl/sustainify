@@ -4,6 +4,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import MyTheme from './themes/MyTheme';
 import './fonts/Poppins.css';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 import Homepage from './pages/Homepage';
 import Navbar from './components/Navbar';
@@ -25,30 +27,32 @@ import AdminSignup from './pages/account/admin/AdminSignup';
 function App() {
   return (
     <Router>
-      <ThemeProvider theme={MyTheme}>
-        <div style={{ height: '0vh', display: 'flex', flexDirection: 'column' }}>
-          <Navbar />
-        </div>
+      <AuthProvider>
+        <ThemeProvider theme={MyTheme}>
+          <div style={{ height: '0vh', display: 'flex', flexDirection: 'column' }}>
+            <Navbar />
+          </div>
           <Container>
             <Routes>
               <Route path="/" element={<Homepage />} />
-              <Route path="/account/user/main" element={<UserMain />} />
-              <Route path="/account/user/profile" element={<UserProfile userId={1} />} />
-              <Route path="/account/user/settings" element={<UserSettings userId={1} />} />
-              <Route path="/account/user/analytics" element={<UserAnalytics userId={1} />} />
-              <Route path="/account/user/chat" element={<ChatWithFriends userId={1} />} />
-              <Route path="/account/admin/main" element={<AdminMain />} />
-              <Route path="/account/admin/user-management" element={<UserManagement />} />
-              <Route path="/account/admin/communication-tools" element={<CommunicationTools />} />
-              <Route path="/account/admin/system-overview" element={<SystemOverview />} />
-              <Route path="/account/admin/dashboard" element={<Dashboard />} />
-              <Route path="/account/admin/signup" element={<AdminSignup />} />
               <Route path="/account/signup" element={<Signup />} />
               <Route path="/account/login" element={<Login />} />
+              <Route path="/account/admin/signup" element={<AdminSignup />} />
+              <Route path="/account/user/main" element={<ProtectedRoute><UserMain /></ProtectedRoute>} />
+              <Route path="/account/user/profile" element={<ProtectedRoute><UserProfile userId={1} /></ProtectedRoute>} />
+              <Route path="/account/user/settings" element={<ProtectedRoute><UserSettings userId={1} /></ProtectedRoute>} />
+              <Route path="/account/user/analytics" element={<ProtectedRoute><UserAnalytics userId={1} /></ProtectedRoute>} />
+              <Route path="/account/user/chat" element={<ProtectedRoute><ChatWithFriends userId={1} /></ProtectedRoute>} />
+              <Route path="/account/admin/main" element={<ProtectedRoute><AdminMain /></ProtectedRoute>} />
+              <Route path="/account/admin/user-management" element={<ProtectedRoute><UserManagement /></ProtectedRoute>} />
+              <Route path="/account/admin/communication-tools" element={<ProtectedRoute><CommunicationTools /></ProtectedRoute>} />
+              <Route path="/account/admin/system-overview" element={<ProtectedRoute><SystemOverview /></ProtectedRoute>} />
+              <Route path="/account/admin/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             </Routes>
           </Container>
           <Chatbot />
-      </ThemeProvider>
+        </ThemeProvider>
+      </AuthProvider>
     </Router>
   );
 }

@@ -15,6 +15,9 @@ function Homepage() {
                 <Link to="/account/admin/main" style={linkStyle}>
                     Admin Main
                 </Link>
+                <Link to="/account/user/main" style={linkStyle}>
+                    User Main
+                </Link>
             </div>
         </div>
     );

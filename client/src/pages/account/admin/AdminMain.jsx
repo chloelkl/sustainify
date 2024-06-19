@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Dashboard from './Dashboard';
 import SystemOverview from './SystemOverview';
 import CommunicationTools from './CommunicationTools';
@@ -9,6 +10,7 @@ const AdminMain = () => {
     const [isMorphed, setIsMorphed] = useState(false);
     const [showContainer, setShowContainer] = useState(false);
     const [showSectionTitles, setShowSectionTitles] = useState(true);
+    const navigate = useNavigate();
 
     const handleSectionClick = (section) => {
         setSelectedSection(section);
@@ -34,6 +36,11 @@ const AdminMain = () => {
             }, 250); // Delay to start showing container after morphing
         }
     }, [isMorphed]);
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        navigate('/account/login');
+    };
 
     const renderSection = () => {
         switch (selectedSection) {
@@ -78,6 +85,7 @@ const AdminMain = () => {
                     <div onClick={() => handleSectionClick('dashboard')} style={leftOptionStyle}>Dashboard</div>
                 </div>
             )}
+            <button onClick={handleLogout} style={logoutButtonStyle}>Logout</button>
         </div>
     );
 };
@@ -219,6 +227,19 @@ const imageStyle = {
     clipPath: 'circle(50% at 50% 50%)',
     border: '5px solid white',
     boxShadow: '0 0 15px rgba(0, 0, 0, 0.5)',
+};
+
+const logoutButtonStyle = {
+    position: 'fixed',
+    bottom: '20px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    padding: '10px',
+    borderRadius: '5px',
+    border: 'none',
+    backgroundColor: '#ff0000',
+    color: 'white',
+    cursor: 'pointer',
 };
 
 export default AdminMain;

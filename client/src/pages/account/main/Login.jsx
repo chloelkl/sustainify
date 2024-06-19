@@ -96,7 +96,6 @@ const container = {
 
 const leftContainer = {
     flex: 1,
-    backgroundColor: '#f0f0f0',
 };
 
 const imageStyle = {
@@ -112,7 +111,7 @@ const rightContainer = {
     justifyContent: 'center',
     alignItems: 'center',
     padding: '20px',
-    backgroundColor: '#fff',
+    backgroundColor: '#f0fff0',
 };
 
 const titleStyle = {
@@ -167,6 +166,7 @@ const submitButtonStyle = {
     color: 'white',
     cursor: 'pointer',
     marginTop: '10px',
+    width: '100%',
 };
 
 const googleButtonStyle = {
