@@ -4,8 +4,6 @@ import { Link } from 'react-router-dom';
 import { styled } from '@mui/system';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 
-
-// using mui to style navbar
 const StyledToolbar = styled(Toolbar)({
   display: 'flex',
   justifyContent: 'space-around',
@@ -19,7 +17,6 @@ const NavLinks = styled('div')({
 });
 
 const Logo = styled(Typography)({
-  // flexGrow: 1,
   textAlign: 'center',
 });
 
@@ -34,7 +31,7 @@ const StyledLink = styled(Link)(({ theme }) => ({
 
 function Navbar() {
   return (
-    <AppBar position="static">
+    <AppBar position="static" style={{ height: '64px' }}>
       <StyledToolbar>
         <NavLinks>
           <StyledLink to="/challenges">
@@ -46,8 +43,6 @@ function Navbar() {
           <StyledLink to="/">
             <Logo>LOGO</Logo>
           </StyledLink>
-          
-
           <StyledLink to="/forum">
             <Typography>FORUM</Typography>
           </StyledLink>
@@ -62,6 +57,5 @@ function Navbar() {
     </AppBar>
   );
 };
-
 
 export default Navbar;
