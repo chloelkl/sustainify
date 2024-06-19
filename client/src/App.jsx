@@ -9,6 +9,7 @@ import './fonts/Poppins.css';
 import Homepage from './pages/Homepage';
 import Navbar from './components/Navbar';
 import Forum from './pages/forum/Forum';
+import AddForum from './pages/forum/AddForum';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path={"/"} element={<Homepage />} />
             <Route path={"/homepage"} element={<Homepage />} />
             <Route path={"/forum"} element={<Forum />} />
+            <Route path={"/addforum"} element={<AddForum />} />
 
           </Routes>
         </Container>
