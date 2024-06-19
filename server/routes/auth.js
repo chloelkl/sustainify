@@ -9,8 +9,7 @@ const { User } = require('../models');
 router.post('/signup', [
     check('fullName').notEmpty().withMessage('Full name is required'),
     check('email').isEmail().withMessage('Enter a valid email'),
-    check('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
-    check('role').optional().isIn(['user', 'admin']).withMessage('Invalid role')
+    check('password').isLength({ min: 4 }).matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{4,}$/).withMessage('Password must be at least 4 characters long, contain one uppercase, one lowercase, one number, and one special character.'),
 ], async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

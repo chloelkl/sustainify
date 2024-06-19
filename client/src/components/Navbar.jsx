@@ -1,5 +1,5 @@
-import React from "react";
-import { AppBar, Toolbar, Typography, IconButton } from "@mui/material";
+import React from 'react';
+import { AppBar, Toolbar, Typography, IconButton } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { styled } from '@mui/system';
 import AccountCircle from '@mui/icons-material/AccountCircle';
@@ -13,7 +13,7 @@ const NavLinks = styled('div')({
   display: 'flex',
   alignItems: 'center',
   width: '100%',
-  justifyContent: 'space-around'
+  justifyContent: 'space-around',
 });
 
 const Logo = styled(Typography)({
@@ -31,7 +31,7 @@ const StyledLink = styled(Link)(({ theme }) => ({
 
 function Navbar() {
   return (
-    <AppBar position="static" style={{ height: '64px' }}>
+    <AppBar position="fixed" style={{ zIndex: 1300 }}>
       <StyledToolbar>
         <NavLinks>
           <StyledLink to="/challenges">
@@ -56,6 +56,6 @@ function Navbar() {
       </StyledToolbar>
     </AppBar>
   );
-};
+}
 
 export default Navbar;
