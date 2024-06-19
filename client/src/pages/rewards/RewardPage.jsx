@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, TextField, AccessTime, Search, Clear, Edit } from '@mui/material';
+import { Box, Typography, TextField, Button } from '@mui/material';
 import dayjs from 'dayjs';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
 
 function RewardPage() {
   const expiryTime = dayjs().add(72, 'hour'); // Set expiry time 72 hours from now
@@ -19,7 +21,6 @@ function RewardPage() {
     return { hours, minutes, seconds };
   }
 
-
   // Function to update time left every second
   useEffect(() => {
     const timer = setInterval(() => {
@@ -28,6 +29,30 @@ function RewardPage() {
 
     return () => clearInterval(timer);
   }, []);
+
+  // Formik setup for handling form values and validation
+  const formik = useFormik({
+    initialValues: {
+      title: '',
+      description: '',
+    },
+    validationSchema: yup.object({
+      title: yup.string().trim()
+        .min(3, 'Title must be at least 3 characters')
+        .max(100, 'Title must be at most 100 characters')
+        .required('Title is required'),
+      description: yup.string().trim()
+        .min(3, 'Description must be at least 3 characters')
+        .max(500, 'Description must be at most 500 characters')
+        .required('Description is required'),
+    }),
+    onSubmit: (data) => {
+      data.title = data.title.trim();
+      data.description = data.description.trim();
+      // Replace with your HTTP POST logic (e.g., http.post("/tutorial", data))
+      console.log(data); // For demonstration purposes
+    },
+  });
 
   return (
     <>
@@ -39,27 +64,40 @@ function RewardPage() {
         <Typography>Voucher Reset: {timeLeft.hours}:{timeLeft.minutes}:{timeLeft.seconds}</Typography>
       </Box>
 
-      <Box>
-        <Typography variant="h5" sx={{ my: 2 }}>
-          Add Tutorial
-        </Typography>
-        <Box component="form">
-          <TextField
-            fullWidth margin="dense" autoComplete="off"
-            label="Title"
-            name="title"
-          />
-          <TextField
-            fullWidth margin="dense" autoComplete="off"
-            multiline minRows={2}
-            label="Description"
-            name="description"
-          />
-          <Box sx={{ mt: 2 }}>
-            <Button variant="contained" type="submit">
-              Add
-            </Button>
-          </Box>
+      {/* TextField for Title */}
+      <TextField
+        fullWidth
+        margin="normal"
+        autoComplete="off"
+        label="Title"
+        name="title"
+        value={formik.values.title}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.title && Boolean(formik.errors.title)}
+        helperText={formik.touched.title && formik.errors.title}
+      />
+
+      {/* Form with Submit Button */}
+      <Box component="form" onSubmit={formik.handleSubmit}>
+        <TextField
+          fullWidth
+          margin="normal"
+          autoComplete="off"
+          multiline
+          minRows={2}
+          label="Description"
+          name="description"
+          value={formik.values.description}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          error={formik.touched.description && Boolean(formik.errors.description)}
+          helperText={formik.touched.description && formik.errors.description}
+        />
+        <Box sx={{ mt: 2 }}>
+          <Button variant="contained" type="submit">
+            Add
+          </Button>
         </Box>
       </Box>
     </>
