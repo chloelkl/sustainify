@@ -51,7 +51,7 @@ function Navbar() {
           <StyledLink to="/forum">
             <Typography>FORUM</Typography>
           </StyledLink>
-          <StyledLink to="/rewards">
+          <StyledLink to="/rewards/RewardPage">
             <Typography>REWARDS</Typography>
           </StyledLink>
           <IconButton color="inherit">
