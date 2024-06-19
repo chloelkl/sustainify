@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { IconButton } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [errors, setErrors] = useState([]);
     const [success, setSuccess] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -18,7 +21,7 @@ const Login = () => {
         setSuccess('');
 
         try {
-            const response = await axios.post('http://localhost:3000/auth/login', formData);
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, formData);
             const { token, role } = response.data;
             localStorage.setItem('token', token);
             setSuccess('User logged in successfully!');
@@ -28,15 +31,22 @@ const Login = () => {
         }
     };
 
+    const handleClickShowPassword = () => {
+        setShowPassword(!showPassword);
+    };
+
     return (
         <div style={container}>
             <div style={leftContainer}>
-                <img src="/mnt/data/image.png" alt="Login" style={imageStyle} />
+                <img src="/src/assets/DBrand_Wallpaper.jpg" alt="Login" style={imageStyle} />
             </div>
             <div style={rightContainer}>
-                <h2>Login</h2>
+                <h2 style={titleStyle}>Login</h2>
                 <button style={googleButtonStyle}>Continue with Google</button>
+                <div style={dividerStyle}>or</div>
+                <p style={loginTextStyle}>Don't have an account yet? <a href="/account/signup" style={loginLinkStyle}>Sign up here!</a></p>
                 <form onSubmit={handleSubmit} style={formStyle}>
+                    <label style={inputLabelStyle}>Enter your <strong>email</strong></label>
                     <input
                         type="email"
                         name="email"
@@ -46,16 +56,26 @@ const Login = () => {
                         required
                         style={inputStyle}
                     />
-                    <input
-                        type="password"
-                        name="password"
-                        placeholder="Password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                        style={inputStyle}
-                    />
-                    <button type="submit" style={buttonStyle}>Login</button>
+                    <label style={inputLabelStyle}>and <strong>password</strong>!</label>
+                    <div style={inputContainerStyle}>
+                        <input
+                            type={showPassword ? 'text' : 'password'}
+                            name="password"
+                            placeholder="Password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            required
+                            style={passwordInputStyle}
+                        />
+                        <IconButton
+                            onClick={handleClickShowPassword}
+                            onMouseDown={(e) => e.preventDefault()}
+                            style={iconButtonStyle}
+                        >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                    </div>
+                    <button type="submit" style={submitButtonStyle}>Login</button>
                 </form>
                 {errors.length > 0 && (
                     <div style={errorStyle}>
@@ -95,6 +115,11 @@ const rightContainer = {
     backgroundColor: '#fff',
 };
 
+const titleStyle = {
+    fontSize: '32px',
+    marginBottom: '20px',
+};
+
 const formStyle = {
     display: 'flex',
     flexDirection: 'column',
@@ -102,20 +127,46 @@ const formStyle = {
     maxWidth: '400px',
 };
 
+const inputLabelStyle = {
+    fontSize: '16px',
+    marginBottom: '5px',
+};
+
 const inputStyle = {
     marginBottom: '10px',
     padding: '10px',
     borderRadius: '5px',
     border: '1px solid #ccc',
+    width: '100%',
 };
 
-const buttonStyle = {
+const inputContainerStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: '10px',
+    borderRadius: '5px',
+    border: '1px solid #ccc',
+};
+
+const passwordInputStyle = {
+    flex: 1,
+    padding: '10px',
+    border: 'none',
+    outline: 'none',
+};
+
+const iconButtonStyle = {
+    padding: '10px',
+};
+
+const submitButtonStyle = {
     padding: '10px',
     borderRadius: '5px',
     border: 'none',
     backgroundColor: '#4CAF50',
     color: 'white',
     cursor: 'pointer',
+    marginTop: '10px',
 };
 
 const googleButtonStyle = {
@@ -126,6 +177,22 @@ const googleButtonStyle = {
     borderRadius: '5px',
     cursor: 'pointer',
     marginBottom: '20px',
+    width: '100%',
+};
+
+const dividerStyle = {
+    textAlign: 'center',
+    margin: '10px 0',
+    width: '100%',
+};
+
+const loginTextStyle = {
+    marginBottom: '20px',
+};
+
+const loginLinkStyle = {
+    color: '#4285F4',
+    textDecoration: 'none',
 };
 
 const errorStyle = {

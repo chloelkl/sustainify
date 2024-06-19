@@ -33,7 +33,7 @@ router.post('/signup', [
 
         res.status(201).json({ token, role: newUser.role });
     } catch (error) {
-        console.error(error);
+        console.error('Signup error:', error); // Add detailed logging here
         res.status(500).json({ errors: [{ msg: 'Server error' }] });
     }
 });
@@ -66,7 +66,7 @@ router.post('/login', [
 
         res.status(200).json({ token, role: user.role });
     } catch (error) {
-        console.error(error);
+        console.error('Login error:', error); // Add detailed logging here
         res.status(500).json({ errors: [{ msg: 'Server error' }] });
     }
 });
