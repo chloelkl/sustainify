@@ -9,6 +9,11 @@ import './fonts/Poppins.css';
 import Homepage from './pages/Homepage';
 import Navbar from './components/Navbar';
 
+// Challenges
+import DailyChallenge from './pages/challenges/DailyChallenge';
+import ManageTask from './pages/challenges/ManageTask';
+
+
 function App() {
   return (
     <Router>
@@ -21,6 +26,10 @@ function App() {
             {/* add paths for each page */}
             <Route path={"/"} element={<Homepage />} />
             <Route path={"/homepage"} element={<Homepage />} />
+
+            {/* challenges */}
+            <Route path={"/challenges"} element={<DailyChallenge />}/>
+            <Route path={"/challenges/manage"} element={<ManageTask />}/>
 
           </Routes>
         </Container>
