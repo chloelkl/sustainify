@@ -3,6 +3,7 @@ import { AppBar, Toolbar, Typography, IconButton } from "@mui/material";
 import { Link } from 'react-router-dom';
 import { styled } from '@mui/system';
 import AccountCircle from '@mui/icons-material/AccountCircle';
+import theme from '../themes/MyTheme.js';
 
 
 // using mui to style navbar
@@ -25,7 +26,7 @@ const Logo = styled(Typography)({
 
 const StyledLink = styled(Link)(({ theme }) => ({
   margin: theme.spacing(1),
-  color: 'white',
+  color: theme.palette.secondary.light,
   textDecoration: 'none',
   '&:hover': {
     textDecoration: 'underline',
