@@ -11,6 +11,9 @@ const theme = createTheme({
       light: '#FFFFFF', // white
       main: '#F1FFE8', // background colour
       dark: '#000000' // black
+    },
+    error: {
+      main: '#C10000'
     }
   },
   typography: {
