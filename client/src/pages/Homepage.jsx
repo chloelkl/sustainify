@@ -6,12 +6,6 @@ function Homepage() {
         <div style={containerStyle}>
             <h1>Homepage</h1>
             <div style={linkContainerStyle}>
-                <Link to="/account/signup" style={linkStyle}>
-                    Sign Up
-                </Link>
-                <Link to="/account/login" style={linkStyle}>
-                    Login
-                </Link>
                 <Link to="/account/admin/main" style={linkStyle}>
                     Admin Main
                 </Link>
