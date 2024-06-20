@@ -4,28 +4,43 @@ import { styled } from '@mui/system';
 import { Link } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, IconButton } from "@mui/material";
 
-const Sidebar = styled('div')({
-  width: '100px',
-  height: '100px',
-  background: theme.palette.primary.light
+const StyledContainer = styled('div')({
+  margin: '5vh 2vw',
+  display: 'flex',
+  justifyContent: 'space-around'
 });
-const StyledSideLink = styled(Link)({
-  color: theme.palette.secondary.light,
-  textDecoration: 'none',
-  '&:hover': {
-    background: theme.palette.primary.main,
-  },
+
+const PlaceholderSidebar = styled('div')({
+  width: '20vw',
+  height: '80vh',
+  background: theme.palette.primary.light,
 });
+
+const ManageParent = styled('div')({
+  width: '80vw',
+  height: '80vh',
+})
+
+const DailyContainer = styled('div')({
+  width: '80%',
+  height: '80%',
+  background: theme.palette.secondary.light,
+  margin: '5% auto',
+  overflow: 'auto'
+})
 
 
 function DailyChallenge() {
 
   return (
-    <Sidebar>
-      <StyledSideLink>
-        <Typography>weifekl</Typography>
-      </StyledSideLink>
-    </Sidebar>
+    <StyledContainer>
+      <PlaceholderSidebar></PlaceholderSidebar>
+      <ManageParent>
+        <DailyContainer sx={{ boxShadow: 2 }}>
+
+        </DailyContainer>
+      </ManageParent>
+    </StyledContainer>
   );
 }
 
