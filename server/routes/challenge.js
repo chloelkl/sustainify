@@ -16,7 +16,7 @@ router.post("/add", async (req, res) => {
     // make sure date does not overlap
     const existingChallenge = await Challenge.findOne({ where: { date: data.date } });
     if (existingChallenge) {
-      return res.status(400).json({ error: 'A challenge with this date already exists.' });
+      return res.status(400).json({ errors: 'A challenge with this date already exists.' });
     }
 
     let result = await Challenge.create(data); // .create() used to insert data into DB table
