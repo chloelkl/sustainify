@@ -32,7 +32,8 @@ const ManageContainer = styled('div')({
   height: '80%',
   background: theme.palette.secondary.light,
   margin: '5% auto',
-  overflow: 'auto'
+  overflow: 'auto',
+  boxShadow: '',
 })
 
 const Add = styled(Button)({
@@ -164,6 +165,12 @@ function ManageTask() {
       console.error('Error fetching challenges:', error);
     }
   };
+
+  const filteredChallenges = challenges.filter(chal => {
+    const challengeDate = dayjs(chal.date);
+    const tomorrow = dayjs().add(1, 'day').startOf('day');
+    return challengeDate.isAfter(tomorrow) || challengeDate.isSame(tomorrow, 'day');
+  });
 
   const handleChallengeChange = (e) => {
     setChallenge(e.target.value);
@@ -317,7 +324,7 @@ function ManageTask() {
           <hr style={{ width: '95%', margin: '0 auto', height: '.5px', background: 'black' }} />
 
           <div>
-            {challenges.map((chal, index) => (
+            {filteredChallenges.map((chal, index) => (
               <div key={index}>
                 <Cont>
                   <Typography width="15%">{dayjs(chal.date).format('DD/MM/YYYY')}</Typography>
