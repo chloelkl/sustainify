@@ -38,10 +38,11 @@ function AddForum() {
         }),
         onSubmit: (data) => {
             // User Account
+            data.name = userName;
             data.title = data.title.trim();
             data.description = data.description.trim();
             // image handling
-            http.post("/forum", data)
+            http.post("http://localhost:3001/forum", data)
                 .then((res) => {
                     console.log(res.data);
                     navigate("/forum");
