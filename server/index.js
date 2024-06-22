@@ -35,6 +35,9 @@ app.use("/event", eventRoute);
 const testRoute = require('./routes/test');
 app.use("/test", testRoute);
 
+const forumRoute = require('./routes/forum');
+app.use("/forum", forumRoute);
+
 // Start server after synchronising the DB files under models folder
 const db = require('./models');
 db.sequelize.sync({ alter: false })
