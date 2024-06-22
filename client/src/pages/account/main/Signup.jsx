@@ -5,10 +5,19 @@ import { IconButton } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 const Signup = () => {
-    const [formData, setFormData] = useState({ fullName: '', email: '', password: '', confirmPassword: '', role: 'user' });
+    const [formData, setFormData] = useState({
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        phoneNumber: '',
+        countryCode: '+65',
+        role: 'user'
+    });
     const [errors, setErrors] = useState([]);
     const [success, setSuccess] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -48,6 +57,10 @@ const Signup = () => {
         setShowPassword(!showPassword);
     };
 
+    const handleClickShowConfirmPassword = () => {
+        setShowConfirmPassword(!showConfirmPassword);
+    };
+
     return (
         <div style={container}>
             <div style={leftContainer}>
@@ -59,12 +72,12 @@ const Signup = () => {
                 <div style={dividerStyle}>or</div>
                 <p style={loginTextStyle}>Have an account already? <a href="/account/login" style={loginLinkStyle}>Login here!</a></p>
                 <form onSubmit={handleSubmit} style={formStyle}>
-                    <label style={inputLabelStyle}>Enter your <strong>full name</strong></label>
+                    <label style={inputLabelStyle}>Enter your <strong>username</strong></label>
                     <input
                         type="text"
-                        name="fullName"
-                        placeholder="Full Name"
-                        value={formData.fullName}
+                        name="username"
+                        placeholder="Username"
+                        value={formData.username}
                         onChange={handleChange}
                         required
                         style={inputStyle}
@@ -100,7 +113,7 @@ const Signup = () => {
                     </div>
                     <div style={inputContainerStyle}>
                         <input
-                            type={showPassword ? 'text' : 'password'}
+                            type={showConfirmPassword ? 'text' : 'password'}
                             name="confirmPassword"
                             placeholder="One more time!"
                             value={formData.confirmPassword}
@@ -109,12 +122,32 @@ const Signup = () => {
                             style={passwordInputStyle}
                         />
                         <IconButton
-                            onClick={handleClickShowPassword}
+                            onClick={handleClickShowConfirmPassword}
                             onMouseDown={(e) => e.preventDefault()}
                             style={iconButtonStyle}
                         >
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                            {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                         </IconButton>
+                    </div>
+                    <label style={inputLabelStyle}>Enter your <strong>phone number</strong></label>
+                    <div style={phoneContainerStyle}>
+                        <select
+                            name="countryCode"
+                            value={formData.countryCode}
+                            onChange={handleChange}
+                            style={selectStyle}
+                        >
+                            <option value="+65">Singapore (+65)</option>
+                            <option value="+60">Malaysia (+60)</option>
+                        </select>
+                        <input
+                            type="text"
+                            name="phoneNumber"
+                            placeholder="Phone Number"
+                            value={formData.phoneNumber}
+                            onChange={handleChange}
+                            style={inputStyle}
+                        />
                     </div>
                     <button type="submit" style={submitButtonStyle}>Sign Up</button>
                 </form>
@@ -184,6 +217,18 @@ const inputContainerStyle = {
     display: 'flex',
     alignItems: 'center',
     marginBottom: '10px',
+    borderRadius: '5px',
+    border: '1px solid #ccc',
+};
+
+const phoneContainerStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+};
+
+const selectStyle = {
+    padding: '10px',
     borderRadius: '5px',
     border: '1px solid #ccc',
 };
