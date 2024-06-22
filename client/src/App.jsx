@@ -10,6 +10,7 @@ import Homepage from './pages/Homepage';
 import Navbar from './components/Navbar';
 import Forum from './pages/forum/Forum';
 import AddForum from './pages/forum/AddForum';
+import UserForum from './pages/forum/UserForum';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <Route path={"/homepage"} element={<Homepage />} />
             <Route path={"/forum"} element={<Forum />} />
             <Route path={"/addforum"} element={<AddForum />} />
+            <Route path={"/userforum"} element={<UserForum />} />
 
           </Routes>
         </Container>
