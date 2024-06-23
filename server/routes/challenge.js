@@ -99,4 +99,29 @@ router.delete("/delete/:id", async (req, res) => {
   }
 });
 
+router.get("/getDaily", async (req, res) => {
+  const today = new Date();
+  const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+  const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+
+  try {
+    let list = await Challenge.findOne({
+      where: {
+        date: {
+          [Op.between]: [startOfDay, endOfDay]
+        }
+      }
+    });
+
+    if (list) {
+      res.json(list);
+    } else {
+      res.status(404).json({ message: "No challenge found for today!" });
+    }
+  } catch (error) {
+    console.error('Error fetching today\'s challenge:', error);
+    res.status(500).json({ message: 'An error occurred while fetching today\'s challenge' });
+  }
+});
+
 module.exports = router;
