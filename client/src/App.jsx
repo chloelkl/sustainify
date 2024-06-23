@@ -12,6 +12,7 @@ import Navbar from './components/Navbar';
 // Challenges
 import DailyChallenge from './pages/challenges/DailyChallenge';
 import ManageTask from './pages/challenges/ManageTask';
+import PastChallenges from './pages/challenges/PastChallenges';
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
             {/* challenges */}
             <Route path={"/challenges"} element={<DailyChallenge />}/>
             <Route path={"/challenges/manage"} element={<ManageTask />}/>
+            <Route path={"/challenges/past"} element={<PastChallenges />} />
 
           </Routes>
         </Container>
