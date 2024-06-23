@@ -80,18 +80,18 @@ const NewChal = styled(TextField)({
   margin: '2vh auto 0',
   '& .MuiInputBase-input': {
     height: '15px',
-    fontSize: '.7rem',
+    fontSize: '.8rem',
     '& input': {
       height: '15px',
     }
   },
   '& .MuiInputLabel-root': {
-    fontSize: '.7rem'
+    fontSize: '.8rem'
   }
 });
 
 const Response = styled(Typography)(({ type }) => ({
-  fontSize: '.6rem',
+  fontSize: '.7rem',
   fontWeight: 'bold',
   width: '100%',
   textAlign: 'center',
@@ -107,7 +107,7 @@ const Cont = styled('div')({
   height: '5vh',
 
   '& .MuiTypography-root': {
-    fontSize: '.7rem',
+    fontSize: '.8rem',
     verticalAlign: 'center',
     margin: 'auto 0'
   }
