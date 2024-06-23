@@ -75,6 +75,23 @@ const SelectDate = styled(DatePicker)({
     margin: '-5px'
   }
 })
+
+const ModalDate = styled(DatePicker)({
+  width: '20%',
+  margin: '2vh auto 0',
+  '& .MuiInputBase-root': {
+    height: '40px',
+    '& input': {
+      height: '40px',
+      fontSize: '.8rem'
+    }
+  },
+  '& .MuiSvgIcon-root': {
+    fontSize: '1rem',
+    margin: '-5px'
+  }
+})
+
 const NewChal = styled(TextField)({
   width: '60%',
   margin: '2vh auto 0',
@@ -83,6 +100,21 @@ const NewChal = styled(TextField)({
     fontSize: '.8rem',
     '& input': {
       height: '15px',
+    }
+  },
+  '& .MuiInputLabel-root': {
+    fontSize: '.8rem'
+  }
+});
+
+const ModalChal = styled(TextField)({
+  width: '75%',
+  margin: '2vh auto 0',
+  '& .MuiInputBase-input': {
+    height: '23px',
+    fontSize: '.8rem',
+    '& input': {
+      height: '23px',
     }
   },
   '& .MuiInputLabel-root': {
@@ -136,7 +168,7 @@ const SelectDelete = styled(DeleteOutlineOutlinedIcon)({
 const ModalBox = styled(Box)({
   width: '60%',
   background: 'white',
-  margin: '20% auto',
+  margin: '5% auto',
   padding: '5%'
 })
 
@@ -344,23 +376,23 @@ function ManageTask() {
       {/* for manage modal pop ups */}
       <Modal open={openManageModal} onClose={handleManageClose}>
         <ModalBox>
-            <Typography>Edit Challenge</Typography>
-            <hr/>
+          <Typography>Edit Challenge</Typography>
+          <hr />
 
           <form onSubmit={handleEdit} style={{ width: '100%', }} >
-            <div style={{display: 'flex', justifyContent: 'center'}}>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <SelectDate sx={{width: '20%'}} value={currentDate} onChange={handleDateEdit} minDate={dayjs()} format="DD/MM/YYYY" />
+                <ModalDate value={currentDate} onChange={handleDateEdit} minDate={dayjs()} format="DD/MM/YYYY" />
               </LocalizationProvider>
 
-              <NewChal sx={{width: '75%'}} value={currentChallenge} onChange={handleChallengeEdit} label="Edit challenge" size="small"></NewChal>
+              <ModalChal value={currentChallenge} onChange={handleChallengeEdit} label="Edit challenge" size="small"></ModalChal>
             </div>
             {<Response type={responseType}>{responseMessage}</Response>}
-            <div style={{margin: '5% auto 0', width:'40%', display: 'flex', justifyContent: 'space-between'}}>
+            <div style={{ margin: '5% auto 0', width: '40%', display: 'flex', justifyContent: 'space-between' }}>
               <Close onClick={handleManageClose}>Close</Close>
-              <Add sx={{width: '45%'}} type="submit">Confirm</Add>
+              <Add sx={{ width: '45%' }} type="submit">Confirm</Add>
             </div>
-            
+
           </form>
         </ModalBox>
       </Modal>
@@ -368,22 +400,22 @@ function ManageTask() {
       {/* for delete modal pop ups */}
       <Modal open={openDeleteModal} onClose={handleDeleteClose}>
         <ModalBox>
-            <Typography>Are you sure you want to Delete:</Typography>
-            <hr/>
+          <Typography>Are you sure you want to Delete:</Typography>
+          <hr />
 
-            <div style={{display: 'flex', justifyContent: 'center'}}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <SelectDate disabled sx={{width: '20%'}} value={currentDate}format="DD/MM/YYYY" />
-              </LocalizationProvider>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <ModalDate disabled sx={{ width: '20%' }} value={currentDate} format="DD/MM/YYYY" />
+            </LocalizationProvider>
 
-              <NewChal disabled sx={{width: '75%'}} value={currentChallenge} label="Challenge" size="small"></NewChal>
-            </div>
-            {<Response type={responseType}>{responseMessage}</Response>}
-            <div style={{margin: '5% auto 0', width:'40%', display: 'flex', justifyContent: 'space-between'}}>
-              <Close onClick={handleDeleteClose}>Close</Close>
-              <Add sx={{width: '45%', background: theme.palette.error.main}} onClick={handleDeleteConfirm}>Delete</Add>
-            </div>
-            
+            <ModalChal disabled sx={{ width: '75%' }} value={currentChallenge} label="Challenge" size="small"></ModalChal>
+          </div>
+          {<Response type={responseType}>{responseMessage}</Response>}
+          <div style={{ margin: '5% auto 0', width: '40%', display: 'flex', justifyContent: 'space-between' }}>
+            <Close onClick={handleDeleteClose}>Close</Close>
+            <Add sx={{ width: '45%', background: theme.palette.error.main }} onClick={handleDeleteConfirm}>Delete</Add>
+          </div>
+
         </ModalBox>
       </Modal>
 
