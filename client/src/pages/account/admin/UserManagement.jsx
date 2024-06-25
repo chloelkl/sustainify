@@ -3,7 +3,9 @@ import axios from 'axios';
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [editMode, setEditMode] = useState(false);
+    const [search, setSearch] = useState('');
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -11,7 +13,7 @@ const UserManagement = () => {
     }, []);
 
     const fetchUsers = () => {
-        axios.get('http://localhost:3000/admin/users')
+        axios.get('http://localhost:5000/admin/users')
             .then(response => {
                 console.log('Users response:', response.data);
                 if (Array.isArray(response.data)) {
@@ -26,15 +28,43 @@ const UserManagement = () => {
             });
     };
 
-    const handleRemoveUser = (id) => {
-        axios.delete(`http://localhost:3000/admin/users/${id}`)
+    const handleSearch = () => {
+        // Implement search functionality here if needed
+    };
+
+    const handleSelectUser = (user) => {
+        setSelectedUser(user);
+        setEditMode(false);
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setSelectedUser(prevState => ({ ...prevState, [name]: value }));
+    };
+
+    const handleSave = () => {
+        axios.put(`http://localhost:5000/admin/user/${selectedUser.id}`, selectedUser)
             .then(response => {
                 console.log(response.data);
+                setEditMode(false);
                 fetchUsers();
             })
             .catch(error => {
-                console.error("There was an error removing the user!", error);
-                setError('Failed to remove user.');
+                console.error("There was an error updating the user!", error);
+                setError('Failed to update user.');
+            });
+    };
+
+    const handleDelete = () => {
+        axios.delete(`http://localhost:5000/admin/user/${selectedUser.id}`)
+            .then(response => {
+                console.log(response.data);
+                setSelectedUser(null);
+                fetchUsers();
+            })
+            .catch(error => {
+                console.error("There was an error deleting the user!", error);
+                setError('Failed to delete user.');
             });
     };
 
@@ -43,99 +73,51 @@ const UserManagement = () => {
     }
 
     return (
-        <div style={containerStyle}>
-            <div style={searchContainerStyle}>
-                <label style={labelStyle}>
-                    Search by: 
-                    <select style={selectStyle}>
-                        <option value="name">Name</option>
-                        <option value="email">Email</option>
-                        {/* Add more search options as needed */}
-                    </select>
-                </label>
-                <input
-                    type="text"
-                    placeholder="Search"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={inputStyle}
-                />
+        <div>
+            <input 
+                type="text" 
+                placeholder="Search by name" 
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+            />
+            <button onClick={handleSearch}>Search</button>
+            <div>
+                <h2>User List</h2>
+                <ul>
+                    {users.map(user => (
+                        <li key={user.id} onClick={() => handleSelectUser(user)}>
+                            {user.fullName} - {user.email}
+                        </li>
+                    ))}
+                </ul>
             </div>
-            <ul style={listStyle}>
-                {users.filter(user => user.name.includes(searchTerm)).map((user, index) => (
-                    <li key={index} style={listItemStyle}>
-                        <span>{user.name}</span>
-                        <button style={viewButtonStyle}>View Data</button>
-                        <button style={removeButtonStyle} onClick={() => handleRemoveUser(user.id)}>Remove User</button>
-                    </li>
-                ))}
-            </ul>
+            {selectedUser && (
+                <div>
+                    {editMode ? (
+                        <div>
+                            <input type="text" name="fullName" value={selectedUser.fullName} onChange={handleChange} />
+                            <input type="email" name="email" value={selectedUser.email} onChange={handleChange} />
+                            <input type="password" name="password" value={selectedUser.password} onChange={handleChange} />
+                            <textarea name="bio" value={selectedUser.bio} onChange={handleChange} />
+                            <input type="text" name="location" value={selectedUser.location} onChange={handleChange} />
+                            <input type="number" name="points" value={selectedUser.points} onChange={handleChange} />
+                            <button onClick={handleSave}>Save</button>
+                        </div>
+                    ) : (
+                        <div>
+                            <h2>{selectedUser.fullName}</h2>
+                            <p>{selectedUser.email}</p>
+                            <p>{selectedUser.bio}</p>
+                            <p>{selectedUser.location}</p>
+                            <p>{selectedUser.points}</p>
+                            <button onClick={() => setEditMode(true)}>Edit</button>
+                            <button onClick={handleDelete}>Delete</button>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
-};
-
-const containerStyle = {
-    padding: '20px',
-    backgroundColor: '#fff',
-    borderRadius: '10px',
-    boxShadow: '0 0 10px rgba(0,0,0,0.1)',
-};
-
-const searchContainerStyle = {
-    display: 'flex',
-    marginBottom: '20px',
-};
-
-const labelStyle = {
-    marginRight: '10px',
-};
-
-const selectStyle = {
-    marginRight: '10px',
-    padding: '5px',
-    borderRadius: '5px',
-    border: '1px solid #ccc',
-};
-
-const inputStyle = {
-    padding: '5px',
-    borderRadius: '5px',
-    border: '1px solid #ccc',
-    flex: 1,
-};
-
-const listStyle = {
-    listStyleType: 'none',
-    padding: '0',
-};
-
-const listItemStyle = {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '10px',
-    backgroundColor: '#f9f9f9',
-    borderRadius: '5px',
-    marginBottom: '10px',
-};
-
-const viewButtonStyle = {
-    padding: '5px',
-    borderRadius: '5px',
-    border: 'none',
-    backgroundColor: '#3498db',
-    color: 'white',
-    cursor: 'pointer',
-    marginRight: '10px',
-};
-
-const removeButtonStyle = {
-    padding: '5px',
-    borderRadius: '5px',
-    border: 'none',
-    backgroundColor: '#e74c3c',
-    color: 'white',
-    cursor: 'pointer',
 };
 
 export default UserManagement;
