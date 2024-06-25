@@ -3,30 +3,33 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { User, Analytics, BackupHistory } = require('../models');
 const crypto = require('crypto');
-const verifyToken = require('../middleware/auth');
 
 // Analytics endpoint
-router.get('/analytics', verifyToken, async (req, res) => {
+router.get('/analytics', async (req, res) => {
     try {
-        const analytics = await Analytics.findAll();
-        res.json(analytics);
+        const analytics = await Analytics.findAll(); // Fetch from database
+        console.log('Fetched analytics:', analytics); // Log the response
+        res.json(analytics); // Ensure it returns an array
     } catch (error) {
+        console.error('Failed to fetch analytics:', error);
         res.status(500).json({ error: 'Failed to fetch analytics.' });
     }
 });
 
 // Backup history endpoint
-router.get('/backup-history', verifyToken, async (req, res) => {
+router.get('/backup-history', async (req, res) => {
     try {
-        const backupHistory = await BackupHistory.findAll();
-        res.json(backupHistory);
+        const backupHistory = await BackupHistory.findAll(); // Fetch from database
+        console.log('Fetched backup history:', backupHistory); // Log the response
+        res.json(backupHistory); // Ensure it returns an array
     } catch (error) {
+        console.error('Failed to fetch backup history:', error);
         res.status(500).json({ error: 'Failed to fetch backup history.' });
     }
 });
 
 // Create backup route
-router.post('/backup', verifyToken, async (req, res) => {
+router.post('/backup', async (req, res) => {
     const { type, format } = req.body;
     let data;
 
@@ -39,6 +42,7 @@ router.post('/backup', verifyToken, async (req, res) => {
                 data = await User.findAll();
                 break;
             case 'admin':
+                // Assuming you have an Admin model
                 data = await Admin.findAll();
                 break;
             case 'full':
@@ -46,6 +50,7 @@ router.post('/backup', verifyToken, async (req, res) => {
                 data = {
                     analytics: await Analytics.findAll(),
                     users: await User.findAll(),
+                    // Add more data types as needed
                 };
                 break;
         }
@@ -74,32 +79,34 @@ router.post('/backup', verifyToken, async (req, res) => {
 
         res.json(newBackup);
     } catch (error) {
+        console.error('Failed to create backup:', error);
         res.status(500).json({ error: 'Failed to create backup.' });
     }
 });
 
 // Delete backup route
-router.delete('/backup/:id', verifyToken, async (req, res) => {
+router.delete('/backup/:id', async (req, res) => {
     const id = req.params.id;
     try {
         const backup = await BackupHistory.findByPk(id);
         if (backup) {
-            fs.unlinkSync(backup.filePath);
-            await backup.destroy();
+            fs.unlinkSync(backup.filePath); // Delete the file from the filesystem
+            await backup.destroy(); // Delete the record from the database
             res.json({ message: `Backup with id ${id} deleted successfully` });
         } else {
             res.status(404).json({ error: 'Backup not found.' });
         }
     } catch (error) {
+        console.error('Failed to delete backup:', error);
         res.status(500).json({ error: 'Failed to delete backup.' });
     }
 });
 
 // Generate OTP and Admin Signup Link
-router.post('/generate-admin-signup', verifyToken, (req, res) => {
+router.post('/generate-admin-signup', (req, res) => {
     const otp = crypto.randomInt(100000, 999999).toString();
     const token = jwt.sign({ otp }, process.env.APP_SECRET, { expiresIn: '1h' });
-    const signupLink = `${process.env.CLIENT_URL}/account/admin/signup?token=${token}`;
+    const signupLink = `http://localhost:3000/account/admin/signup?token=${token}`;
 
     res.json({ signupLink, otp });
 });

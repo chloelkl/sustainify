@@ -4,27 +4,6 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { check, validationResult } = require('express-validator');
 const { User } = require('../models');
-require('dotenv').config();
-
-// Generate JWT token
-const generateToken = (user) => {
-    return jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-};
-
-// Verify JWT token
-router.get('/verify', (req, res) => {
-    const token = req.headers.authorization.split(' ')[1];
-    if (!token) {
-        return res.status(401).json({ msg: 'No token, authorization denied' });
-    }
-
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        res.json(decoded);
-    } catch (err) {
-        res.status(401).json({ msg: 'Token is not valid' });
-    }
-});
 
 // User registration
 router.post('/signup', [
@@ -49,11 +28,12 @@ router.post('/signup', [
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await User.create({ fullName, email, password: hashedPassword, role: userRole });
 
-        const token = generateToken(newUser);
+        const payload = { userId: newUser.id, role: newUser.role };
+        const token = jwt.sign(payload, process.env.APP_SECRET, { expiresIn: '1h' });
 
         res.status(201).json({ token, role: newUser.role });
     } catch (error) {
-        console.error(error);
+        console.error('Signup error:', error); // Add detailed logging here
         res.status(500).json({ errors: [{ msg: 'Server error' }] });
     }
 });
@@ -81,11 +61,12 @@ router.post('/login', [
             return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });
         }
 
-        const token = generateToken(user);
+        const payload = { userId: user.id, role: user.role };
+        const token = jwt.sign(payload, process.env.APP_SECRET, { expiresIn: '1h' });
 
         res.status(200).json({ token, role: user.role });
     } catch (error) {
-        console.error(error);
+        console.error('Login error:', error); // Add detailed logging here
         res.status(500).json({ errors: [{ msg: 'Server error' }] });
     }
 });

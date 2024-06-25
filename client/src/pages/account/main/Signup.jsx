@@ -32,12 +32,15 @@ const Signup = () => {
         }
 
         try {
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/signup`, formData);
-            const { token, role } = response.data;
-            localStorage.setItem('token', token);
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/signup`, {
+                fullName: formData.fullName,
+                email: formData.email,
+                password: formData.password,
+                role: formData.role
+            });
             setSuccess('User registered successfully!');
             setTimeout(() => {
-                navigate(role === 'admin-pending' ? '/account/admin/main' : '/account/user/main');
+                navigate('/account/login');
             }, 2000);
         } catch (error) {
             setErrors(error.response ? error.response.data.errors : [{ msg: 'Server error' }]);
