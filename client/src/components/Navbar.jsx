@@ -6,6 +6,7 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import theme from '../themes/MyTheme.js';
 
 
+
 // using mui to style navbar
 const StyledToolbar = styled(Toolbar)({
   display: 'flex',
@@ -19,6 +20,7 @@ const NavLinks = styled('div')({
   width: '100%',
   justifyContent: 'space-around'
 });
+
 
 const Logo = styled('img')({
   textAlign: 'center',
@@ -52,7 +54,7 @@ function Navbar() {
             <Typography>EVENTS</Typography>
           </StyledLink>
           <StyledLink to="/">
-            <Logo src="../../public/Logo.png" alt="sustainify" />
+            <Logo src="Logo.png" alt="sustainify" />
           </StyledLink>
           
 
