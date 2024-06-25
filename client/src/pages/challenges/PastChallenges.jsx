@@ -52,7 +52,7 @@ function PastChallenges() {
     const challengeDate = dayjs(chal.date);
     const yesterday = dayjs().subtract(1, 'day').startOf('day');
     return challengeDate.isBefore(yesterday) || challengeDate.isSame(yesterday, 'day');
-  });
+  }).sort((a, b) => dayjs(b.date).diff(dayjs(a.date)));;
 
   const Cont = styled('div')({
     width: '95%',
