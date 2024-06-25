@@ -1,20 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const { Forum } = require('../models'); // Call name of DB from models folder to use
+const { Forum, User } = require('../models'); // Call name of DB from models folder to use
 const { Op } = require("sequelize");
 const yup = require("yup");
 
+// Route to create a new forum
 router.post("/", async (req, res) => {
     let data = req.body;
-    // Validate request body -> Update Details of request body to match fields define in DB
+    // Validate request body -> Update Details of request body to match fields defined in DB
     let validationSchema = yup.object({
-        name: yup.string().trim().min(3).max(50).required(),
         title: yup.string().trim().min(3).max(100).required(),
-        description: yup.string().trim().min(3).max(500).required()
+        description: yup.string().trim().min(3).max(500).required(),
+        userId: yup.number().required()
     });
     try {
-        data = await validationSchema.validate(data,
-            { abortEarly: false });
+        data = await validationSchema.validate(data, { abortEarly: false });
         let result = await Forum.create(data); // .create() used to insert data into DB table
         res.json(result);
     }
@@ -23,28 +23,36 @@ router.post("/", async (req, res) => {
     }
 });
 
+// Route to get all forums
 router.get("/", async (req, res) => {
-    // Get function to enable data search
-    let condition = {};
-    let search = req.query.search;
-    if (search) {
-        condition[Op.or] = [
-            { name: { [Op.like]: `%${search}%` } },
-            { title: { [Op.like]: `%${search}%` } },
-            { description: { [Op.like]: `%${search}%` } } // Adjust to match DB fields
-        ];
+    try {
+        let condition = {};
+        let search = req.query.search;
+        if (search) {
+            condition[Op.or] = [
+                { name: { [Op.like]: `%${search}%` } },
+                { title: { [Op.like]: `%${search}%` } },
+                { description: { [Op.like]: `%${search}%` } } // Adjust to match DB fields
+            ];
+        }
+
+        const forums = await Forum.findAll({
+            where: condition,
+            include: {
+                model: User,
+                attributes: ['username']
+            },
+            order: [['createdAt', 'DESC']]
+        });
+
+        res.json(forums);
+    } catch (error) {
+        console.error('Error fetching forums:', error);
+        res.status(500).json({ error: error.message });
     }
-    // You can add condition for other columns here
-    // e.g. condition.columnName = value;
-    
-    let list = await Forum.findAll({
-        where: condition,
-        order: [['createdAt', 'DESC']] // The list of all items in DB, either in DESC or ASC order
-    });
-    res.json(list);
 });
 
-// Find DB data by Id
+// Route to find a forum by Id
 router.get("/:id", async (req, res) => {
     let id = req.params.id;
     let forum = await Forum.findByPk(id);
@@ -56,65 +64,84 @@ router.get("/:id", async (req, res) => {
     res.json(forum);
 });
 
-router.put("/:id", async (req, res) => {
-    let id = req.params.id;
-    // Check id not found
-    let forum = await Forum.findByPk(id);
-    if (!forum) {
-        res.sendStatus(404);
-        return;
-    }
-    
-    let data = req.body;
-    // Validate request body
-    let validationSchema = yup.object({
-        name: yup.string().trim().min(3).max(50),
-        title: yup.string().trim().min(3).max(100),
-        description: yup.string().trim().min(3).max(500) // Adjust to match DB fields
-    });
+// Route to get forums for a specific user
+router.get("/user/:userId/forums", async (req, res) => {
     try {
-        data = await validationSchema.validate(data,
-            { abortEarly: false });
-
-        let num = await Forum.update(data, {
-            where: { id: id }
+        const userId = req.params.userId;
+        const forums = await Forum.findAll({
+            where: { userId },
+            include: {
+                model: User,
+                attributes: ['username']
+            },
         });
-        if (num == 1) {
-            res.json({
-                message: "Forum was updated successfully."
-            });
-        }
-        else {
-            res.status(400).json({
-                message: `Cannot update Forum with id ${id}.`
-            });
-        }
-    }
-    catch (err) {
-        res.status(400).json({ errors: err.errors });
+        res.json(forums);
+    } catch (error) {
+        console.error('Error fetching forums:', error);
+        res.status(500).json({ error: error.message });
     }
 });
 
-router.delete("/:id", async (req, res) => {
-    let id = req.params.id;
-    // Check id not found
-    let forum = await Forum.findByPk(id);
-    if (!forum) {
-        res.sendStatus(404);
-        return;
-    }
+// Route to update a forum
+router.put("/:userId/:id", async (req, res) => {
+    const { userId, id } = req.params; // Extract both userId and id from the route parameters
+    console.log('UserId:', userId, 'ForumId:', id);
 
-    let num = await Forum.destroy({
-        where: { id: id }
-    })
-    if (num == 1) {
+    const { title, description } = req.body;
+
+    try {
+        const forum = await Forum.findByPk(id);
+
+        // Check if the forum was found
+        if (!forum) {
+            res.sendStatus(404);
+            return;
+        }
+
+        // Update the forum with new data
+        forum.title = title;
+        forum.description = description;
+
+        // Save the updated forum
+        await forum.save();
+
+        // Send back the updated forum as a response
+        res.json(forum);
+    } catch (error) {
+        console.error("Error updating forum:", error);
+        res.status(500).json({ error: "An error occurred while updating the forum" });
+    }
+});
+
+// Route to delete a forum
+// Route to delete a forum
+router.delete("/:userId/:id", async (req, res) => {
+    let { userId, id } = req.params;
+    console.log('UserId:', userId, 'ForumId:', id);
+
+    try {
+        // Find the forum by its ID
+        let forum = await Forum.findByPk(id);
+
+        // Check if the forum exists
+        if (!forum) {
+            res.sendStatus(404);
+            return;
+        }
+
+        // Delete the forum
+        await Forum.destroy({
+            where: { id: id }
+        });
+
+        // Send a success response
         res.json({
             message: "Forum was deleted successfully."
         });
-    }
-    else {
-        res.status(400).json({
-            message: `Cannot delete Forum with id ${id}.`
+    } catch (error) {
+        console.error("Error deleting forum:", error);
+        res.status(500).json({
+            error: `An error occurred while deleting the forum with id ${id}`
         });
     }
 });

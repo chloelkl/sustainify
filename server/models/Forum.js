@@ -1,11 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
     const Forum = sequelize.define("Forum", {
 
-        name: {
-            type: DataTypes.STRING(50),
-            allowull: false
-        },
-
         title: {
             type: DataTypes.STRING(100),
             allowNull: false
@@ -13,14 +8,30 @@ module.exports = (sequelize, DataTypes) => {
         description: {
             type: DataTypes.TEXT,
             allowNull: false
-        }
-        // image
-        
+        },
+        image: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        userId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'Users',
+                key: 'id'
+            }
+        },
     }, {
-        tableName: 'forums' 
+        tableName: 'forums'
 
     });
+    Forum.associate = (models) => {
+        Forum.belongsTo(models.User, {
+            foreignKey: 'userId',
+            onDelete: 'CASCADE'
+        });
+    };
 
     return Forum;
-   
+
 }

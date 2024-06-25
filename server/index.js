@@ -2,9 +2,11 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
+const { Forum } = require('./models/Forum');
 
 const app = express();
 app.use(express.json());
+
 
 // Enable CORS
 app.use(cors({
@@ -20,13 +22,9 @@ app.get("/", (req, res) => {
     res.send("Sustainify Admin Side");
 });
 
-// app.get("/event", (req, res) => {
-//     res.send("Event Admin Side");
-// });
-
-// app.get("/test", (req, res) => {
-//     res.send("Test Admin Side");
-// });
+// Use forum routes
+const forum = require('./routes/forum');
+app.use('/user', forum); // Mount forumRoutes under /users
 
 // Routes -> Add routes based on DB created
 const eventRoute = require('./routes/event');

@@ -25,8 +25,8 @@ function App() {
             <Route path={"/"} element={<Homepage />} />
             <Route path={"/homepage"} element={<Homepage />} />
             <Route path={"/forum"} element={<Forum />} />
-            <Route path={"/addforum"} element={<AddForum />} />
-            <Route path={"/userforum"} element={<UserForum />} />
+            <Route path={"/user/:userId/forum/addforum"} element={<AddForum />} />
+            <Route path={"/user/:userId/forum"} element={<UserForum />} />
 
           </Routes>
         </Container>

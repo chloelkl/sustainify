@@ -1,27 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Typography, TextField, Button } from '@mui/material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import http from '../../http';
 
 function AddForum() {
-    const [userName, setUserName] = useState("John Lim Tan"); // Replace with actual fetching logic if needed
+    const { userId } = useParams();
+    const [user, setUser] = useState({});
     const navigate = useNavigate();
     
     useEffect(() => {
-        // Fetch the username from the server if not hardcoded
-        // Example: 
-        // http.get('/api/username').then(response => {
-        //     setUserName(response.data.userName);
-        // }).catch(error => {
-        //     console.error("Error fetching username:", error);
-        // });
+        http.get(`/forum/user/${userId}/forums`).then(response => {
+            setUser(response.data);
+        }).catch(error => {
+            console.error("Error fetching username:", error);
+        });
     }, []);
     
     const formik = useFormik({
         initialValues: {
-            userName: userName,
+            userName: user.username,
             title: "",
             description: ""
         },
@@ -38,31 +37,31 @@ function AddForum() {
         }),
         onSubmit: (data) => {
             // User Account
-            data.name = userName;
+            data.name = user.username;
             data.title = data.title.trim();
             data.description = data.description.trim();
+            data.userId = userId;
             // image handling
-            http.post("http://localhost:3001/forum", data)
+            http.post("/forum", data)
                 .then((res) => {
                     console.log(res.data);
                     navigate("/forum");
+                })
+                .catch((error) => {
+                    console.error("Error adding forum:", error);
                 });
         },
         enableReinitialize: true, // Allows Formik to reinitialize when initialValues change
     });
-    
-    useEffect(() => {
-        formik.setFieldValue('userName', userName);
-    }, [userName]);
 
     return (
         <Box>
             <Typography variant="h5" sx={{ my: 2 }}>
                 Add Forum
             </Typography>
-            <Typography variant="h6" sx={{ my: 2 }}>
-                Creating blog as: {userName}
-            </Typography>
+            <Typography variant="h2" component="div">
+                {user.username}
+          </Typography>
             <Box component="form" onSubmit={formik.handleSubmit}>
                 <TextField
                     fullWidth margin="dense" autoComplete="off"
