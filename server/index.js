@@ -28,9 +28,6 @@ app.get("/", (req, res) => {
 const eventRoute = require('./routes/event');
 app.use("/event", eventRoute);
 
-const testRoute = require('./routes/test');
-app.use("/test", testRoute);
-
 const userRoute = require('./routes/user');
 app.use("/user", userRoute);
 
