@@ -10,9 +10,15 @@ app.use(cors({
 }));
 
 // Serve static files from the client folder
-app.use(express.static(path.join(__dirname, '..', 'client', 'build')));
+app.use(express.static(path.join(__dirname, '..', 'client')));
 
-// API Routes
+// Simple Route - Define the route here
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'client', 'index.html'));
+    res.send("Sustainify Admin Side");
+});
+
+// Routes -> Add routes based on DB created
 const eventRoute = require('./routes/event');
 app.use("/event", eventRoute);
 
@@ -27,11 +33,6 @@ app.use("/admin", adminRoute);
 
 const authRoute = require('./routes/auth');
 app.use("/auth", authRoute);
-
-// Serve React app for any other routes
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'client', 'build', 'index.html'));
-});
 
 // Start server after synchronising the DB files under models folder
 const db = require('./models');

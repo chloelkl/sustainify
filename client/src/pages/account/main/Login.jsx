@@ -24,14 +24,14 @@ const Login = () => {
             setSuccess('User logged in successfully!');
             navigate(role === 'admin' ? '/account/admin/main' : '/account/user/main');
         } catch (error) {
-            setErrors(error.response ? error.response.data.errors : [{ msg: 'Invalid credentials' }]);
+            setErrors(error.response ? error.response.data.errors : [{ msg: 'Server error' }]);
         }
     };
 
     return (
         <div style={container}>
             <div style={leftContainer}>
-                <img src="/mnt/data/image.png" alt="Login" style={imageStyle} />
+                <img src="/path/to/your/image.png" alt="Login" style={imageStyle} />
             </div>
             <div style={rightContainer}>
                 <h2>Login</h2>
@@ -70,8 +70,7 @@ const Login = () => {
 
 const container = {
     display: 'flex',
-    height: 'calc(100vh - 64px)', // Adjust for navbar height
-    marginTop: '64px', // Add space for navbar height
+    height: '100vh',
 };
 
 const leftContainer = {

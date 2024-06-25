@@ -5,6 +5,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import MyTheme from './themes/MyTheme';
 import './fonts/Poppins.css';
 
+// import pages here
 import Homepage from './pages/Homepage';
 import Navbar from './components/Navbar';
 import UserProfile from './pages/account/user/UserProfile';
@@ -32,6 +33,7 @@ function App() {
           <Container>
             <Routes>
               <Route path="/" element={<Homepage />} />
+              <Route path="/homepage" element={<Homepage />} />
               <Route path="/account/user/main" element={<UserMain />} />
               <Route path="/account/user/profile" element={<UserProfile userId={1} />} />
               <Route path="/account/user/settings" element={<UserSettings userId={1} />} />
