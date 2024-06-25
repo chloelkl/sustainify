@@ -5,9 +5,15 @@ require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 const app = express();
 app.use(express.json());
-app.use(cors({
-    origin: process.env.CLIENT_URL
-}));
+
+const corsOptions = {
+    origin: process.env.CLIENT_URL,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 // Serve static files from the client folder
 app.use(express.static(path.join(__dirname, '..', 'client')));
@@ -31,14 +37,14 @@ app.use("/user", userRoute);
 const adminRoute = require('./routes/admin');
 app.use("/admin", adminRoute);
 
-const authRoute = require('./routes/auth'); // Ensure this line is correct
-app.use("/auth", authRoute); // Ensure this line is correct
+const authRoute = require('./routes/auth');
+app.use("/auth", authRoute);
 
 // Start server after synchronising the DB files under models folder
 const db = require('./models');
 db.sequelize.sync({ alter: false })
     .then(() => {
-        let port = process.env.APP_PORT || 3000;
+        let port = process.env.APP_PORT || 3001;
         app.listen(port, () => {
             console.log(`⚡ Server running on http://localhost:${port}`);
         });

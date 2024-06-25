@@ -3,7 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { User, Analytics, BackupHistory } = require('../models');
 const crypto = require('crypto');
-const verifyToken = require('../middleware/auth');
+const verifyToken = require('../middleware/verfiyToken');
 
 // Analytics endpoint
 router.get('/analytics', verifyToken, async (req, res) => {

@@ -28,16 +28,18 @@ router.get('/verify', (req, res) => {
 
 // User registration
 router.post('/signup', [
-    check('fullName').notEmpty().withMessage('Full name is required'),
+    check('username').notEmpty().withMessage('Username is required'),
     check('email').isEmail().withMessage('Enter a valid email'),
     check('password').isLength({ min: 4 }).matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{4,}$/).withMessage('Password must be at least 4 characters long, contain one uppercase, one lowercase, one number, and one special character.'),
+    check('phoneNumber').notEmpty().withMessage('Phone number is required'),
+    check('countryCode').notEmpty().withMessage('Country code is required'),
 ], async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { fullName, email, password, role } = req.body;
+    const { username, email, password, phoneNumber, countryCode, role } = req.body;
     const userRole = role === 'admin' ? 'admin-pending' : 'user';
 
     try {
@@ -47,7 +49,7 @@ router.post('/signup', [
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await User.create({ fullName, email, password: hashedPassword, role: userRole });
+        const newUser = await User.create({ username, email, password: hashedPassword, phoneNumber, countryCode, role: userRole });
 
         const token = generateToken(newUser);
 

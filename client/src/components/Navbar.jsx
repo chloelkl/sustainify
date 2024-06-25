@@ -6,18 +6,11 @@ import { styled } from '@mui/system';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import { useAuth } from '../context/AuthContext'; // Import the Auth context
 
-<<<<<<< HEAD
-const StyledToolbar = styled(Toolbar)({
-  display: 'flex',
-  justifyContent: 'space-around',
-  alignItems: 'center',
-=======
 // using mui to style navbar
 const StyledToolbar = styled(Toolbar)({
   display: 'flex',
   justifyContent: 'space-around',
   height: '100px'
->>>>>>> f08394f678773cfa212aed1ab5587775fee344c6
 });
 
 const NavLinks = styled('div')({
@@ -29,10 +22,6 @@ const NavLinks = styled('div')({
 });
 
 const Logo = styled('img')({
-<<<<<<< HEAD
-  height: '40px',
-=======
->>>>>>> f08394f678773cfa212aed1ab5587775fee344c6
   textAlign: 'center',
   height: '100px',
   '&:hover': {
@@ -81,11 +70,7 @@ function Navbar() {
             <Typography>EVENTS</Typography>
           </StyledLink>
           <StyledLink to="/">
-<<<<<<< HEAD
-            <Logo src="/src/assets/Logo_XBG.png" alt="LOGO" /> {/* Use your logo image path */}
-=======
-            <Logo src="../../public/Logo.png" alt="sustainify" />
->>>>>>> f08394f678773cfa212aed1ab5587775fee344c6
+            <Logo src="/Logo.png" alt="sustainify" />
           </StyledLink>
           <StyledLink to="/forum">
             <Typography>FORUM</Typography>
