@@ -29,7 +29,7 @@ const AdminMain = () => {
     return (
         <div style={containerStyle}>
             <div
-                style={{ ...logoContainerStyle, ...(selectedSection ? logoPositionStyles[selectedSection] : {}) }}
+                style={{ ...logoStyle, ...(selectedSection ? logoPositionStyles[selectedSection] : {}) }}
                 onClick={() => setSelectedSection(null)}
             >
                 <img src="/src/assets/AdminLogo_XBG.png" alt="Admin Logo" style={imageStyle} />
@@ -38,10 +38,10 @@ const AdminMain = () => {
                 <div style={sectionContainerStyle}>{renderSection()}</div>
             ) : (
                 <div style={mainOptionsStyle}>
-                    <div onClick={() => handleSectionClick('userManagement')} style={topOptionStyle}>User Management</div>
-                    <div onClick={() => handleSectionClick('communicationTools')} style={rightOptionStyle}>Communication Tools</div>
-                    <div onClick={() => handleSectionClick('systemOverview')} style={bottomOptionStyle}>System Overview</div>
-                    <div onClick={() => handleSectionClick('dashboard')} style={leftOptionStyle}>Dashboard</div>
+                    <div onClick={() => handleSectionClick('dashboard')} style={optionStyle}>Dashboard</div>
+                    <div onClick={() => handleSectionClick('systemOverview')} style={optionStyle}>System Overview</div>
+                    <div onClick={() => handleSectionClick('communicationTools')} style={optionStyle}>Communication Tools</div>
+                    <div onClick={() => handleSectionClick('userManagement')} style={optionStyle}>User Management</div>
                 </div>
             )}
         </div>
@@ -50,17 +50,17 @@ const AdminMain = () => {
 
 const containerStyle = {
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     height: '100vh',
     textAlign: 'center',
     position: 'relative',
-    backgroundColor: '#f0f8ff',
 };
 
-const logoContainerStyle = {
-    width: '300px',
-    height: '300px',
+const logoStyle = {
+    width: '150px',
+    height: '150px',
     borderRadius: '50%',
     backgroundColor: '#f0f0f0',
     display: 'flex',
@@ -68,76 +68,34 @@ const logoContainerStyle = {
     justifyContent: 'center',
     cursor: 'pointer',
     transition: 'all 0.5s ease',
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
 };
 
 const logoPositionStyles = {
-    dashboard: { transform: 'translate(-500%, -50%)', width: '100px', height: '100px' },
-    systemOverview: { transform: 'translate(-50%, 500%)', width: '100px', height: '100px' },
-    communicationTools: { transform: 'translate(400%, -50%)', width: '100px', height: '100px' },
-    userManagement: { transform: 'translate(-50%, -500%)', width: '100px', height: '100px' },
+    dashboard: { transform: 'translate(-50%, -50%)', top: '10%', left: '10%' },
+    systemOverview: { transform: 'translate(-50%, 0)', bottom: '10%', left: '50%' },
+    communicationTools: { transform: 'translate(0, -50%)', top: '50%', right: '10%' },
+    userManagement: { transform: 'translate(-50%, -50%)', top: '10%', left: '50%' },
 };
 
 const mainOptionsStyle = {
     display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100vh',
-    textAlign: 'center',
-    position: 'relative',
+    justifyContent: 'space-around',
+    width: '100%',
 };
 
 const optionStyle = {
+    flex: 1,
+    margin: '20px',
     padding: '20px',
     borderRadius: '10px',
     backgroundColor: '#e0e0e0',
     cursor: 'pointer',
     transition: 'background-color 0.3s ease',
-    position: 'absolute',
-};
-
-const topOptionStyle = {
-    ...optionStyle,
-    top: '10%',
-    left: '50%',
-    transform: 'translate(-50%, 0)',
-};
-
-const rightOptionStyle = {
-    ...optionStyle,
-    top: '50%',
-    right: '10%',
-    transform: 'translate(0, -50%)',
-};
-
-const bottomOptionStyle = {
-    ...optionStyle,
-    bottom: '10%',
-    left: '50%',
-    transform: 'translate(-50%, 0)',
-};
-
-const leftOptionStyle = {
-    ...optionStyle,
-    top: '50%',
-    left: '10%',
-    transform: 'translate(0, -50%)',
 };
 
 const sectionContainerStyle = {
-    width: '60%',
-    height: '60%',
-    margin: '20px',
-    backgroundColor: '#fff',
-    borderRadius: '10px',
-    boxShadow: '0 0 10px rgba(0,0,0,0.1)',
-    overflowY: 'auto',
-    padding: '20px',
-    position: 'absolute',
-    top: '10%',
+    width: '80%',
+    marginTop: '20px',
 };
 
 const imageStyle = {
