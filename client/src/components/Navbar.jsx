@@ -5,6 +5,11 @@ import { styled } from '@mui/system';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+// using mui to style navbar
+>>>>>>> parent of 5c1f6df (Completed admin main)
 const StyledToolbar = styled(Toolbar)({
   display: 'flex',
   justifyContent: 'space-around',
@@ -36,7 +41,11 @@ const Logo = styled('img')({
 >>>>>>> f08394f678773cfa212aed1ab5587775fee344c6
 =======
 const Logo = styled(Typography)({
+<<<<<<< HEAD
 >>>>>>> parent of ffc2fde (Improved system overview)
+=======
+  // flexGrow: 1,
+>>>>>>> parent of 5c1f6df (Completed admin main)
   textAlign: 'center',
   height: '100px',
   '&:hover': {
@@ -58,7 +67,7 @@ const StyledLink = styled(Link)(({ theme }) => ({
 
 function Navbar() {
   return (
-    <AppBar position="static" style={{ height: '64px' }}>
+    <AppBar position="static">
       <StyledToolbar>
         <NavLinks>
           <StyledLink to="/challenges">
@@ -78,6 +87,8 @@ function Navbar() {
             <Logo>LOGO</Logo>
 >>>>>>> parent of ffc2fde (Improved system overview)
           </StyledLink>
+          
+
           <StyledLink to="/forum">
             <Typography>FORUM</Typography>
           </StyledLink>
@@ -92,5 +103,6 @@ function Navbar() {
     </AppBar>
   );
 };
+
 
 export default Navbar;

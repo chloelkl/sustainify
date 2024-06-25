@@ -27,29 +27,27 @@ function App() {
   return (
     <Router>
       <ThemeProvider theme={MyTheme}>
-        <div style={{ height: '0vh', display: 'flex', flexDirection: 'column' }}>
-          <Navbar />
-        </div>
-          <Container>
-            <Routes>
-              <Route path="/" element={<Homepage />} />
-              <Route path="/homepage" element={<Homepage />} />
-              <Route path="/account/user/main" element={<UserMain />} />
-              <Route path="/account/user/profile" element={<UserProfile userId={1} />} />
-              <Route path="/account/user/settings" element={<UserSettings userId={1} />} />
-              <Route path="/account/user/analytics" element={<UserAnalytics userId={1} />} />
-              <Route path="/account/user/chat" element={<ChatWithFriends userId={1} />} />
-              <Route path="/account/admin/main" element={<AdminMain />} />
-              <Route path="/account/admin/user-management" element={<UserManagement />} />
-              <Route path="/account/admin/communication-tools" element={<CommunicationTools />} />
-              <Route path="/account/admin/system-overview" element={<SystemOverview />} />
-              <Route path="/account/admin/dashboard" element={<Dashboard />} />
-              <Route path="/account/admin/signup" element={<AdminSignup />} />
-              <Route path="/account/signup" element={<Signup />} />
-              <Route path="/account/login" element={<Login />} />
-            </Routes>
-          </Container>
-          <Chatbot />
+        <Navbar />
+        <Container>
+          <Routes>
+            <Route path="/" element={<Homepage />} />
+            <Route path="/homepage" element={<Homepage />} />
+            <Route path="/account/user/main" element={<UserMain />} />
+            <Route path="/account/user/profile" element={<UserProfile userId={1} />} />
+            <Route path="/account/user/settings" element={<UserSettings userId={1} />} />
+            <Route path="/account/user/analytics" element={<UserAnalytics userId={1} />} />
+            <Route path="/account/user/chat" element={<ChatWithFriends userId={1} />} />
+            <Route path="/account/admin/main" element={<AdminMain />} />
+            <Route path="/account/admin/user-management" element={<UserManagement />} />
+            <Route path="/account/admin/communication-tools" element={<CommunicationTools />} />
+            <Route path="/account/admin/system-overview" element={<SystemOverview />} />
+            <Route path="/account/admin/dashboard" element={<Dashboard />} />
+            <Route path="/account/admin/signup" element={<AdminSignup />} />
+            <Route path="/account/signup" element={<Signup />} />
+            <Route path="/account/login" element={<Login />} />
+          </Routes>
+        </Container>
+        <Chatbot />
       </ThemeProvider>
     </Router>
   );
