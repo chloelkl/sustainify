@@ -33,17 +33,11 @@ app.use("/event", eventRoute);
 const testRoute = require('./routes/test');
 app.use("/test", testRoute);
 
-const userRoute = require('./routes/user');
-app.use("/user", userRoute);
-
-const adminRoute = require('./routes/admin');
-app.use("/admin", adminRoute);
-
 // Start server after synchronising the DB files under models folder
 const db = require('./models');
 db.sequelize.sync({ alter: false })
     .then(() => {
-        let port = process.env.APP_PORT;
+        let port = process.env.APP_PORT || 5000;
         app.listen(port, () => {
             console.log(`⚡ Server running on http://localhost:${port}`);
         });
