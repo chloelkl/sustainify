@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+require('dotenv').config();
 
 const app = express();
 app.use(express.json());
@@ -10,15 +10,9 @@ app.use(cors({
 }));
 
 // Serve static files from the client folder
-app.use(express.static(path.join(__dirname, '..', 'client')));
+app.use(express.static(path.join(__dirname, '..', 'client', 'build')));
 
-// Simple Route - Define the route here
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'client', 'index.html'));
-    res.send("Sustainify Admin Side");
-});
-
-// Routes -> Add routes based on DB created
+// API Routes
 const eventRoute = require('./routes/event');
 app.use("/event", eventRoute);
 
@@ -31,8 +25,13 @@ app.use("/user", userRoute);
 const adminRoute = require('./routes/admin');
 app.use("/admin", adminRoute);
 
-const authRoute = require('./routes/auth'); // Ensure this line is correct
-app.use("/auth", authRoute); // Ensure this line is correct
+const authRoute = require('./routes/auth');
+app.use("/auth", authRoute);
+
+// Serve React app for any other routes
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'client', 'build', 'index.html'));
+});
 
 // Start server after synchronising the DB files under models folder
 const db = require('./models');

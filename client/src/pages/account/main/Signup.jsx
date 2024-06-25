@@ -32,12 +32,7 @@ const Signup = () => {
         }
 
         try {
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/signup`, {
-                fullName: formData.fullName,
-                email: formData.email,
-                password: formData.password,
-                role: formData.role
-            });
+            const response = await axios.post('http://localhost:3000/auth/signup', formData);
             setSuccess('User registered successfully!');
             setTimeout(() => {
                 navigate('/account/login');
@@ -54,7 +49,7 @@ const Signup = () => {
     return (
         <div style={container}>
             <div style={leftContainer}>
-                <img src="/src/assets/DBrand_Wallpaper.jpg" alt="Signup" style={imageStyle} />
+                <img src="/mnt/data/image.png" alt="Signup" style={imageStyle} />
             </div>
             <div style={rightContainer}>
                 <h2 style={titleStyle}>Sign Up</h2>
@@ -62,16 +57,6 @@ const Signup = () => {
                 <div style={dividerStyle}>or</div>
                 <p style={loginTextStyle}>Have an account already? <a href="/account/login" style={loginLinkStyle}>Login here!</a></p>
                 <form onSubmit={handleSubmit} style={formStyle}>
-                    <label style={inputLabelStyle}>Enter your <strong>full name</strong></label>
-                    <input
-                        type="text"
-                        name="fullName"
-                        placeholder="Full Name"
-                        value={formData.fullName}
-                        onChange={handleChange}
-                        required
-                        style={inputStyle}
-                    />
                     <label style={inputLabelStyle}>Enter your <strong>email</strong></label>
                     <input
                         type="email"
