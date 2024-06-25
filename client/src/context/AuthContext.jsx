@@ -1,4 +1,3 @@
-// client/src/context/AuthContext.js
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -7,7 +6,6 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -15,17 +13,15 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          const response = await axios.get(`${import.meta.env.VITE_API_URL}/auth/verify`, {
+          await axios.get(`${import.meta.env.VITE_API_URL}/auth/verify`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
           setIsAuthenticated(true);
-          setUser(response.data);
         } catch (error) {
           localStorage.removeItem('token');
           setIsAuthenticated(false);
-          setUser(null);
           navigate('/account/login');
         }
       }
@@ -33,21 +29,14 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, [navigate]);
 
-  const login = (token, user) => {
-    localStorage.setItem('token', token);
-    setIsAuthenticated(true);
-    setUser(user);
-  };
-
   const logout = () => {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
-    setUser(null);
     navigate('/account/login');
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -3,14 +3,13 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { IconButton } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { useAuth } from '/src/context/AuthContext';
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [errors, setErrors] = useState([]);
+    const [success, setSuccess] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
-    const { login } = useAuth();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -19,11 +18,13 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors([]);
+        setSuccess('');
 
         try {
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, formData);
-            const { token, role, user } = response.data;
-            login(token, user);
+            const { token, role } = response.data;
+            localStorage.setItem('token', token);
+            setSuccess('User logged in successfully!');
             navigate(role === 'admin' ? '/account/admin/main' : '/account/user/main');
         } catch (error) {
             setErrors(error.response ? error.response.data.errors : [{ msg: 'Invalid credentials' }]);
@@ -81,6 +82,7 @@ const Login = () => {
                         {errors.map((error, index) => <p key={index}>{error.msg}</p>)}
                     </div>
                 )}
+                {success && <div style={successStyle}>{success}</div>}
             </div>
         </div>
     );
@@ -196,6 +198,11 @@ const loginLinkStyle = {
 const errorStyle = {
     marginTop: '10px',
     color: 'red',
+};
+
+const successStyle = {
+    marginTop: '10px',
+    color: 'green',
 };
 
 export default Login;

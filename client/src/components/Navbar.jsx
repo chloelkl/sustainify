@@ -1,15 +1,14 @@
-// client/src/components/Navbar.jsx
 import React from 'react';
 import { AppBar, Toolbar, Typography, IconButton } from '@mui/material';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { styled } from '@mui/system';
 import AccountCircle from '@mui/icons-material/AccountCircle';
-import { useAuth } from '../context/AuthContext'; // Import the Auth context
 
 <<<<<<< HEAD
 const StyledToolbar = styled(Toolbar)({
   display: 'flex',
   justifyContent: 'space-around',
+<<<<<<< HEAD
   alignItems: 'center',
 =======
 // using mui to style navbar
@@ -18,21 +17,26 @@ const StyledToolbar = styled(Toolbar)({
   justifyContent: 'space-around',
   height: '100px'
 >>>>>>> f08394f678773cfa212aed1ab5587775fee344c6
+=======
+>>>>>>> parent of ffc2fde (Improved system overview)
 });
 
 const NavLinks = styled('div')({
   display: 'flex',
   alignItems: 'center',
   width: '100%',
-  justifyContent: 'space-between',
-  padding: '0 20px',
+  justifyContent: 'space-around',
 });
 
+<<<<<<< HEAD
 const Logo = styled('img')({
 <<<<<<< HEAD
   height: '40px',
 =======
 >>>>>>> f08394f678773cfa212aed1ab5587775fee344c6
+=======
+const Logo = styled(Typography)({
+>>>>>>> parent of ffc2fde (Improved system overview)
   textAlign: 'center',
   height: '100px',
   '&:hover': {
@@ -52,26 +56,9 @@ const StyledLink = styled(Link)(({ theme }) => ({
   },
 }));
 
-const AuthLinks = styled('div')({
-  display: 'flex',
-  alignItems: 'center',
-  gap: '8px',
-});
-
 function Navbar() {
-  const { isAuthenticated, user } = useAuth(); // Get the auth status and user details
-  const navigate = useNavigate();
-
-  const handleProfileClick = () => {
-    if (user.role === 'admin') {
-      navigate('/account/admin/main');
-    } else {
-      navigate('/account/user/main');
-    }
-  };
-
   return (
-    <AppBar position="fixed" style={{ zIndex: 1300, backgroundColor: '#84a9ac' }}>
+    <AppBar position="fixed" style={{ zIndex: 1300 }}>
       <StyledToolbar>
         <NavLinks>
           <StyledLink to="/challenges">
@@ -82,10 +69,14 @@ function Navbar() {
           </StyledLink>
           <StyledLink to="/">
 <<<<<<< HEAD
+<<<<<<< HEAD
             <Logo src="/src/assets/Logo_XBG.png" alt="LOGO" /> {/* Use your logo image path */}
 =======
             <Logo src="../../public/Logo.png" alt="sustainify" />
 >>>>>>> f08394f678773cfa212aed1ab5587775fee344c6
+=======
+            <Logo>LOGO</Logo>
+>>>>>>> parent of ffc2fde (Improved system overview)
           </StyledLink>
           <StyledLink to="/forum">
             <Typography>FORUM</Typography>
@@ -93,20 +84,9 @@ function Navbar() {
           <StyledLink to="/rewards">
             <Typography>REWARDS</Typography>
           </StyledLink>
-          {isAuthenticated ? (
-            <IconButton color="inherit" onClick={handleProfileClick}>
-              <AccountCircle />
-            </IconButton>
-          ) : (
-            <AuthLinks>
-              <StyledLink to="/account/signup">
-                <Typography variant="body2">SIGNUP</Typography>
-              </StyledLink>
-              <StyledLink to="/account/login">
-                <Typography variant="body2">LOGIN</Typography>
-              </StyledLink>
-            </AuthLinks>
-          )}
+          <IconButton color="inherit">
+            <AccountCircle />
+          </IconButton>
         </NavLinks>
       </StyledToolbar>
     </AppBar>

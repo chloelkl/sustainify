@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '/src/context/AuthContext';
 import Dashboard from './Dashboard';
 import SystemOverview from './SystemOverview';
 import CommunicationTools from './CommunicationTools';
@@ -12,7 +11,6 @@ const AdminMain = () => {
     const [showContainer, setShowContainer] = useState(false);
     const [showSectionTitles, setShowSectionTitles] = useState(true);
     const navigate = useNavigate();
-    const { logout } = useAuth();
 
     const handleSectionClick = (section) => {
         setSelectedSection(section);
@@ -40,7 +38,8 @@ const AdminMain = () => {
     }, [isMorphed]);
 
     const handleLogout = () => {
-        logout();
+        localStorage.removeItem('token');
+        navigate('/account/login');
     };
 
     const renderSection = () => {
