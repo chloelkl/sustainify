@@ -12,9 +12,9 @@ router.get("/:id/settings", verifyToken, async (req, res) => {
         return;
     }
     const settings = {
-        language: user.languages || ['English'],
-        twoFactorAuth: user.twoFactorAuthEnabled,
-        socialMediaLinks: user.linkedSocialMediaAccounts || { google: '', apple: '' }
+        language: 'English',
+        twoFactorAuth: false,
+        socialMediaLinks: { google: '', apple: '' }
     };
     res.json(settings);
 });
@@ -22,20 +22,6 @@ router.get("/:id/settings", verifyToken, async (req, res) => {
 router.put("/:id/settings", verifyToken, async (req, res) => {
     let id = req.params.id;
     let data = req.body;
-    let user = await User.findByPk(id);
-    if (!user) {
-        res.sendStatus(404);
-        return;
-    }
-
-    await User.update({
-        languages: data.languages,
-        twoFactorAuthEnabled: data.twoFactorAuthEnabled,
-        linkedSocialMediaAccounts: data.linkedSocialMediaAccounts
-    }, {
-        where: { id }
-    });
-
     res.json({ message: 'Settings updated successfully' });
 });
 
@@ -48,7 +34,7 @@ router.get("/:id/analytics", verifyToken, async (req, res) => {
     }
     const analytics = [
         { metric: 'Challenges Completed', value: 10 },
-        { metric: 'Points Earned', value: user.pointsEarned }
+        { metric: 'Points Earned', value: 3000 }
     ];
     res.json(analytics);
 });
