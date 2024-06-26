@@ -9,6 +9,7 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 const StyledToolbar = styled(Toolbar)({
   display: 'flex',
   justifyContent: 'space-around',
+  height: '100px'
 });
 
 const NavLinks = styled('div')({
@@ -18,15 +19,22 @@ const NavLinks = styled('div')({
   justifyContent: 'space-around'
 });
 
-const Logo = styled(Typography)({
-  // flexGrow: 1,
+
+const Logo = styled('img')({
   textAlign: 'center',
+  height: '100px',
+  '&:hover': {
+    opacity: '0.7',
+  }
+
 });
 
 const StyledLink = styled(Link)(({ theme }) => ({
-  margin: theme.spacing(1),
-  color: 'white',
+  color: theme.palette.secondary.light,
   textDecoration: 'none',
+  '& .MuiTypography-root': {
+    fontSize: '1.2rem'
+  },
   '&:hover': {
     textDecoration: 'underline',
   },
@@ -44,7 +52,7 @@ function Navbar() {
             <Typography>EVENTS</Typography>
           </StyledLink>
           <StyledLink to="/">
-            <Logo>LOGO</Logo>
+            <Logo src="Logo.png" alt="sustainify" />
           </StyledLink>
           
 
