@@ -21,8 +21,8 @@ import AdminMain from './pages/account/admin/AdminMain';
 import Dashboard from './pages/account/admin/Dashboard';
 import Chatbot from './components/Chatbot';
 import Signup from './pages/account/main/Signup';
+import AdminSignup from './pages/account/main/AdminSignup';
 import Login from './pages/account/main/Login';
-import AdminSignup from './pages/account/admin/AdminSignup';
 
 function App() {
   return (
@@ -37,7 +37,7 @@ function App() {
               <Route path="/" element={<Homepage />} />
               <Route path="/account/signup" element={<Signup />} />
               <Route path="/account/login" element={<Login />} />
-              <Route path="/account/admin/signup" element={<AdminSignup />} />
+              <Route path="/account/admin-signup" element={<AdminSignup />} />
               <Route path="/account/user/main" element={<ProtectedRoute><UserMain /></ProtectedRoute>} />
               <Route path="/account/user/profile" element={<ProtectedRoute><UserProfile userId={1} /></ProtectedRoute>} />
               <Route path="/account/user/settings" element={<ProtectedRoute><UserSettings userId={1} /></ProtectedRoute>} />

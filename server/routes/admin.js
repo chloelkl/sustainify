@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { User, Analytics, BackupHistory } = require('../models');
-const crypto = require('crypto');
-const verifyToken = require('../middleware/verfiyToken');
+const bcrypt = require('bcrypt');
+const verifyToken = require('../middleware/verifyToken');
+require('dotenv').config();
 
 // Analytics endpoint
 router.get('/analytics', verifyToken, async (req, res) => {
@@ -95,13 +96,45 @@ router.delete('/backup/:id', verifyToken, async (req, res) => {
     }
 });
 
-// Generate OTP and Admin Signup Link
-router.post('/generate-admin-signup', verifyToken, (req, res) => {
-    const otp = crypto.randomInt(100000, 999999).toString();
-    const token = jwt.sign({ otp }, process.env.APP_SECRET, { expiresIn: '1h' });
-    const signupLink = `${process.env.CLIENT_URL}/account/admin/signup?token=${token}`;
+// Generate Admin Signup Link
+router.post('/generate-admin-signup', async (req, res) => {
+    try {
+        const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
+        const token = jwt.sign({ otp }, process.env.JWT_SECRET, { expiresIn: '1h' }); // 1 hour expiration
 
-    res.json({ signupLink, otp });
+        const signupLink = `${process.env.CLIENT_URL}/account/admin-signup?token=${token}`;
+
+        res.json({ signupLink, otp });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ errors: [{ msg: 'Server error' }] });
+    }
+});
+
+// Verify and Create Admin User
+router.post('/auth/admin-signup', async (req, res) => {
+    const token = req.headers.authorization.split(' ')[1];
+    const { fullName, email, password, otp } = req.body;
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (decoded.otp !== otp) {
+            return res.status(401).json({ errors: [{ msg: 'Invalid OTP' }] });
+        }
+
+        const existingUser = await User.findOne({ where: { email } });
+        if (existingUser) {
+            return res.status(400).json({ errors: [{ msg: 'User already exists' }] });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = await User.create({ fullName, email, password: hashedPassword, role: 'admin' });
+
+        res.status(201).json({ msg: 'Admin registered successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ errors: [{ msg: 'Server error' }] });
+    }
 });
 
 module.exports = router;

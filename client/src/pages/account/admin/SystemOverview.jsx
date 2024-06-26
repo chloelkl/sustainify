@@ -9,18 +9,29 @@ const SystemOverview = () => {
     const [signupLink, setSignupLink] = useState('');
     const [signupLinkError, setSignupLinkError] = useState(null);
     const [otp, setOtp] = useState('');
+    const [otpTimer, setOtpTimer] = useState(60); // Timer for OTP
     const [backupType, setBackupType] = useState('full');
     const [fileFormat, setFileFormat] = useState('csv');
+    const [linkValid, setLinkValid] = useState(true);
 
     useEffect(() => {
         fetchAnalytics();
         fetchBackupHistory();
+        const otpInterval = setInterval(handleGenerateAdminSignupLink, 300000); // Refresh OTP every 60 seconds
+
+        return () => clearInterval(otpInterval); // Cleanup on component unmount
     }, []);
 
+    useEffect(() => {
+        if (otpTimer > 0) {
+            const timer = setTimeout(() => setOtpTimer(otpTimer - 1), 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [otpTimer]);
+
     const fetchAnalytics = () => {
-        axios.get('http://localhost:3000/admin/analytics')
+        axios.get(`${import.meta.env.VITE_API_URL}/admin/analytics`)
             .then(response => {
-                console.log('Analytics response:', response.data);
                 if (Array.isArray(response.data)) {
                     setAnalytics(response.data);
                 } else {
@@ -28,15 +39,13 @@ const SystemOverview = () => {
                 }
             })
             .catch(error => {
-                console.error("There was an error fetching the analytics!", error);
                 setAnalyticsError('Failed to fetch analytics.');
             });
     };
 
     const fetchBackupHistory = () => {
-        axios.get('http://localhost:3000/admin/backup-history')
+        axios.get(`${import.meta.env.VITE_API_URL}/admin/backup-history`)
             .then(response => {
-                console.log('Backup history response:', response.data);
                 if (Array.isArray(response.data)) {
                     setBackupHistory(response.data);
                 } else {
@@ -44,49 +53,51 @@ const SystemOverview = () => {
                 }
             })
             .catch(error => {
-                console.error("There was an error fetching the backup history!", error);
                 setBackupHistoryError('Failed to fetch backup history.');
             });
     };
 
     const handleBackupNow = () => {
-        axios.post('http://localhost:3000/admin/backup', {
+        axios.post(`${import.meta.env.VITE_API_URL}/admin/backup`, {
             type: backupType,
             format: fileFormat
         })
             .then(response => {
-                console.log(response.data);
                 fetchBackupHistory();
             })
             .catch(error => {
-                console.error("There was an error creating the backup!", error);
                 setBackupHistoryError('Failed to create backup.');
             });
     };
 
     const handleDeleteBackup = (id) => {
-        axios.delete(`http://localhost:3000/admin/backup/${id}`)
+        axios.delete(`${import.meta.env.VITE_API_URL}/admin/backup/${id}`)
             .then(response => {
-                console.log(response.data);
                 fetchBackupHistory();
             })
             .catch(error => {
-                console.error("There was an error deleting the backup!", error);
                 setBackupHistoryError('Failed to delete backup.');
             });
     };
 
     const handleGenerateAdminSignupLink = () => {
-        setSignupLinkError(null); // Clear previous errors
-        axios.post('http://localhost:3000/admin/generate-admin-signup')
+        setSignupLinkError(null);
+        axios.post(`${import.meta.env.VITE_API_URL}/admin/generate-admin-signup`)
             .then(response => {
                 setSignupLink(response.data.signupLink);
                 setOtp(response.data.otp);
+                setOtpTimer(300);
+                setLinkValid(true);
             })
             .catch(error => {
-                console.error("There was an error generating the admin signup link!", error);
                 setSignupLinkError('Failed to generate admin signup link.');
             });
+    };
+
+    const handleRevokeLink = () => {
+        setSignupLink('');
+        setOtp('');
+        setLinkValid(false); // Invalidate the link
     };
 
     return (
@@ -96,7 +107,7 @@ const SystemOverview = () => {
                     <h2>Analytics</h2>
                     {analyticsError && <div style={errorStyle}>{analyticsError}</div>}
                     {analytics.length > 0 ? (
-                        <div> {/* Use chart library or custom code to display analytics as shown in the image */}</div>
+                        <div>{/* Use chart library or custom code to display analytics as shown in the image */}</div>
                     ) : (
                         <p>No analytics data available.</p>
                     )}
@@ -138,11 +149,15 @@ const SystemOverview = () => {
                     <h2>Generate Admin Signup Link</h2>
                     {signupLinkError && <div style={errorStyle}>{signupLinkError}</div>}
                     <button onClick={handleGenerateAdminSignupLink}>Generate Link</button>
-                    {signupLink && (
+                    {signupLink && linkValid && (
                         <div>
-                            <p>Admin Signup Link: <a href={signupLink} target="_blank" rel="noopener noreferrer">{signupLink}</a></p>
+                            <p>Admin Signup Link: <a href={signupLink} target="_blank" rel="noopener noreferrer">{new URL(signupLink).pathname + new URL(signupLink).search}</a></p>
                             <p>OTP: {otp}</p>
+                            <p>OTP valid for: {otpTimer} seconds</p>
                         </div>
+                    )}
+                    {signupLink && (
+                        <button onClick={handleRevokeLink}>Revoke Link</button>
                     )}
                 </div>
             </div>

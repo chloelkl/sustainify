@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { IconButton } from '@mui/material';
@@ -9,7 +9,16 @@ const AdminSignup = () => {
     const [errors, setErrors] = useState([]);
     const [success, setSuccess] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        if (token) {
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        }
+    }, []);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -32,7 +41,11 @@ const AdminSignup = () => {
         }
 
         try {
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/admin-signup`, formData);
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/admin-signup`, formData, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
             setSuccess('Admin registered successfully!');
             setTimeout(() => {
                 navigate('/account/login');
@@ -46,10 +59,14 @@ const AdminSignup = () => {
         setShowPassword(!showPassword);
     };
 
+    const handleClickShowConfirmPassword = () => {
+        setShowConfirmPassword(!showConfirmPassword);
+    };
+
     return (
         <div style={container}>
             <div style={leftContainer}>
-                <img src="/mnt/data/image.png" alt="Admin Signup" style={imageStyle} />
+                <img src="/src/assets/DBrand_Wallpaper.jpg" alt="Admin Signup" style={imageStyle} />
             </div>
             <div style={rightContainer}>
                 <h2 style={titleStyle}>Admin Sign Up</h2>
@@ -106,7 +123,7 @@ const AdminSignup = () => {
                     <label style={inputLabelStyle}>Confirm your password</label>
                     <div style={inputContainerStyle}>
                         <input
-                            type={showPassword ? 'text' : 'password'}
+                            type={showConfirmPassword ? 'text' : 'password'}
                             name="confirmPassword"
                             placeholder="Confirm Password"
                             value={formData.confirmPassword}
@@ -115,11 +132,11 @@ const AdminSignup = () => {
                             style={passwordInputStyle}
                         />
                         <IconButton
-                            onClick={handleClickShowPassword}
+                            onClick={handleClickShowConfirmPassword}
                             onMouseDown={(e) => e.preventDefault()}
                             style={iconButtonStyle}
                         >
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                            {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                         </IconButton>
                     </div>
                     <button type="submit" style={submitButtonStyle}>Sign Up</button>

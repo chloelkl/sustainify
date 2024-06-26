@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { check, validationResult } = require('express-validator');
 const { User } = require('../models');
+const verifyToken = require('../middleware/verifyToken');
 require('dotenv').config();
 
 // Generate JWT token
@@ -56,6 +57,32 @@ router.post('/signup', [
         res.status(201).json({ token, role: newUser.role });
     } catch (error) {
         console.error(error);
+        res.status(500).json({ errors: [{ msg: 'Server error' }] });
+    }
+});
+
+// Admin registration
+router.post('/admin-signup', verifyToken, async (req, res) => {
+    const token = req.headers.authorization.split(' ')[1];
+    const { fullName, email, password, otp } = req.body;
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (decoded.otp !== otp) {
+            return res.status(401).json({ errors: [{ msg: 'Invalid OTP' }] });
+        }
+
+        const existingUser = await User.findOne({ where: { email } });
+        if (existingUser) {
+            return res.status(400).json({ errors: [{ msg: 'User already exists' }] });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = await User.create({ fullName, email, password: hashedPassword, role: 'admin' });
+
+        res.status(201).json({ msg: 'Admin registered successfully' });
+    } catch (error) {
+        console.error('Error during admin signup:', error);
         res.status(500).json({ errors: [{ msg: 'Server error' }] });
     }
 });
