@@ -27,6 +27,7 @@ app.use("/test", testRoute);
 
 const db = require('./models');
 db.sequelize.sync({ alter: true })
+db.sequelize.sync({ alter: true })
     .then(() => {
         let port = process.env.APP_PORT;
         app.listen(port, () => {
