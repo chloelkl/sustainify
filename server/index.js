@@ -12,7 +12,7 @@ app.use(cors({
 }));
 
 // Serve static file from the client folder
-app.use(express.static(path.join( '..', 'client')));
+app.use(express.static(path.join(__dirname,'..', 'client')));
 
 // Simple Route - Define the route here
 app.get("/", (req, res) => {
@@ -32,6 +32,9 @@ app.get("/", (req, res) => {
 const eventRoute = require('./routes/event');
 app.use("/event", eventRoute);
 
+const eventpostRoute = require('./routes/eventpost');
+app.use("/eventpost", eventpostRoute);
+
 const testRoute = require('./routes/test');
 app.use("/test", testRoute);
 
@@ -41,7 +44,7 @@ db.sequelize.sync({ alter: false })
     .then(() => {
         let port = process.env.APP_PORT;
         app.listen(port, () => {
-            console.log(`⚡ Sever running on http://localhost:${port}`);
+            console.log(`⚡ Server running on http://localhost:${port}`);
         });
     })
     .catch((err) => {

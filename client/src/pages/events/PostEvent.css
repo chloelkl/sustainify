@@ -1,0 +1,30 @@
+.postevent {
+    display: flex;
+}
+
+.postevent-content {
+    flex: 2;
+    margin-left: 260px; /* Adjust this value based on the sidebar width */
+    padding: 20px;
+}
+
+.event-card {
+    margin-bottom: 20px;
+}
+
+.event-card h2 {
+    margin-top: 0;
+}
+
+.event-card p {
+    margin: 10px 0;
+}
+
+.MuiCardContent-root {
+    padding-bottom: 16px !important; /* Ensure padding at the bottom of CardContent */
+}
+
+.MuiButton-containedPrimary {
+    background-color: #000 !important; /* Change button color to black */
+    color: #fff !important;
+}

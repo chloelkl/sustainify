@@ -1,0 +1,77 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+.event-overview {
+    font-family: 'Poppins', sans-serif;
+    padding: 20px;
+}
+
+.host-with-us,
+.full-free-services,
+.explore-events {
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.host-with-us h2,
+.full-free-services h2,
+.explore-events h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.host-with-us p,
+.full-free-services p {
+    font-size: 16px;
+    margin-bottom: 20px;
+    color: #666;
+}
+
+.host-now-button,
+.view-all-events-button,
+.search-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #000;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+
+}
+
+.explore-events-container {
+    background-color: #fff;
+    padding: 40px 40px 70px 40px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: inline-block;
+    width: 80%;
+    max-width: 600px; 
+    margin: 0 auto; 
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+form label {
+    font-size: 16px;
+    margin: 10px 0;
+}
+
+form input,
+form select {
+    padding: 10px;
+    font-size: 16px;
+    margin-top: 5px;
+    width: 100%;
+
+}
+
+form .search-button {
+    margin-top: 20px;
+    
+}

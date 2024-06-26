@@ -1,24 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
-    const Event = sequelize.define("Event", { // Data model instance
+    const EventPost = sequelize.define("EventPost", { // Data model instance
         // define your DB fields with their required datatypes
-        eventhoster: {
-            type: DataTypes.STRING(100),
-            allowNull: false
-        },
-        phonenumber: {
-            type: DataTypes.STRING(8),
-            allowNull: false,
-            validate: {
-                is: /^[6-9]\d{7}$/
-            }
-        },
-        email: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            validate: {
-                isEmail: true
-            }
-        },
+        
         eventname: {
             type: DataTypes.STRING(100),
             allowNull: false
@@ -46,9 +29,9 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         }
     }, {
-        tableName: 'events'  // DB table name
+        tableName: 'eventposts'  // DB table name
         // Data model: Event mapped --> to DB table events
     });
-    return Event;
+    return EventPost;
     // Return Data model Event to allow index.js to sequelize and execute the DB
 }
