@@ -55,42 +55,68 @@ function AddForum() {
     });
 
     return (
-        <Box>
-            <Typography variant="h5" sx={{ my: 2 }}>
-                Add Forum
-            </Typography>
-            <Typography variant="h2" component="div">
-                {user.username}
-          </Typography>
-            <Box component="form" onSubmit={formik.handleSubmit}>
-                <TextField
-                    fullWidth margin="dense" autoComplete="off"
-                    label="Title"
-                    name="title"
-                    value={formik.values.title}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    error={formik.touched.title && Boolean(formik.errors.title)}
-                    helperText={formik.touched.title && formik.errors.title}
-                />
-                <TextField
-                    fullWidth margin="dense" autoComplete="off"
-                    multiline minRows={2}
-                    label="Description"
-                    name="description"
-                    value={formik.values.description}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    error={formik.touched.description && Boolean(formik.errors.description)}
-                    helperText={formik.touched.description && formik.errors.description}
-                />
-                <Box sx={{ mt: 2 }}>
-                    <Button variant="contained" type="submit">
-                        Add
-                    </Button>
-                </Box>
-            </Box>
-        </Box>
+        <Box
+  sx={{
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '100vh',
+  }}
+>
+  <Box
+    sx={{
+      maxWidth: '600px',
+      width: '100%',
+      mx: 'auto',
+      p: 3,
+      backgroundColor: 'white',
+      borderRadius: 2,
+      boxShadow: 3,
+    }}
+  >
+    <Typography variant="h5" sx={{ my: 2, fontWeight: 'bold', textAlign: 'center'}}>
+      Post A Forum
+    </Typography>
+    <Typography variant="h6" component="div" sx={{ mb: 2, color: 'text.secondary' }}>
+      {user.username}
+    </Typography>
+    <Box component="form" onSubmit={formik.handleSubmit}>
+      <TextField
+        fullWidth
+        margin="dense"
+        autoComplete="off"
+        label="Title"
+        name="title"
+        value={formik.values.title}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.title && Boolean(formik.errors.title)}
+        helperText={formik.touched.title && formik.errors.title}
+      />
+      <TextField
+        fullWidth
+        margin="dense"
+        autoComplete="off"
+        multiline
+        minRows={3}
+        label="Description"
+        name="description"
+        value={formik.values.description}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.description && Boolean(formik.errors.description)}
+        helperText={formik.touched.description && formik.errors.description}
+      />
+      <Box sx={{ mt: 3, textAlign: 'center' }}>
+        <Button variant="contained" type="submit">
+          Publish
+        </Button>
+      </Box>
+    </Box>
+  </Box>
+</Box>
+
+
     );
 }
 
