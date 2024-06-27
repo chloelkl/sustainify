@@ -8,8 +8,8 @@ const yup = require("yup");
 router.post("/add", async (req, res) => {
   let data = req.body;
   let validationSchema = yup.object({
-    challenge: yup.string().trim().min(3).max(100).required(),
-    date: yup.date().required()
+    date: yup.date().required(),
+    challenge: yup.string().trim().max(100).required()
   });
   try {
     data = await validationSchema.validate(data, { abortEarly: false });
@@ -48,12 +48,35 @@ router.put("/update/:id", async (req, res) => {
   let data = req.body;
   // Validate request body
   let validationSchema = yup.object({
-    challenge: yup.string().trim().min(3).max(100).required(),
-    date: yup.date().required()
+    date: yup.date().required(),
+    challenge: yup.string().trim().max(100).required()
   });
   try {
     data = await validationSchema.validate(data,
       { abortEarly: false });
+
+    // check for change
+    const currentChallenge = await Challenge.findOne({
+      where: {
+        id: id,
+        date: data.date,
+        challenge: data.challenge
+      }
+    }) ;
+    if (currentChallenge) {
+      return res.status(400).json({ errors: 'No change supplied.' });
+    }
+
+    // make sure date does not overlap with other challenges
+    const existingChallenge = await Challenge.findOne({
+      where: {
+        id: { [Op.ne]: id }, 
+        date: data.date
+      }
+    });
+    if (existingChallenge) {
+      return res.status(400).json({ errors: 'A challenge with this date already exists.' });
+    }
 
     let num = await Challenge.update(data, {
       where: { id: id }
