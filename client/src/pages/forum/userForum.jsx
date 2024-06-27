@@ -150,7 +150,7 @@ function UserForums() {
           <Avatar alt={user.username} src={user.profileImage || 'https://via.placeholder.com/150'} sx={{ width: 150, height: 150 }} />
         </div>
         <div style={styles.profileDetails}>
-          <Typography variant="h2" component="div" style={styles.profileName}>
+          <Typography variant="h4" component="div" style={styles.profileName}>
             {user.username}
           </Typography>
           <div style={styles.profileStats}>
