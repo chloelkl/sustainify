@@ -121,35 +121,47 @@ function UserForums() {
   if (error) return <p>Error: {error}</p>;
 
   const ForumItems = forums.map((item) => (
-    <Card key={item.id} sx={{ mb: 2, boxShadow: 3 }}>
-            <Link to={`/user/${item.userId}/forum`} style={{ textDecoration: 'none' }}>
-                <CardMedia
-                    component="img"
-                    image={item.image || 'https://images.pexels.com/photos/355508/pexels-photo-355508.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'}
-                    alt={item.title}
-                    sx={{ width: '100%', height: 200, objectFit: 'cover', borderRadius: '4px 4px 0 0' }}
-                />
-                <CardContent sx={{ padding: 2 }}>
-                    <Typography
-                        variant="h5"
-                        component="div"
-                        sx={{ wordWrap: 'break-word', mb: 1, fontWeight: 'bold' }}
-                    >
-                        {item.title}
-                    </Typography>
-                    <Typography
-                        variant="body1"
-                        component="div"
-                        sx={{ wordWrap: 'break-word', mb: 2 }}
-                    >
-                        {item.description}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                        {item.User.username}
-                    </Typography>
-                </CardContent>
-            </Link>
-        </Card>
+    <Card key={item.id} sx={{ mb: 2, boxShadow: 3, position: 'relative' }}>
+  <Link to={`/user/${item.userId}/forum`} style={{ textDecoration: 'none' }}>
+    <CardMedia
+      component="img"
+      image={item.image || 'https://images.pexels.com/photos/355508/pexels-photo-355508.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'}
+      alt={item.title}
+      sx={{ width: '100%', height: 200, objectFit: 'cover', borderRadius: '4px 4px 0 0' }}
+    />
+    <CardContent sx={{ padding: 2 }}>
+      <Typography
+        variant="h5"
+        component="div"
+        sx={{ wordWrap: 'break-word', mb: 1, fontWeight: 'bold' }}
+      >
+        {item.title}
+      </Typography>
+      <Typography
+        variant="body1"
+        component="div"
+        sx={{ wordWrap: 'break-word', mb: 2 }}
+      >
+        {item.description}
+      </Typography>
+      <Box
+        sx={{
+          position: 'absolute',
+          bottom: 0,
+          right: 0,
+          marginRight: '10px',
+          marginBottom: '10px',
+          fontSize: '25px',
+          cursor: 'pointer',
+        }}
+        onClick={() => handleEditClick(item)}
+      >
+        <TbEdit />
+      </Box>
+    </CardContent>
+  </Link>
+</Card>
+
 
   ));
 
