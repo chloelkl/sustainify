@@ -16,11 +16,6 @@ app.get("/", (req, res) => {
 });
 
 // Routes -> Add routes based on DB created
-const eventRoute = require('./routes/event');
-app.use("/event", eventRoute);
-
-const testRoute = require('./routes/test');
-app.use("/test", testRoute);
 
 const challengeRoute = require('./routes/challenge');
 app.use('/challenge', challengeRoute)
