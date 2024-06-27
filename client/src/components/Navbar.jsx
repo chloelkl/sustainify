@@ -54,7 +54,7 @@ function Navbar() {
             <Typography>EVENTS</Typography>
           </StyledLink>
           <StyledLink to="/">
-            <Logo src="Logo.png" alt="sustainify" />
+            <Logo src="/Logo.png" alt="sustainify" />
           </StyledLink>
           
 
