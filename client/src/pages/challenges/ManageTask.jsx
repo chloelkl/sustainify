@@ -215,8 +215,8 @@ function ManageTask() {
   const handleChallengeEdit = (e) => {
     setCurrentChallenge(e.target.value)
   }
-  const handleDateEdit = (e) => {
-    setCurrentDate(e.target.value)
+  const handleDateEdit = (date) => {
+    setCurrentDate(date)
   }
 
   const handleSubmit = async (e) => {
@@ -246,7 +246,7 @@ function ManageTask() {
       fetchChallenges();
     } catch (error) {
       console.error('Error:', error);
-      setResponseMessage(`Error: ${error.message}`);
+      setResponseMessage(error.message);
       setResponseType('error')
     };
 
@@ -279,7 +279,7 @@ function ManageTask() {
       fetchChallenges();
     } catch (error) {
       console.error('Error:', error);
-      setResponseMessage(`Error: ${error.message}`);
+      setResponseMessage(error.message);
       setResponseType('error')
     };
 
