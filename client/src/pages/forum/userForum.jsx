@@ -121,25 +121,35 @@ function UserForums() {
   if (error) return <p>Error: {error}</p>;
 
   const ForumItems = forums.map((item) => (
-    <Card key={item.id} style={{ marginBottom: "20px" }}>
-      <CardMedia
-        component="img"
-        image={item.image}
-        alt={item.title}
-        style={{ width: "100%", objectFit: "cover" }}
-      />
-      <CardContent style={{ position: "relative" }}>
-        <Typography variant="h4" component="div" style={{ wordWrap: "break-word" }}>
-          {item.title}
-        </Typography>
-        <Typography variant="body1" component="div" style={{ wordWrap: "break-word" }}>
-          {item.description}
-        </Typography>
-        <div style={{ position: "absolute", top: 0, right: 0, marginRight: "3px", fontSize: "25px" }} onClick={() => handleEditClick(item)}>
-          <TbEdit />
-        </div>
-      </CardContent>
-    </Card>
+    <Card key={item.id} sx={{ mb: 2, boxShadow: 3 }}>
+            <Link to={`/user/${item.userId}/forum`} style={{ textDecoration: 'none' }}>
+                <CardMedia
+                    component="img"
+                    image={item.image || 'https://images.pexels.com/photos/355508/pexels-photo-355508.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'}
+                    alt={item.title}
+                    sx={{ width: '100%', height: 200, objectFit: 'cover', borderRadius: '4px 4px 0 0' }}
+                />
+                <CardContent sx={{ padding: 2 }}>
+                    <Typography
+                        variant="h5"
+                        component="div"
+                        sx={{ wordWrap: 'break-word', mb: 1, fontWeight: 'bold' }}
+                    >
+                        {item.title}
+                    </Typography>
+                    <Typography
+                        variant="body1"
+                        component="div"
+                        sx={{ wordWrap: 'break-word', mb: 2 }}
+                    >
+                        {item.description}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                        {item.User.username}
+                    </Typography>
+                </CardContent>
+            </Link>
+        </Card>
 
   ));
 
