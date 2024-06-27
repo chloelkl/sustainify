@@ -1,3 +1,4 @@
+// auth.js
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
@@ -39,8 +40,7 @@ router.post('/signup', [
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { username, email, password, phoneNumber, countryCode, role } = req.body;
-    const userRole = role === 'admin' ? 'admin-pending' : 'user';
+    const { username, email, password, phoneNumber, countryCode } = req.body;
 
     try {
         const existingUser = await User.findOne({ where: { email } });
@@ -49,7 +49,7 @@ router.post('/signup', [
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await User.create({ username, email, password: hashedPassword, phoneNumber, countryCode, role: userRole });
+        const newUser = await User.create({ username, email, password: hashedPassword, phoneNumber, countryCode, role: 'user' });
 
         const token = generateToken(newUser);
 
@@ -61,7 +61,19 @@ router.post('/signup', [
 });
 
 // Admin registration
-router.post('/admin-signup', async (req, res) => {
+router.post('/admin-signup', [
+    check('username').notEmpty().withMessage('Username is required'),
+    check('email').isEmail().withMessage('Enter a valid email'),
+    check('password').isLength({ min: 4 }).matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{4,}$/).withMessage('Password must be at least 4 characters long, contain one uppercase, one lowercase, one number, and one special character.'),
+    check('phoneNumber').notEmpty().withMessage('Phone number is required'),
+    check('countryCode').notEmpty().withMessage('Country code is required'),
+    check('otp').notEmpty().withMessage('OTP is required'),
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     const { fullName, email, password, otp, token, username, phoneNumber, countryCode } = req.body;
 
     try {
@@ -72,7 +84,7 @@ router.post('/admin-signup', async (req, res) => {
 
         const existingUser = await Admin.findOne({ where: { email } });
         if (existingUser) {
-            return res.status(400).json({ errors: [{ msg: 'User already exists' }] });
+            return res.status(400).json({ errors: [{ msg: 'Admin already exists' }] });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -106,10 +118,8 @@ router.post('/login', [
     const { email, password } = req.body;
 
     try {
-        // Check User model first
         let user = await User.findOne({ where: { email } });
         if (!user) {
-            // If not found, check Admin model
             user = await Admin.findOne({ where: { email } });
             if (!user) {
                 return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });

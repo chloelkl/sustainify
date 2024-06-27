@@ -2,91 +2,94 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const UserSettings = ({ userId }) => {
-    const [settings, setSettings] = useState({
-        language: 'English',
-        twoFactorAuth: false,
-        socialMediaLinks: { google: '', apple: '' }
+    const [userDetails, setUserDetails] = useState({
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        phoneNumber: '',
+        countryCode: '',
+        location: ''
     });
 
     useEffect(() => {
         axios.get(`/user/${userId}/settings`)
-            .then(response => setSettings(response.data))
-            .catch(error => console.error("There was an error fetching the settings!", error));
+            .then(response => setUserDetails(response.data))
+            .catch(error => console.error("There was an error fetching the user details!", error));
     }, [userId]);
 
     const handleChange = (e) => {
-        const { name, value, checked, type } = e.target;
-        setSettings(prevState => ({
-            ...prevState,
-            [name]: type === 'checkbox' ? checked : value
-        }));
+        setUserDetails({ ...userDetails, [e.target.name]: e.target.value });
     };
 
     const handleSave = () => {
-        axios.put(`/user/${userId}/settings`, settings)
-            .then(response => {
-                console.log(response.data);
-            })
-            .catch(error => console.error("There was an error updating the settings!", error));
-    };
+        if (userDetails.password !== userDetails.confirmPassword) {
+            alert('Passwords do not match.');
+            return;
+        }
 
-    const handleDeleteAccount = () => {
-        axios.delete(`/user/${userId}`)
+        axios.put(`/user/${userId}`, userDetails)
             .then(response => {
-                console.log(response.data);
-                // Redirect or update UI accordingly
+                alert('Profile updated successfully!');
             })
-            .catch(error => console.error("There was an error deleting the account!", error));
+            .catch(error => console.error("There was an error updating the user details!", error));
     };
 
     return (
         <div>
             <h2>User Settings</h2>
-            <div>
-                <label>
-                    Language:
-                    <select name="language" value={settings.language} onChange={handleChange}>
-                        <option value="English">English</option>
-                        <option value="Chinese">Chinese</option>
-                        <option value="Korean">Korean</option>
-                    </select>
-                </label>
-            </div>
-            <div>
-                <label>
-                    Two-Factor Authentication:
-                    <input
-                        type="checkbox"
-                        name="twoFactorAuth"
-                        checked={settings.twoFactorAuth}
-                        onChange={handleChange}
-                    />
-                </label>
-            </div>
-            <div>
-                <label>
-                    Google:
-                    <input
-                        type="text"
-                        name="socialMediaLinks.google"
-                        value={settings.socialMediaLinks.google}
-                        onChange={handleChange}
-                    />
-                </label>
-            </div>
-            <div>
-                <label>
-                    Apple:
-                    <input
-                        type="text"
-                        name="socialMediaLinks.apple"
-                        value={settings.socialMediaLinks.apple}
-                        onChange={handleChange}
-                    />
-                </label>
-            </div>
-            <button onClick={handleSave}>Save</button>
-            <button onClick={handleDeleteAccount}>Delete Account</button>
+            <form onSubmit={handleSave}>
+                <label>Username</label>
+                <input
+                    type="text"
+                    name="username"
+                    value={userDetails.username}
+                    onChange={handleChange}
+                />
+                <label>Email</label>
+                <input
+                    type="email"
+                    name="email"
+                    value={userDetails.email}
+                    onChange={handleChange}
+                />
+                <label>Password</label>
+                <input
+                    type="password"
+                    name="password"
+                    value={userDetails.password}
+                    onChange={handleChange}
+                />
+                <label>Confirm Password</label>
+                <input
+                    type="password"
+                    name="confirmPassword"
+                    value={userDetails.confirmPassword}
+                    onChange={handleChange}
+                />
+                <label>Phone Number</label>
+                <input
+                    type="text"
+                    name="phoneNumber"
+                    value={userDetails.phoneNumber}
+                    onChange={handleChange}
+                />
+                <label>Country Code</label>
+                <input
+                    type="text"
+                    name="countryCode"
+                    value={userDetails.countryCode}
+                    onChange={handleChange}
+                />
+                <label>Location</label>
+                <input
+                    type="text"
+                    name="location"
+                    value={userDetails.location}
+                    onChange={handleChange}
+                />
+                <button type="submit">Save</button>
+            </form>
         </div>
     );
 };

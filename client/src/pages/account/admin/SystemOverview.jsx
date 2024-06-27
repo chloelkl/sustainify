@@ -1,45 +1,53 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useAuth } from '../../../context/AuthContext';
 
 const SystemOverview = () => {
-    const [analytics, setAnalytics] = useState([]);
-    const [backupHistory, setBackupHistory] = useState([]);
-    const [analyticsError, setAnalyticsError] = useState(null);
-    const [backupHistoryError, setBackupHistoryError] = useState(null);
+    const { user } = useAuth();
+    const [adminDetails, setAdminDetails] = useState({
+        fullName: '',
+        email: '',
+        password: '',
+        location: '',
+        username: '',
+        phoneNumber: '',
+        countryCode: '',
+        id: ''
+    });
+    const [admins, setAdmins] = useState([]);
     const [signupLink, setSignupLink] = useState('');
-    const [signupLinkError, setSignupLinkError] = useState(null);
     const [otp, setOtp] = useState('');
-    const [otpTimer, setOtpTimer] = useState(60); // Timer for OTP
+    const [otpTimer, setOtpTimer] = useState(300);
+    const [linkValid, setLinkValid] = useState(true);
     const [backupType, setBackupType] = useState('full');
     const [fileFormat, setFileFormat] = useState('csv');
-    const [linkValid, setLinkValid] = useState(true);
+    const [backupHistory, setBackupHistory] = useState([]);
 
     useEffect(() => {
-        fetchAnalytics();
-        fetchBackupHistory();
-        const otpInterval = setInterval(handleGenerateAdminSignupLink, 300000); // Refresh OTP every 60 seconds
-
-        return () => clearInterval(otpInterval); // Cleanup on component unmount
-    }, []);
-
-    useEffect(() => {
-        if (otpTimer > 0) {
-            const timer = setTimeout(() => setOtpTimer(otpTimer - 1), 1000);
-            return () => clearTimeout(timer);
+        if (user && user.userId) {
+            fetchAdminDetails(user.userId);
         }
-    }, [otpTimer]);
+        fetchAdmins();
+        fetchBackupHistory();
+    }, [user]);
 
-    const fetchAnalytics = () => {
-        axios.get(`${import.meta.env.VITE_API_URL}/admin/analytics`)
+    const fetchAdminDetails = (id) => {
+        axios.get(`${import.meta.env.VITE_API_URL}/admin/${id}`)
             .then(response => {
-                if (Array.isArray(response.data)) {
-                    setAnalytics(response.data);
-                } else {
-                    throw new Error('Analytics response is not an array.');
-                }
+                setAdminDetails(response.data);
             })
             .catch(error => {
-                setAnalyticsError('Failed to fetch analytics.');
+                console.error('Failed to fetch admin details:', error);
+            });
+    };
+
+    const fetchAdmins = () => {
+        axios.get(`${import.meta.env.VITE_API_URL}/admin/list`)
+            .then(response => {
+                setAdmins(response.data);
+            })
+            .catch(error => {
+                console.error('Failed to fetch admins:', error);
             });
     };
 
@@ -49,24 +57,62 @@ const SystemOverview = () => {
                 if (Array.isArray(response.data)) {
                     setBackupHistory(response.data);
                 } else {
-                    throw new Error('Backup history is not an array.');
+                    throw new Error('Backup history response is not an array.');
                 }
             })
             .catch(error => {
-                setBackupHistoryError('Failed to fetch backup history.');
+                console.error('Failed to fetch backup history:', error);
             });
     };
 
+    const handleDeleteAdmin = (id) => {
+        const password = prompt('Enter admin password to confirm deletion');
+        axios.post(`${import.meta.env.VITE_API_URL}/admin/delete`, { id, password })
+            .then(response => {
+                fetchAdmins();
+            })
+            .catch(error => {
+                console.error('Failed to delete admin:', error);
+            });
+    };
+
+    const handleSaveChanges = () => {
+        axios.put(`${import.meta.env.VITE_API_URL}/admin/${adminDetails.id}`, adminDetails)
+            .then(response => {
+                console.log('Profile updated successfully.');
+                fetchAdminDetails(user.userId);
+            })
+            .catch(error => {
+                console.error('Failed to update profile:', error);
+            });
+    };
+
+    const handleGenerateAdminSignupLink = () => {
+        axios.post(`${import.meta.env.VITE_API_URL}/auth/generate-admin-signup`)
+            .then(response => {
+                setSignupLink(response.data.signupLink);
+                setOtp(response.data.otp);
+                setOtpTimer(300);
+                setLinkValid(true);
+            })
+            .catch(error => {
+                console.error('Failed to generate admin signup link:', error);
+            });
+    };
+
+    const handleRevokeLink = () => {
+        setSignupLink('');
+        setOtp('');
+        setLinkValid(false);
+    };
+
     const handleBackupNow = () => {
-        axios.post(`${import.meta.env.VITE_API_URL}/admin/backup`, {
-            type: backupType,
-            format: fileFormat
-        })
+        axios.post(`${import.meta.env.VITE_API_URL}/admin/backup`, { type: backupType, format: fileFormat })
             .then(response => {
                 fetchBackupHistory();
             })
             .catch(error => {
-                setBackupHistoryError('Failed to create backup.');
+                console.error('Failed to create backup:', error);
             });
     };
 
@@ -76,47 +122,117 @@ const SystemOverview = () => {
                 fetchBackupHistory();
             })
             .catch(error => {
-                setBackupHistoryError('Failed to delete backup.');
+                console.error('Failed to delete backup:', error);
             });
     };
 
-    const handleGenerateAdminSignupLink = () => {
-        setSignupLinkError(null);
-        axios.post(`${import.meta.env.VITE_API_URL}/auth/generate-admin-signup`)
-            .then(response => {
-                setSignupLink(response.data.signupLink);
-                setOtp(response.data.otp);
-                setOtpTimer(300);
-                setLinkValid(true);
-            })
-            .catch(error => {
-                setSignupLinkError('Failed to generate admin signup link.');
-            });
-    };
-
-    const handleRevokeLink = () => {
-        setSignupLink('');
-        setOtp('');
-        setLinkValid(false); // Invalidate the link
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setAdminDetails(prevDetails => ({
+            ...prevDetails,
+            [name]: value
+        }));
     };
 
     return (
         <div style={containerStyle}>
             <div style={leftContainerStyle}>
                 <div style={sectionStyle}>
-                    <h2>Analytics</h2>
-                    {analyticsError && <div style={errorStyle}>{analyticsError}</div>}
-                    {analytics.length > 0 ? (
-                        <div>{/* Use chart library or custom code to display analytics as shown in the image */}</div>
-                    ) : (
-                        <p>No analytics data available.</p>
-                    )}
+                    <h2>Edit Profile</h2>
+                    <div style={editProfileContainerStyle}>
+                        <div style={editProfileLeftStyle}>
+                            <label>Full name:</label>
+                            <input
+                                type="text"
+                                name="fullName"
+                                value={adminDetails.fullName}
+                                onChange={handleInputChange}
+                                style={inputStyle}
+                            />
+                            <label>Email address:</label>
+                            <input
+                                type="email"
+                                name="email"
+                                value={adminDetails.email}
+                                onChange={handleInputChange}
+                                style={inputStyle}
+                            />
+                            <label>Password:</label>
+                            <input
+                                type="password"
+                                name="password"
+                                value={adminDetails.password}
+                                onChange={handleInputChange}
+                                style={inputStyle}
+                            />
+                            <label>Location:</label>
+                            <input
+                                type="text"
+                                name="location"
+                                value={adminDetails.location}
+                                onChange={handleInputChange}
+                                style={inputStyle}
+                            />
+                            <label>Username:</label>
+                            <input
+                                type="text"
+                                name="username"
+                                value={adminDetails.username}
+                                onChange={handleInputChange}
+                                style={inputStyle}
+                            />
+                            <label>Phone Number:</label>
+                            <input
+                                type="text"
+                                name="phoneNumber"
+                                value={adminDetails.phoneNumber}
+                                onChange={handleInputChange}
+                                style={inputStyle}
+                            />
+                            <label>Country Code:</label>
+                            <input
+                                type="text"
+                                name="countryCode"
+                                value={adminDetails.countryCode}
+                                onChange={handleInputChange}
+                                style={inputStyle}
+                            />
+                        </div>
+                        <div style={editProfileRightStyle}>
+                            <div style={buttonsContainerStyle}>
+                                <button onClick={handleSaveChanges} style={saveButtonStyle}>Save changes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style={sectionStyle}>
+                    <h2>Admins List</h2>
+                    {admins.map((admin) => (
+                        <div key={admin.id} style={adminItemStyle}>
+                            <strong>Username:</strong> {admin.username} <br />
+                            <strong>Status:</strong> {admin.status || 'Active'}
+                            <button onClick={() => handleDeleteAdmin(admin.id)}>Delete</button>
+                        </div>
+                    ))}
                 </div>
             </div>
             <div style={rightContainerStyle}>
                 <div style={sectionStyle}>
+                    <h2>Generate Admin Signup Link</h2>
+                    <button onClick={handleGenerateAdminSignupLink}>Generate Link</button>
+                    {signupLink && linkValid && (
+                        <div>
+                            <p>Admin Signup Link: <a href={signupLink} target="_blank" rel="noopener noreferrer">{signupLink}</a></p>
+                            <p>OTP: {otp}</p>
+                            <p>OTP valid for: {otpTimer} seconds</p>
+                        </div>
+                    )}
+                    {signupLink && (
+                        <button onClick={handleRevokeLink}>Revoke Link</button>
+                    )}
+                </div>
+                <div style={sectionStyle}>
                     <h2>Backup History</h2>
-                    {backupHistoryError && <div style={errorStyle}>{backupHistoryError}</div>}
                     <label>
                         Backup Type:
                         <select value={backupType} onChange={(e) => setBackupType(e.target.value)}>
@@ -144,21 +260,6 @@ const SystemOverview = () => {
                             </li>
                         ))}
                     </ul>
-                </div>
-                <div style={sectionStyle}>
-                    <h2>Generate Admin Signup Link</h2>
-                    {signupLinkError && <div style={errorStyle}>{signupLinkError}</div>}
-                    <button onClick={handleGenerateAdminSignupLink}>Generate Link</button>
-                    {signupLink && linkValid && (
-                        <div>
-                            <p>Admin Signup Link: <a href={signupLink} target="_blank" rel="noopener noreferrer">{new URL(signupLink).pathname + new URL(signupLink).search}</a></p>
-                            <p>OTP: {otp}</p>
-                            <p>OTP valid for: {otpTimer} seconds</p>
-                        </div>
-                    )}
-                    {signupLink && (
-                        <button onClick={handleRevokeLink}>Revoke Link</button>
-                    )}
                 </div>
             </div>
         </div>
@@ -198,9 +299,61 @@ const sectionStyle = {
     gap: '10px'
 };
 
-const errorStyle = {
-    color: 'red',
+const editProfileContainerStyle = {
+    display: 'flex',
+    gap: '20px'
+};
+
+const editProfileLeftStyle = {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px'
+};
+
+const editProfileRightStyle = {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px'
+};
+
+const inputStyle = {
+    padding: '10px',
+    borderRadius: '5px',
+    border: '1px solid #ccc'
+};
+
+const pointsContainerStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px'
+};
+
+const buttonsContainerStyle = {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: '10px',
+    marginTop: '20px'
+};
+
+const saveButtonStyle = {
+    backgroundColor: '#4CAF50',
+    color: 'white',
+    padding: '10px',
+    borderRadius: '5px',
+    border: 'none',
+    cursor: 'pointer'
+};
+
+const adminItemStyle = {
+    backgroundColor: '#f9f9f9',
+    padding: '10px',
+    borderRadius: '5px',
     marginBottom: '10px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '5px'
 };
 
 const backupItemStyle = {

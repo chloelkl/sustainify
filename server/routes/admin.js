@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const jwt = require('jsonwebtoken');
-const { User, Analytics, BackupHistory } = require('../models');
+const { Admin, BackupHistory, Analytics } = require('../models');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const verifyToken = require('../middleware/verifyToken');
 require('dotenv').config();
 
@@ -93,6 +93,79 @@ router.delete('/backup/:id', verifyToken, async (req, res) => {
         }
     } catch (error) {
         res.status(500).json({ error: 'Failed to delete backup.' });
+    }
+});
+
+// Update admin profile
+router.put('/:id', verifyToken, async (req, res) => {
+    const { id } = req.params;
+    const { fullName, email, password, location, username, phoneNumber, countryCode } = req.body;
+
+    try {
+        const admin = await Admin.findByPk(id);
+        if (!admin) {
+            return res.status(404).json({ error: 'Admin not found.' });
+        }
+
+        admin.fullName = fullName || admin.fullName;
+        admin.email = email || admin.email;
+        admin.phoneNumber = phoneNumber || admin.phoneNumber;
+        admin.countryCode = countryCode || admin.countryCode;
+        admin.location = location || admin.location;
+        admin.username = username || admin.username;
+
+        if (password) {
+            admin.password = await bcrypt.hash(password, 10);
+        }
+
+        await admin.save();
+        res.json({ message: 'Profile updated successfully.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update profile.' });
+    }
+});
+
+// Fetch list of admins
+router.get('/list', verifyToken, async (req, res) => {
+    try {
+        const admins = await Admin.findAll();
+        res.json(admins);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch admins.' });
+    }
+});
+
+router.get('/:id', verifyToken, async (req, res) => {
+    try {
+        const admin = await Admin.findByPk(req.params.id);
+        if (!admin) {
+            return res.status(404).json({ error: 'Admin not found.' });
+        }
+        res.json(admin);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch admin details.' });
+    }
+});
+
+// Delete an admin
+router.post('/delete', verifyToken, async (req, res) => {
+    const { id, password } = req.body;
+
+    try {
+        const admin = await Admin.findOne({ where: { id } });
+        if (!admin) {
+            return res.status(404).json({ error: 'Admin not found.' });
+        }
+
+        const isMatch = await bcrypt.compare(password, admin.password);
+        if (!isMatch) {
+            return res.status(401).json({ error: 'Incorrect password.' });
+        }
+
+        await Admin.destroy({ where: { id } });
+        res.json({ message: 'Admin deleted successfully.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete admin.' });
     }
 });
 

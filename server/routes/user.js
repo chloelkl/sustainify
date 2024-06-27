@@ -77,4 +77,32 @@ router.post("/:id/ai-chatbot", verifyToken, async (req, res) => {
     res.json({ response: aiResponse });
 });
 
+// Update user profile
+router.put("/:id", verifyToken, async (req, res) => {
+    let id = req.params.id;
+    const { username, email, password, phoneNumber, countryCode, location } = req.body;
+
+    try {
+        const user = await User.findByPk(id);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        user.username = username || user.username;
+        user.email = email || user.email;
+        user.phoneNumber = phoneNumber || user.phoneNumber;
+        user.countryCode = countryCode || user.countryCode;
+        user.location = location || user.location;
+
+        if (password) {
+            user.password = await bcrypt.hash(password, 10);
+        }
+
+        await user.save();
+        res.json({ message: 'Profile updated successfully.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update profile.' });
+    }
+});
+
 module.exports = router;

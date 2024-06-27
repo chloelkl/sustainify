@@ -88,8 +88,8 @@ const Login = () => {
 
 const container = {
     display: 'flex',
-    height: 'calc(100vh - 64px)', // Adjust for navbar height
-    marginTop: '64px', // Add space for navbar height
+    height: 'calc(100vh - 64px)',
+    marginTop: '64px',
 };
 
 const leftContainer = {
