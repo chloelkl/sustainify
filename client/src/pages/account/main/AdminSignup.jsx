@@ -5,18 +5,19 @@ import { IconButton } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 const AdminSignup = () => {
-    const [formData, setFormData] = useState({ fullName: '', email: '', password: '', confirmPassword: '', otp: '' });
+    const [formData, setFormData] = useState({ fullName: '', email: '', username: '', password: '', confirmPassword: '', otp: '', phoneNumber: '', countryCode: '+65' });
     const [errors, setErrors] = useState([]);
     const [success, setSuccess] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const navigate = useNavigate();
+    const [token, setToken] = useState('');
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('token');
-        if (token) {
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        const tokenParam = urlParams.get('token');
+        if (tokenParam) {
+            setToken(tokenParam);
         }
     }, []);
 
@@ -41,7 +42,10 @@ const AdminSignup = () => {
         }
 
         try {
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/admin-signup`, formData, {
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/admin-signup`, {
+                ...formData,
+                token
+            }, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -91,6 +95,37 @@ const AdminSignup = () => {
                         required
                         style={inputStyle}
                     />
+                    <label style={inputLabelStyle}>Enter your <strong>username</strong></label>
+                    <input
+                        type="text"
+                        name="username"
+                        placeholder="Username"
+                        value={formData.username}
+                        onChange={handleChange}
+                        required
+                        style={inputStyle}
+                    />
+                    <label style={inputLabelStyle}>Enter your <strong>phone number</strong></label>
+                    <div style={phoneContainerStyle}>
+                        <select
+                            name="countryCode"
+                            value={formData.countryCode}
+                            onChange={handleChange}
+                            style={selectStyle}
+                        >
+                            <option value="+65">Singapore (+65)</option>
+                            <option value="+60">Malaysia (+60)</option>
+                        </select>
+                        <input
+                            type="text"
+                            name="phoneNumber"
+                            placeholder="Phone Number"
+                            value={formData.phoneNumber}
+                            onChange={handleChange}
+                            required
+                            style={inputStyle}
+                        />
+                    </div>
                     <label style={inputLabelStyle}>Enter OTP</label>
                     <input
                         type="text"
@@ -257,6 +292,20 @@ const errorStyle = {
 const successStyle = {
     marginTop: '10px',
     color: 'green',
+};
+
+const phoneContainerStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: '10px',
+};
+
+const selectStyle = {
+    marginRight: '10px',
+    padding: '10px',
+    borderRadius: '5px',
+    border: '1px solid #ccc',
+    width: '30%',
 };
 
 export default AdminSignup;

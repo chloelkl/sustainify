@@ -82,7 +82,7 @@ const SystemOverview = () => {
 
     const handleGenerateAdminSignupLink = () => {
         setSignupLinkError(null);
-        axios.post(`${import.meta.env.VITE_API_URL}/admin/generate-admin-signup`)
+        axios.post(`${import.meta.env.VITE_API_URL}/auth/generate-admin-signup`)
             .then(response => {
                 setSignupLink(response.data.signupLink);
                 setOtp(response.data.otp);

@@ -4,55 +4,14 @@ import { AppBar, Toolbar, Typography, IconButton } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { styled } from '@mui/system';
 import AccountCircle from '@mui/icons-material/AccountCircle';
-import { useAuth } from '../context/AuthContext'; // Import the Auth context
-
-// using mui to style navbar
-const StyledToolbar = styled(Toolbar)({
-  display: 'flex',
-  justifyContent: 'space-around',
-  height: '100px'
-});
-
-const NavLinks = styled('div')({
-  display: 'flex',
-  alignItems: 'center',
-  width: '100%',
-  justifyContent: 'space-between',
-  padding: '0 20px',
-});
-
-const Logo = styled('img')({
-  textAlign: 'center',
-  height: '100px',
-  '&:hover': {
-    opacity: '0.7',
-  }
-
-});
-
-const StyledLink = styled(Link)(({ theme }) => ({
-  color: theme.palette.secondary.light,
-  textDecoration: 'none',
-  '& .MuiTypography-root': {
-    fontSize: '1.2rem'
-  },
-  '&:hover': {
-    textDecoration: 'underline',
-  },
-}));
-
-const AuthLinks = styled('div')({
-  display: 'flex',
-  alignItems: 'center',
-  gap: '8px',
-});
+import { useAuth } from '../context/AuthContext';
 
 function Navbar() {
-  const { isAuthenticated, user } = useAuth(); // Get the auth status and user details
+  const { user, role, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const handleProfileClick = () => {
-    if (user.role === 'admin') {
+    if (role === 'admin') {
       navigate('/account/admin/main');
     } else {
       navigate('/account/user/main');
@@ -78,7 +37,7 @@ function Navbar() {
           <StyledLink to="/rewards">
             <Typography>REWARDS</Typography>
           </StyledLink>
-          {isAuthenticated ? (
+          {user ? (
             <IconButton color="inherit" onClick={handleProfileClick}>
               <AccountCircle />
             </IconButton>
@@ -97,5 +56,45 @@ function Navbar() {
     </AppBar>
   );
 }
+
+
+const StyledToolbar = styled(Toolbar)({
+  display: 'flex',
+  justifyContent: 'space-around',
+  height: '100px'
+});
+
+const NavLinks = styled('div')({
+  display: 'flex',
+  alignItems: 'center',
+  width: '100%',
+  justifyContent: 'space-between',
+  padding: '0 20px',
+});
+
+const Logo = styled('img')({
+  textAlign: 'center',
+  height: '100px',
+  '&:hover': {
+    opacity: '0.7',
+  }
+});
+
+const StyledLink = styled(Link)(({ theme }) => ({
+  color: theme.palette.secondary.light,
+  textDecoration: 'none',
+  '& .MuiTypography-root': {
+    fontSize: '1.2rem'
+  },
+  '&:hover': {
+    textDecoration: 'underline',
+  },
+}));
+
+const AuthLinks = styled('div')({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+});
 
 export default Navbar;

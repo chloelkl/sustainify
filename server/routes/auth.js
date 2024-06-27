@@ -3,8 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { check, validationResult } = require('express-validator');
-const { User } = require('../models');
-const verifyToken = require('../middleware/verifyToken');
+const { User, Admin } = require('../models');
 require('dotenv').config();
 
 // Generate JWT token
@@ -62,9 +61,8 @@ router.post('/signup', [
 });
 
 // Admin registration
-router.post('/admin-signup', verifyToken, async (req, res) => {
-    const token = req.headers.authorization.split(' ')[1];
-    const { fullName, email, password, otp } = req.body;
+router.post('/admin-signup', async (req, res) => {
+    const { fullName, email, password, otp, token, username, phoneNumber, countryCode } = req.body;
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -72,13 +70,21 @@ router.post('/admin-signup', verifyToken, async (req, res) => {
             return res.status(401).json({ errors: [{ msg: 'Invalid OTP' }] });
         }
 
-        const existingUser = await User.findOne({ where: { email } });
+        const existingUser = await Admin.findOne({ where: { email } });
         if (existingUser) {
             return res.status(400).json({ errors: [{ msg: 'User already exists' }] });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await User.create({ fullName, email, password: hashedPassword, role: 'admin' });
+        const newAdmin = await Admin.create({
+            fullName,
+            email,
+            password: hashedPassword,
+            role: 'admin',
+            username,
+            phoneNumber,
+            countryCode
+        });
 
         res.status(201).json({ msg: 'Admin registered successfully' });
     } catch (error) {
@@ -87,7 +93,7 @@ router.post('/admin-signup', verifyToken, async (req, res) => {
     }
 });
 
-// User login
+// User/Admin login
 router.post('/login', [
     check('email').isEmail().withMessage('Enter a valid email'),
     check('password').notEmpty().withMessage('Password is required')
@@ -100,9 +106,14 @@ router.post('/login', [
     const { email, password } = req.body;
 
     try {
-        const user = await User.findOne({ where: { email } });
+        // Check User model first
+        let user = await User.findOne({ where: { email } });
         if (!user) {
-            return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });
+            // If not found, check Admin model
+            user = await Admin.findOne({ where: { email } });
+            if (!user) {
+                return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });
+            }
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
@@ -113,6 +124,21 @@ router.post('/login', [
         const token = generateToken(user);
 
         res.status(200).json({ token, role: user.role });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ errors: [{ msg: 'Server error' }] });
+    }
+});
+
+// Generate Admin Signup Link
+router.post('/generate-admin-signup', async (req, res) => {
+    try {
+        const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
+        const token = jwt.sign({ otp }, process.env.JWT_SECRET, { expiresIn: '1h' }); // 1 hour expiration
+
+        const signupLink = `${process.env.CLIENT_URL}/account/admin-signup?token=${token}`;
+
+        res.json({ signupLink, otp });
     } catch (error) {
         console.error(error);
         res.status(500).json({ errors: [{ msg: 'Server error' }] });

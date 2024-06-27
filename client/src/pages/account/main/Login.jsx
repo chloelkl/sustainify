@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { IconButton } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { useAuth } from '/src/context/AuthContext';
+import { useAuth } from '../../../context/AuthContext';
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
@@ -23,7 +23,7 @@ const Login = () => {
         try {
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, formData);
             const { token, role, user } = response.data;
-            login(token, user);
+            login(token, role);
             navigate(role === 'admin' ? '/account/admin/main' : '/account/user/main');
         } catch (error) {
             setErrors(error.response ? error.response.data.errors : [{ msg: 'Invalid credentials' }]);
@@ -43,7 +43,7 @@ const Login = () => {
                 <h2 style={titleStyle}>Login</h2>
                 <button style={googleButtonStyle}>Continue with Google</button>
                 <div style={dividerStyle}>or</div>
-                <p style={loginTextStyle}>Don't have an account yet? <a href="/account/signup" style={loginLinkStyle}>Sign up here!</a></p>
+                <p style={loginTextStyle}>Don&apos;t have an account yet? <a href="/account/signup" style={loginLinkStyle}>Sign up here!</a></p>
                 <form onSubmit={handleSubmit} style={formStyle}>
                     <label style={inputLabelStyle}>Enter your <strong>email</strong></label>
                     <input
