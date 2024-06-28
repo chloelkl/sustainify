@@ -45,56 +45,84 @@ function Forum() {
     }, []);
 
     const ForumItems = forumList.map((item) => (
-            <Card key={item.id} style={{ marginBottom: "20px" }}>
-                <Link to={`/user/${item.userId}/forum`}>
+        <Card key={item.id} sx={{ mb: 2, boxShadow: 3 }}>
+            <Link to={`/user/${item.userId}/forum`} style={{ textDecoration: 'none' }}>
                 <CardMedia
                     component="img"
-                    image={item.image}
+                    image={item.image || 'https://images.pexels.com/photos/355508/pexels-photo-355508.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'}
                     alt={item.title}
-                    style={{ width: "100%", objectFit: "cover" }}
+                    sx={{ width: '100%', height: 200, objectFit: 'cover', borderRadius: '4px 4px 0 0' }}
                 />
-                <CardContent>
-                    <Typography variant="h4" component="div" style={{ wordWrap: "break-word" }}>
+                <CardContent sx={{ padding: 2 }}>
+                    <Typography
+                        variant="h5"
+                        component="div"
+                        sx={{ wordWrap: 'break-word', mb: 1, fontWeight: 'bold' }}
+                    >
                         {item.title}
                     </Typography>
-                    <Typography variant="body1" component="div" style={{ wordWrap: "break-word" }}>
+                    <Typography
+                        variant="body1"
+                        component="div"
+                        sx={{ wordWrap: 'break-word', mb: 2 }}
+                    >
                         {item.description}
                     </Typography>
                     <Typography variant="body2" color="textSecondary">
-                        Created by: {item.User.username}
+                        {item.User.username}
                     </Typography>
                 </CardContent>
-                </Link>
-            </Card>
-        
+            </Link>
+        </Card>
+
     ));
 
     return (
         <Box>
             <Typography variant="h5" sx={{ my: 2 }}>
-                Forum
-            </Typography>
+                    
+                </Typography>
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    mb: 2,
+                    backgroundColor: 'white',
+                        borderRadius: 2,
+                        padding: 1,
+                        boxShadow: 1,
+                }}
+            >
+                <Typography variant="h5" sx={{ my: 2, fontWeight: 'bold' }}>
+                    "Getting Inspired One Step at a Time."
+                </Typography>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Input
-                    value={search}
-                    placeholder="Search"
-                    onChange={onSearchChange}
-                    onKeyDown={onSearchKeyDown}
-                />
-                <IconButton color="primary" onClick={onClickSearch}>
-                    <Search />
-                </IconButton>
-                <IconButton color="primary" onClick={onClickClear}>
-                    <Clear />
-                </IconButton>
-                <Box sx={{ flexGrow: 1 }} />
-                <Link to="/addforum" style={{ textDecoration: 'none' }}>
-                    <Button variant='contained'>
-                        Add
-                    </Button>
-                </Link>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        width: '40%',
+                        
+                    }}
+                >
+                    <Input
+                        value={search}
+                        placeholder="Search"
+                        onChange={onSearchChange}
+                        onKeyDown={onSearchKeyDown}
+                        sx={{ flex: 1 }}
+                    />
+                    <IconButton color="primary" onClick={onClickSearch}>
+                        <Search />
+                    </IconButton>
+                    <IconButton color="primary" onClick={onClickClear}>
+                        <Clear />
+                    </IconButton>
+                </Box>
             </Box>
+
 
             <div className="Forum" style={{ padding: "20px" }}>
                 <Masonry columnsCount={3} gutter="10px">
