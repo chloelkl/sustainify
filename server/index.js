@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 require('dotenv').config();
 const { Forum } = require('./models/Forum');
 
@@ -13,12 +12,8 @@ app.use(cors({
     origin: process.env.CLIENT_URL
 }));
 
-// Serve static file from the client folder
-app.use(express.static(path.join( '..', 'client')));
-
-// Simple Route - Define the route here
+// Simple Route
 app.get("/", (req, res) => {
-    res.sendFile(path.join('..', 'client', 'index.html'));
     res.send("Sustainify Admin Side");
 });
 
@@ -36,9 +31,8 @@ app.use("/test", testRoute);
 const forumRoute = require('./routes/forum');
 app.use("/forum", forumRoute);
 
-// Start server after synchronising the DB files under models folder
 const db = require('./models');
-db.sequelize.sync({ alter: false })
+db.sequelize.sync({ alter: true })
     .then(() => {
         let port = process.env.APP_PORT;
         app.listen(port, () => {
