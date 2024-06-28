@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { styled } from '@mui/system';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 
+
 // using mui to style navbar
 const StyledToolbar = styled(Toolbar)({
   display: 'flex',
@@ -17,6 +18,7 @@ const NavLinks = styled('div')({
   width: '100%',
   justifyContent: 'space-around'
 });
+
 
 const Logo = styled('img')({
   textAlign: 'center',
@@ -50,7 +52,7 @@ function Navbar() {
             <Typography>EVENTS</Typography>
           </StyledLink>
           <StyledLink to="/">
-            <Logo src="../../public/Logo.png" alt="sustainify" />
+            <Logo src="Logo.png" alt="sustainify" />
           </StyledLink>
           
 
