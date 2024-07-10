@@ -4,6 +4,7 @@ import { AppBar, Toolbar, Typography, IconButton } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { styled } from '@mui/system';
 import AccountCircle from '@mui/icons-material/AccountCircle';
+import theme from '../themes/MyTheme.js';
 import { useAuth } from '../context/AuthContext';
 
 function Navbar() {

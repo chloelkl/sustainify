@@ -23,11 +23,13 @@ app.get("/", (req, res) => {
     res.send("Welcome to the learning space.");
 });
 
-// Use forum routes
+// Routes -> Add routes based on DB created
+
+const challengeRoute = require('./routes/challenge');
+app.use('/challenge', challengeRoute)
+
 const forum = require('./routes/forum');
 app.use('/user', forum); // Mount forumRoutes under /users
-
-// Routes -> Add routes based on DB created
 
 const userRoute = require('./routes/user');
 app.use("/user", userRoute);
