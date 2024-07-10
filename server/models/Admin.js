@@ -1,5 +1,6 @@
+// models/Admin.js
 module.exports = (sequelize, DataTypes) => {
-    const User = sequelize.define("User", {
+    const Admin = sequelize.define("Admin", {
         username: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -17,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
         role: {
             type: DataTypes.STRING,
             allowNull: false,
-            defaultValue: 'user'
+            defaultValue: 'admin'
         },
         phoneNumber: {
             type: DataTypes.STRING,
@@ -63,10 +64,6 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: true
         },
-        pointsEarned: {
-            type: DataTypes.INTEGER,
-            defaultValue: 0
-        },
         preferences: {
             type: DataTypes.TEXT,
             allowNull: true
@@ -79,16 +76,8 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BOOLEAN,
             defaultValue: false
         },
-        languages: {
-            type: DataTypes.STRING,
-            allowNull: true
-        },
         securityQuestions: {
             type: DataTypes.TEXT,
-            allowNull: true
-        },
-        bio: {
-            type: DataTypes.STRING,
             allowNull: true
         },
         resetPasswordToken: {
@@ -104,11 +93,6 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true
         }
     });
-    User.associate = (models) => {
-        User.hasMany(models.Forum, {
-            foreignKey: 'userId',
-            onDelete: 'CASCADE'
-        });
-    };
-    return User;
+
+    return Admin;
 };

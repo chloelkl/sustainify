@@ -8,10 +8,14 @@ router.post("/", async (req, res) => {
     let data = req.body;
     // Validate request body -> Update Details of request body to match fields define in DB
     let validationSchema = yup.object({
-        title: yup.string().trim().min(3).max(100).required(),
-        description: yup.string().trim().min(3).max(500).required(),
-        // datetime: yup.date().required(),
-        attendees: yup.string().trim().min(3).max(500).required()
+        eventhoster: yup.string().trim().min(3).max(100).required(),
+        phonenumber: yup.string().trim().matches(/^[6-9]\d{7}$/, "Phone number must be a valid 8-digit Singaporean number starting with 6, 8, or 9").required(),
+        email: yup.string().trim().email("Email must be a valid email address").required(),
+        eventname: yup.string().trim().min(3).max(100).required(),
+        eventdate: yup.string().trim().matches(/^\d{2}\/\d{2}\/\d{4}$/, "Date must be in the format dd/mm/yyyy").required(),
+        eventtime: yup.string().trim().matches(/^([01]\d|2[0-3]):?([0-5]\d)$/, "Time must be in 24-hour format (HH:MM)").required(),
+        venue: yup.string().trim().min(3).max(100).required(),
+        eventdescription: yup.string().trim().min(3).max(500).required()
     });
     try {
         data = await validationSchema.validate(data,
@@ -29,8 +33,9 @@ router.get("/", async (req, res) => {
     let search = req.query.search;
     if (search) {
         condition[Op.or] = [
-            { title: { [Op.like]: `%${search}%` } },
-            { description: { [Op.like]: `%${search}%` } }
+            { eventhoster: { [Op.like]: `%${search}%` } },
+            { eventname: { [Op.like]: `%${search}%` } }
+            
         ];
     }
     // You can add condition for other columns here
@@ -45,7 +50,7 @@ router.get("/", async (req, res) => {
 
 router.get("/:id", async (req, res) => {
     let id = req.params.id;
-    let event = await Event.findByPk(id);
+    let event = await EventPost.findByPk(id);
     // Check id not found
     if (!event) {
         res.sendStatus(404);
@@ -66,8 +71,14 @@ router.put("/:id", async (req, res) => {
     let data = req.body;
     // Validate request body
     let validationSchema = yup.object({
-        title: yup.string().trim().min(3).max(100),
-        description: yup.string().trim().min(3).max(500)
+        eventhoster: yup.string().trim().min(3).max(100).required(),
+        phonenumber: yup.string().trim().matches(/^[6-9]\d{7}$/, "Phone number must be a valid 8-digit Singaporean number starting with 6, 8, or 9").required(),
+        email: yup.string().trim().email("Email must be a valid email address").required(),
+        eventname: yup.string().trim().min(3).max(100).required(),
+        eventdate: yup.string().trim().matches(/^\d{2}\/\d{2}\/\d{4}$/, "Date must be in the format dd/mm/yyyy").required(),
+        eventtime: yup.string().trim().matches(/^([01]\d|2[0-3]):?([0-5]\d)$/, "Time must be in 24-hour format (HH:MM)").required(),
+        venue: yup.string().trim().min(3).max(100).required(),
+        eventdescription: yup.string().trim().min(3).max(500).required()
     });
     try {
         data = await validationSchema.validate(data,
@@ -78,12 +89,12 @@ router.put("/:id", async (req, res) => {
         });
         if (num == 1) {
             res.json({
-                message: "Event was updated successfully."
+                message: "Event post was updated successfully."
             });
         }
         else {
             res.status(400).json({
-                message: `Cannot update event with id ${id}.`
+                message: `Cannot update event post with id ${id}.`
             });
         }
     }
@@ -106,12 +117,12 @@ router.delete("/:id", async (req, res) => {
     })
     if (num == 1) {
         res.json({
-            message: "Event was deleted successfully."
+            message: "Event post was deleted successfully."
         });
     }
     else {
         res.status(400).json({
-            message: `Cannot delete event with id ${id}.`
+            message: `Cannot delete event post with id ${id}.`
         });
     }
 });

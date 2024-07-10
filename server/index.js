@@ -2,47 +2,55 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
-const { Forum } = require('./models/Forum');
 
 const app = express();
 app.use(express.json());
 
+const corsOptions = {
+    origin: process.env.CLIENT_URL,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+};
 
-// Enable CORS
-app.use(cors({
-    origin: process.env.CLIENT_URL
-}));
+app.use(cors(corsOptions));
 
-// Serve static file from the client folder
-app.use(express.static(path.join( '..', 'client')));
+// Serve static files from the client folder
+app.use(express.static(path.join(__dirname, '..', 'client')));
 
 // Simple Route - Define the route here
 app.get("/", (req, res) => {
-    res.sendFile(path.join('..', 'client', 'index.html'));
+    res.sendFile(path.join(__dirname, '..', 'client', 'index.html'));
     res.send("Sustainify Admin Side");
 });
 
-// Use forum routes
-const forum = require('./routes/forum');
-app.use('/user', forum); // Mount forumRoutes under /users
-
 // Routes -> Add routes based on DB created
+
+const userRoute = require('./routes/user');
+app.use("/user", userRoute);
+
+const adminRoute = require('./routes/admin');
+app.use("/admin", adminRoute);
+
+const authRoute = require('./routes/auth');
+app.use("/auth", authRoute);
+
 const eventRoute = require('./routes/event');
 app.use("/event", eventRoute);
 
-const testRoute = require('./routes/test');
-app.use("/test", testRoute);
+const eventpostRoute = require('./routes/eventpost');
+app.use("/eventpost", eventpostRoute);
 
 const forumRoute = require('./routes/forum');
 app.use("/forum", forumRoute);
 
-// Start server after synchronising the DB files under models folder
+
 const db = require('./models');
-db.sequelize.sync({ alter: false })
+db.sequelize.sync({ alter: true })
     .then(() => {
-        let port = process.env.APP_PORT;
+        let port = process.env.APP_PORT || 3001;
         app.listen(port, () => {
-            console.log(`⚡ Sever running on http://localhost:${port}`);
+            console.log(`⚡ Server running on http://localhost:${port}`);
         });
     })
     .catch((err) => {
