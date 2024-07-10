@@ -18,9 +18,13 @@ const NavLinks = styled('div')({
   justifyContent: 'space-around'
 });
 
-const Logo = styled(Typography)({
-  // flexGrow: 1,
+const Logo = styled('img')({
   textAlign: 'center',
+  height: '100px',
+  '&:hover': {
+    opacity: '0.7',
+  }
+
 });
 
 const StyledLink = styled(Link)(({ theme }) => ({
@@ -44,14 +48,14 @@ function Navbar() {
             <Typography>EVENTS</Typography>
           </StyledLink>
           <StyledLink to="/">
-            <Logo>LOGO</Logo>
+            <Logo src="/Logo.png" alt="sustainify" />
           </StyledLink>
           
 
           <StyledLink to="/forum">
             <Typography>FORUM</Typography>
           </StyledLink>
-          <StyledLink to="/rewards/RewardPage">
+          <StyledLink to="/rewards/Rewards">
             <Typography>REWARDS</Typography>
           </StyledLink>
           <IconButton color="inherit">
