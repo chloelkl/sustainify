@@ -58,7 +58,7 @@ function App() {
     <Router>
       <AuthProvider>
         <ThemeProvider theme={MyTheme}>
-          <div style={{ height: '0vh', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ height: '100px', display: 'flex', flexDirection: 'column' }}>
             <Navbar />
           </div>
           <Container>
