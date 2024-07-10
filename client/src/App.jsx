@@ -8,7 +8,11 @@ import './fonts/Poppins.css';
 // import pages here
 import Homepage from './pages/Homepage';
 import Navbar from './components/Navbar';
-import RewardPage from './pages/rewards/RewardPage';
+import Rewards from './pages/rewards/Rewards';
+import EditReward from './pages/rewards/EditReward';
+import AddReward from './pages/rewards/AddReward';
+import DeleteReward from './pages/rewards/DeleteReward';
+import UserReward from './pages/rewards/UserReward';
 
 function App() {
   return (
@@ -22,9 +26,13 @@ function App() {
             {/* add paths for each page */}
             <Route path={"/"} element={<Homepage />} />
             <Route path={"/homepage"} element={<Homepage />} />
-            <Route path={"/"} element={<RewardPage />} />
-            <Route path={"/rewards/RewardPage"} element={<RewardPage />} />
-
+            
+            {/* Rewards Page */}
+            <Route path={"/rewards/Rewards"} element={<Rewards />} />  
+            <Route path={"/rewards/AddReward"} element={<AddReward />} />
+            <Route path={"/rewards/EditReward/:id"} element={<EditReward />} />
+            <Route path={"/rewards/DeleteReward/:id"} element={<DeleteReward />} />
+            <Route path={"/rewards/UserReward"} element={<UserReward />} />
           </Routes>
         </Container>
       </ThemeProvider>
