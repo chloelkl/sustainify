@@ -1,0 +1,17 @@
+.eventhostingadmin {
+  display: flex;
+}
+
+.eventhostingadmin-content {
+  flex: 2;
+  margin-left: 260px; /* Adjust this value based on the sidebar width */
+  padding: 20px;
+}
+
+.admin-title {
+  margin-bottom: 20px;
+}
+
+.admin-table-container {
+  margin-top: 20px;
+}
