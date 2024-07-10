@@ -25,8 +25,6 @@ app.get("/", (req, res) => {
 });
 
 // Routes -> Add routes based on DB created
-const eventRoute = require('./routes/event');
-app.use("/event", eventRoute);
 
 const userRoute = require('./routes/user');
 app.use("/user", userRoute);
@@ -37,9 +35,14 @@ app.use("/admin", adminRoute);
 const authRoute = require('./routes/auth');
 app.use("/auth", authRoute);
 
-// Start server after synchronising the DB files under models folder
+const eventRoute = require('./routes/event');
+app.use("/event", eventRoute);
+
+const eventpostRoute = require('./routes/eventpost');
+app.use("/eventpost", eventpostRoute);
+
 const db = require('./models');
-db.sequelize.sync({ alter: false })
+db.sequelize.sync({ alter: true })
     .then(() => {
         let port = process.env.APP_PORT || 3001;
         app.listen(port, () => {

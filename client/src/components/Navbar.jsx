@@ -25,7 +25,7 @@ function Navbar() {
           <StyledLink to="/challenges">
             <Typography>CHALLENGES</Typography>
           </StyledLink>
-          <StyledLink to="/events">
+          <StyledLink to="/eventoverview">
             <Typography>EVENTS</Typography>
           </StyledLink>
           <StyledLink to="/">

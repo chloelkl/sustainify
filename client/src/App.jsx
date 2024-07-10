@@ -23,6 +23,14 @@ import Chatbot from './components/Chatbot';
 import Signup from './pages/account/main/Signup';
 import AdminSignup from './pages/account/main/AdminSignup';
 import Login from './pages/account/main/Login';
+import EventHosting from './pages/events/eventhosting';
+import EventHostingAdmin from './pages/events/eventhostingadmin';
+import PostEvent from './pages/events/postevent';
+import PostEventAdmin from './pages/events/posteventadmin';
+import EditHostingAdmin from './pages/events/edithostingadmin';
+import CreateEventAdmin from './pages/events/createeventadmin';
+import EventOverview from './pages/events/eventoverview';
+
 
 function App() {
   return (
@@ -48,6 +56,14 @@ function App() {
               <Route path="/account/admin/communication-tools" element={<ProtectedRoute><CommunicationTools /></ProtectedRoute>} />
               <Route path="/account/admin/system-overview" element={<ProtectedRoute><SystemOverview /></ProtectedRoute>} />
               <Route path="/account/admin/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/eventhosting" element={<EventHosting />} />
+              <Route path="/eventhostingadmin" element={<EventHostingAdmin />} />
+              <Route path="/postevent" element={<PostEvent />} />
+              <Route path="/posteventadmin" element={<PostEventAdmin />} />
+              <Route path={"/edithostingadmin/:id"} element={<EditHostingAdmin />} />
+              <Route path="/createeventadmin" element={<CreateEventAdmin />} />
+              <Route path="/eventoverview" element={<EventOverview />} />
+
             </Routes>
           </Container>
           <Chatbot />
