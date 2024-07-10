@@ -103,7 +103,8 @@ const NewChal = styled(TextField)({
     }
   },
   '& .MuiInputLabel-root': {
-    fontSize: '.8rem'
+    fontSize: '.8rem',
+    margin: '0'
   }
 });
 
@@ -344,7 +345,7 @@ function ManageTask() {
       <PlaceholderSidebar></PlaceholderSidebar>
       <ManageParent>
         <ManageContainer sx={{ boxShadow: 2 }}>
-          <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', justifyContent: 'center' }} >
+          <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', justifyContent: 'center', flexDirection: 'row' }} >
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <SelectDate value={selectedDate} onChange={handleDateChange} minDate={dayjs()} format="DD/MM/YYYY" />
             </LocalizationProvider>

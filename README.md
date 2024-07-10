@@ -13,6 +13,12 @@ DB_PWD = "mysql"
 DB_NAME = "sustainify"
 ```
 
+for vite base urls:
+create .env folder under client and add the following
+```
+VITE_API_BASE_URL = "http://localhost:3001"
+```
+
 to start on creating your page:
 1. /client/src/pages contains the folders for each feature
 --> this is where the jsx files are which is like the html, refer to Homepage.jsx
