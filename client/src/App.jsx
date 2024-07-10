@@ -31,6 +31,9 @@ import EditHostingAdmin from './pages/events/edithostingadmin';
 import CreateEventAdmin from './pages/events/createeventadmin';
 import EventOverview from './pages/events/eventoverview';
 
+import Forum from './pages/forum/Forum';
+import AddForum from './pages/forum/AddForum';
+import UserForum from './pages/forum/UserForum';
 
 function App() {
   return (
@@ -63,6 +66,9 @@ function App() {
               <Route path={"/edithostingadmin/:id"} element={<EditHostingAdmin />} />
               <Route path="/createeventadmin" element={<CreateEventAdmin />} />
               <Route path="/eventoverview" element={<EventOverview />} />
+              <Route path={"/forum"} element={<Forum />} />
+              <Route path={"/user/:userId/forum/addforum"} element={<AddForum />} />
+              <Route path={"/user/:userId/forum"} element={<UserForum />} />
 
             </Routes>
           </Container>

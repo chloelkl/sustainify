@@ -104,6 +104,11 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true
         }
     });
-
+    User.associate = (models) => {
+        User.hasMany(models.Forum, {
+            foreignKey: 'userId',
+            onDelete: 'CASCADE'
+        });
+    };
     return User;
 };

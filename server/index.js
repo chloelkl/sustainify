@@ -20,9 +20,12 @@ app.use(express.static(path.join(__dirname, '..', 'client')));
 
 // Simple Route - Define the route here
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'client', 'index.html'));
-    res.send("Sustainify Admin Side");
+    res.send("Welcome to the learning space.");
 });
+
+// Use forum routes
+const forum = require('./routes/forum');
+app.use('/user', forum); // Mount forumRoutes under /users
 
 // Routes -> Add routes based on DB created
 
@@ -40,6 +43,10 @@ app.use("/event", eventRoute);
 
 const eventpostRoute = require('./routes/eventpost');
 app.use("/eventpost", eventpostRoute);
+
+const forumRoute = require('./routes/forum');
+app.use("/forum", forumRoute);
+
 
 const db = require('./models');
 db.sequelize.sync({ alter: true })
