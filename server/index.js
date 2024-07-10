@@ -25,8 +25,6 @@ app.get("/", (req, res) => {
 });
 
 // Routes -> Add routes based on DB created
-const eventRoute = require('./routes/event');
-app.use("/event", eventRoute);
 
 const userRoute = require('./routes/user');
 app.use("/user", userRoute);
@@ -42,9 +40,6 @@ app.use("/event", eventRoute);
 
 const eventpostRoute = require('./routes/eventpost');
 app.use("/eventpost", eventpostRoute);
-
-const testRoute = require('./routes/test');
-app.use("/test", testRoute);
 
 const db = require('./models');
 db.sequelize.sync({ alter: true })
