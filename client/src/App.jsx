@@ -34,6 +34,11 @@ import EventOverview from './pages/events/eventoverview';
 import Forum from './pages/forum/Forum';
 import AddForum from './pages/forum/AddForum';
 import UserForum from './pages/forum/UserForum';
+import Rewards from './pages/rewards/Rewards';
+import EditReward from './pages/rewards/EditReward';
+import AddReward from './pages/rewards/AddReward';
+import DeleteReward from './pages/rewards/DeleteReward';
+import UserReward from './pages/rewards/UserReward';
 
 function App() {
   return (
@@ -70,6 +75,12 @@ function App() {
               <Route path={"/user/:userId/forum/addforum"} element={<AddForum />} />
               <Route path={"/user/:userId/forum"} element={<UserForum />} />
 
+              {/* Rewards Page */}
+              <Route path={"/rewards/Rewards"} element={<Rewards />} />
+              <Route path={"/rewards/AddReward"} element={<AddReward />} />
+              <Route path={"/rewards/EditReward/:id"} element={<EditReward />} />
+              <Route path={"/rewards/DeleteReward/:id"} element={<DeleteReward />} />
+              <Route path={"/rewards/UserReward"} element={<UserReward />} />
             </Routes>
           </Container>
           <Chatbot />
