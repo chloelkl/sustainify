@@ -35,13 +35,17 @@ app.use("/event", eventRoute);
 const testRoute = require('./routes/test');
 app.use("/test", testRoute);
 
+const rewardRoute = require('./routes/reward');
+app.use("/reward", rewardRoute);
+
+
 // Start server after synchronising the DB files under models folder
 const db = require('./models');
 db.sequelize.sync({ alter: false })
     .then(() => {
         let port = process.env.APP_PORT;
         app.listen(port, () => {
-            console.log(`⚡ Sever running on http://localhost:${port}`);
+            console.log(`Server running on http://localhost:${port}`);
         });
     })
     .catch((err) => {
