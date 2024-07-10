@@ -1,11 +1,63 @@
-import React from "react";
-import { AppBar, Toolbar, Typography, IconButton } from "@mui/material";
-import { Link } from 'react-router-dom';
+// client/src/components/Navbar.jsx
+import React from 'react';
+import { AppBar, Toolbar, Typography, IconButton } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
 import { styled } from '@mui/system';
 import AccountCircle from '@mui/icons-material/AccountCircle';
+import { useAuth } from '../context/AuthContext';
+
+function Navbar() {
+  const { user, role, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  const handleProfileClick = () => {
+    if (role === 'admin') {
+      navigate('/account/admin/main');
+    } else {
+      navigate('/account/user/main');
+    }
+  };
+
+  return (
+    <AppBar position="fixed" style={{ zIndex: 1300, backgroundColor: '#84a9ac' }}>
+      <StyledToolbar>
+        <NavLinks>
+          <StyledLink to="/challenges">
+            <Typography>CHALLENGES</Typography>
+          </StyledLink>
+          <StyledLink to="/events">
+            <Typography>EVENTS</Typography>
+          </StyledLink>
+          <StyledLink to="/">
+            <Logo src="/Logo.png" alt="sustainify" />
+          </StyledLink>
+          <StyledLink to="/forum">
+            <Typography>FORUM</Typography>
+          </StyledLink>
+          <StyledLink to="/rewards">
+            <Typography>REWARDS</Typography>
+          </StyledLink>
+          {user ? (
+            <IconButton color="inherit" onClick={handleProfileClick}>
+              <AccountCircle />
+            </IconButton>
+          ) : (
+            <AuthLinks>
+              <StyledLink to="/account/signup">
+                <Typography variant="body2">SIGNUP</Typography>
+              </StyledLink>
+              <StyledLink to="/account/login">
+                <Typography variant="body2">LOGIN</Typography>
+              </StyledLink>
+            </AuthLinks>
+          )}
+        </NavLinks>
+      </StyledToolbar>
+    </AppBar>
+  );
+}
 
 
-// using mui to style navbar
 const StyledToolbar = styled(Toolbar)({
   display: 'flex',
   justifyContent: 'space-around',
@@ -16,9 +68,9 @@ const NavLinks = styled('div')({
   display: 'flex',
   alignItems: 'center',
   width: '100%',
-  justifyContent: 'space-around'
+  justifyContent: 'space-between',
+  padding: '0 20px',
 });
-
 
 const Logo = styled('img')({
   textAlign: 'center',
@@ -26,7 +78,6 @@ const Logo = styled('img')({
   '&:hover': {
     opacity: '0.7',
   }
-
 });
 
 const StyledLink = styled(Link)(({ theme }) => ({
@@ -40,36 +91,10 @@ const StyledLink = styled(Link)(({ theme }) => ({
   },
 }));
 
-function Navbar() {
-  return (
-    <AppBar position="static">
-      <StyledToolbar>
-        <NavLinks>
-          <StyledLink to="/challenges">
-            <Typography>CHALLENGES</Typography>
-          </StyledLink>
-          <StyledLink to="/events">
-            <Typography>EVENTS</Typography>
-          </StyledLink>
-          <StyledLink to="/">
-            <Logo src="Logo.png" alt="sustainify" />
-          </StyledLink>
-          
-
-          <StyledLink to="/forum">
-            <Typography>FORUM</Typography>
-          </StyledLink>
-          <StyledLink to="/rewards">
-            <Typography>REWARDS</Typography>
-          </StyledLink>
-          <IconButton color="inherit">
-            <AccountCircle />
-          </IconButton>
-        </NavLinks>
-      </StyledToolbar>
-    </AppBar>
-  );
-};
-
+const AuthLinks = styled('div')({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+});
 
 export default Navbar;
