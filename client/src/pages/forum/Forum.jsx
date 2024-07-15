@@ -4,8 +4,10 @@ import Masonry from "react-responsive-masonry";
 import { Box, Input, IconButton, Button, Card, CardMedia, CardContent, Typography } from '@mui/material';
 import { Search, Clear } from '@mui/icons-material';
 import http from '../../http';
+import { useAuth } from '../../context/AuthContext';
 
 function Forum() {
+    const { user, role } = useAuth();
     const [forumList, setForumList] = useState([]);
     const [search, setSearch] = useState('');
 
@@ -43,6 +45,10 @@ function Forum() {
     useEffect(() => {
         getForums();
     }, []);
+
+    if (role !== 'admin' && role !== 'user') {
+        return <Typography variant="h6">You do not have access to this page.</Typography>;
+    }
 
     const ForumItems = forumList.map((item) => (
         <Card key={item.id} sx={{ mb: 2, boxShadow: 3 }}>

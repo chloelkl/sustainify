@@ -64,7 +64,7 @@ const styles = {
 };
 
 function UserForums() {
-  const { userId } = useParams();
+  const { userId } = useAuth();
   const [forums, setForums] = useState([]);
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(true);

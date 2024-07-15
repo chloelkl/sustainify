@@ -1,6 +1,11 @@
 // models/Admin.js
 module.exports = (sequelize, DataTypes) => {
     const Admin = sequelize.define("Admin", {
+        adminID: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            unique: true
+        },
         username: {
             type: DataTypes.STRING,
             allowNull: false,
