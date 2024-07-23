@@ -5,6 +5,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { check, validationResult } = require('express-validator');
 const { User, Admin } = require('../models');
+const generateUserID = require('../utils/generateUserID');
+const generateAdminID = require('../utils/generateAdminID');
 require('dotenv').config();
 
 // Generate JWT token
@@ -48,8 +50,9 @@ router.post('/signup', [
             return res.status(400).json({ errors: [{ msg: 'User already exists' }] });
         }
 
+        const userID = await generateUserID();
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await User.create({ username, email, password: hashedPassword, phoneNumber, countryCode, role: 'user' });
+        const newUser = await User.create({ userID, username, email, password: hashedPassword, phoneNumber, countryCode, role: 'user' });
 
         const token = generateToken(newUser);
 
@@ -87,8 +90,10 @@ router.post('/admin-signup', [
             return res.status(400).json({ errors: [{ msg: 'Admin already exists' }] });
         }
 
+        const adminID = await generateAdminID();
         const hashedPassword = await bcrypt.hash(password, 10);
         const newAdmin = await Admin.create({
+            adminID,
             fullName,
             email,
             password: hashedPassword,
@@ -98,7 +103,7 @@ router.post('/admin-signup', [
             countryCode
         });
 
-        res.status(201).json({ msg: 'Admin registered successfully' });
+        res.status(201).json({ token, role: newAdmin.role });
     } catch (error) {
         console.error('Error during admin signup:', error);
         res.status(500).json({ errors: [{ msg: 'Server error' }] });
@@ -119,11 +124,14 @@ router.post('/login', [
 
     try {
         let user = await User.findOne({ where: { email } });
+        let isAdmin = false;
+
         if (!user) {
             user = await Admin.findOne({ where: { email } });
             if (!user) {
                 return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });
             }
+            isAdmin = true;
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
@@ -133,7 +141,7 @@ router.post('/login', [
 
         const token = generateToken(user);
 
-        res.status(200).json({ token, role: user.role });
+        res.status(200).json({ token, role: user.role, id: isAdmin ? user.adminID : user.userID });
     } catch (error) {
         console.error(error);
         res.status(500).json({ errors: [{ msg: 'Server error' }] });

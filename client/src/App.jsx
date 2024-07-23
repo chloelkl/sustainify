@@ -70,15 +70,15 @@ function App() {
               <Route path="/account/login" element={<Login />} />
               <Route path="/account/admin-signup" element={<AdminSignup />} />
               <Route path="/account/user/main" element={<ProtectedRoute><UserMain /></ProtectedRoute>} />
-              <Route path="/account/user/profile" element={<ProtectedRoute><UserProfile userId={1} /></ProtectedRoute>} />
-              <Route path="/account/user/settings" element={<ProtectedRoute><UserSettings userId={1} /></ProtectedRoute>} />
-              <Route path="/account/user/analytics" element={<ProtectedRoute><UserAnalytics userId={1} /></ProtectedRoute>} />
-              <Route path="/account/user/chat" element={<ProtectedRoute><ChatWithFriends userId={1} /></ProtectedRoute>} />
-              <Route path="/account/admin/main" element={<ProtectedRoute><AdminMain /></ProtectedRoute>} />
-              <Route path="/account/admin/user-management" element={<ProtectedRoute><UserManagement /></ProtectedRoute>} />
-              <Route path="/account/admin/communication-tools" element={<ProtectedRoute><CommunicationTools /></ProtectedRoute>} />
-              <Route path="/account/admin/system-overview" element={<ProtectedRoute><SystemOverview /></ProtectedRoute>} />
-              <Route path="/account/admin/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/account/user/profile" element={<ProtectedRoute roles={['user', 'admin']}><UserProfile /></ProtectedRoute>} />
+              <Route path="/account/user/settings" element={<ProtectedRoute roles={['user', 'admin']}><UserSettings /></ProtectedRoute>} />
+              <Route path="/account/user/analytics" element={<ProtectedRoute roles={['user', 'admin']}><UserAnalytics /></ProtectedRoute>} />
+              <Route path="/account/user/chat" element={<ProtectedRoute roles={['user', 'admin']}><ChatWithFriends /></ProtectedRoute>} />
+              <Route path="/account/admin/main" element={<ProtectedRoute roles={['admin']}><AdminMain /></ProtectedRoute>} />
+              <Route path="/account/admin/user-management" element={<ProtectedRoute roles={['admin']}><UserManagement /></ProtectedRoute>} />
+              <Route path="/account/admin/communication-tools" element={<ProtectedRoute roles={['admin']}><CommunicationTools /></ProtectedRoute>} />
+              <Route path="/account/admin/system-overview" element={<ProtectedRoute roles={['admin']}><SystemOverview /></ProtectedRoute>} />
+              <Route path="/account/admin/dashboard" element={<ProtectedRoute roles={['admin']}><Dashboard /></ProtectedRoute>} />
 
               {/* Event */}
               <Route path="/eventhosting" element={<EventHosting />} />

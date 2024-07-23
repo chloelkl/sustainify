@@ -1,4 +1,3 @@
-// client/src/context/AuthContext.jsx
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 
@@ -8,6 +7,7 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [admin, setAdmin] = useState(null);
     const [role, setRole] = useState(null);
 
     useEffect(() => {
@@ -16,7 +16,11 @@ export const AuthProvider = ({ children }) => {
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             axios.get(`${import.meta.env.VITE_API_URL}/auth/verify`)
                 .then(response => {
-                    setUser(response.data.user);
+                    if (response.data.role === 'admin') {
+                        setAdmin(response.data.admin);
+                    } else {
+                        setUser(response.data.user);
+                    }
                     setRole(response.data.role);
                 })
                 .catch(error => {
@@ -28,7 +32,11 @@ export const AuthProvider = ({ children }) => {
     const login = (token, user) => {
         localStorage.setItem('token', token);
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        setUser(user);
+        if (user.role === 'admin') {
+            setAdmin(user);
+        } else {
+            setUser(user);
+        }
         setRole(user.role);
     };
 
@@ -36,11 +44,12 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('token');
         delete axios.defaults.headers.common['Authorization'];
         setUser(null);
+        setAdmin(null);
         setRole(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, role, login, logout }}>
+        <AuthContext.Provider value={{ user, admin, role, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
