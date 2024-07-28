@@ -97,7 +97,9 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: true
         }
-    });
+    }, {
+        tableName: 'admins'
 
+    });
     return Admin;
 };
