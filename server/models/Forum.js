@@ -17,6 +17,14 @@ module.exports = (sequelize, DataTypes) => {
         tableName: 'forums'
 
     });
+
+    Forum.associate = (models) => {
+        Forum.belongsTo(models.User, {
+            foreignKey: 'userId',
+            onDelete: 'CASCADE'
+        });
+    };
+    
     return Forum;
     
 };
