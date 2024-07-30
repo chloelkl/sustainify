@@ -40,6 +40,9 @@ app.use("/admin", adminRoute);
 const authRoute = require('./routes/auth');
 app.use("/auth", authRoute);
 
+const communicationRoutes = require('./routes/communication');
+app.use('/communication', communicationRoutes);
+
 const eventRoute = require('./routes/event');
 app.use("/event", eventRoute);
 

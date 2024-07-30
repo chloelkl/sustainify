@@ -1,20 +1,23 @@
-// verifyToken.js
 const jwt = require('jsonwebtoken');
-const { User, Admin } = require('../models');
+require('dotenv').config();
 
-const verifyToken = async (req, res, next) => {
-    const token = req.headers['authorization']?.split(' ')[1];
-    if (!token) {
-        return res.status(401).json({ msg: 'No token, authorization denied' });
-    }
+const verifyToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    console.log('Request Headers:', req.headers); // Debugging line
+    const token = authHeader && authHeader.split(' ')[1];
+    console.log('Extracted Token:', token); // Debugging line
 
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded;
+    if (!token) return res.status(401).json({ msg: 'No token provided' });
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) {
+            console.error('Error during token verification:', err); // Debugging line
+            return res.status(403).json({ msg: 'Token is not valid' });
+        }
+        console.log('Decoded Token:', user); // Debugging line
+        req.user = user;
         next();
-    } catch (error) {
-        res.status(401).json({ msg: 'Token is not valid' });
-    }
+    });
 };
 
 module.exports = verifyToken;

@@ -12,10 +12,16 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
+        console.log('Retrieved token from local storage:', token); // Debugging line
+
         if (token) {
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            console.log('Authorization header set:', axios.defaults.headers.common['Authorization']); // Debugging line
+
             axios.get(`${import.meta.env.VITE_API_URL}/auth/verify`)
                 .then(response => {
+                    console.log('Verification response:', response.data); // Debugging line
+
                     if (response.data.role === 'admin') {
                         setAdmin(response.data);
                     } else {
@@ -24,14 +30,17 @@ export const AuthProvider = ({ children }) => {
                     setRole(response.data.role);
                 })
                 .catch(error => {
-                    console.error(error);
+                    console.error('Error during verification:', error);
                 });
         }   
     }, []);
 
     const login = (token, user) => {
+        console.log('Logging in with token:', token); // Debugging line
         localStorage.setItem('token', token);
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        console.log('Authorization header set during login:', axios.defaults.headers.common['Authorization']); // Debugging line
+
         if (user.role === 'admin') {
             setAdmin(user);
         } else {
@@ -41,6 +50,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
+        console.log('Logging out'); // Debugging line
         localStorage.removeItem('token');
         delete axios.defaults.headers.common['Authorization'];
         setUser(null);
