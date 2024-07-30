@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
                 .catch(error => {
                     console.error(error);
                 });
-        }
+        }   
     }, []);
 
     const login = (token, user) => {
