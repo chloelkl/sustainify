@@ -17,16 +17,16 @@ export const AuthProvider = ({ children }) => {
             axios.get(`${import.meta.env.VITE_API_URL}/auth/verify`)
                 .then(response => {
                     if (response.data.role === 'admin') {
-                        setAdmin(response.data.admin);
+                        setAdmin(response.data);
                     } else {
-                        setUser(response.data.user);
+                        setUser(response.data);
                     }
                     setRole(response.data.role);
                 })
                 .catch(error => {
                     console.error(error);
                 });
-        }
+        }   
     }, []);
 
     const login = (token, user) => {

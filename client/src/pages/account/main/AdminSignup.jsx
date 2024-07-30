@@ -29,18 +29,18 @@ const AdminSignup = () => {
         e.preventDefault();
         setErrors([]);
         setSuccess('');
-
+    
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{4,}$/;
         if (!passwordRegex.test(formData.password)) {
             setErrors([{ msg: 'Password must be at least 4 characters long, contain one uppercase, one lowercase, one number, and one special character.' }]);
             return;
         }
-
+    
         if (formData.password !== formData.confirmPassword) {
             setErrors([{ msg: 'Passwords do not match.' }]);
             return;
         }
-
+    
         try {
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/admin-signup`, {
                 ...formData,
@@ -50,14 +50,20 @@ const AdminSignup = () => {
                     'Content-Type': 'application/json',
                 },
             });
-            setSuccess('Admin registered successfully!');
-            setTimeout(() => {
-                navigate('/account/login');
-            }, 2000);
+    
+            if (response.status === 201) {
+                setSuccess('Admin registered successfully!');
+                setTimeout(() => {
+                    navigate('/account/login');
+                }, 2000);
+            } else {
+                setErrors([{ msg: 'Failed to register admin. Please try again.' }]);
+            }
         } catch (error) {
             setErrors(error.response ? error.response.data.errors : [{ msg: 'Server error' }]);
         }
     };
+    
 
     const handleClickShowPassword = () => {
         setShowPassword(!showPassword);

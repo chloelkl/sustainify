@@ -129,11 +129,14 @@ router.put('/:id', verifyToken, async (req, res) => {
 router.get('/list', verifyToken, async (req, res) => {
     try {
         const admins = await Admin.findAll();
+        console.log('Fetched admins:', admins); // Debugging line
         res.json(admins);
     } catch (error) {
+        console.error('Failed to fetch admins:', error);
         res.status(500).json({ error: 'Failed to fetch admins.' });
     }
 });
+
 
 router.get('/:id', verifyToken, async (req, res) => {
     try {
@@ -143,9 +146,11 @@ router.get('/:id', verifyToken, async (req, res) => {
         }
         res.json(admin);
     } catch (error) {
+        console.error('Failed to fetch admin details:', error);
         res.status(500).json({ error: 'Failed to fetch admin details.' });
     }
 });
+
 
 // Delete an admin
 router.post('/delete', verifyToken, async (req, res) => {

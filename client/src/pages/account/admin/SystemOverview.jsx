@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../../../context/AuthContext';
 
 const SystemOverview = () => {
-    const { user } = useAuth();
+    const { admin } = useAuth();
     const [adminDetails, setAdminDetails] = useState({
         fullName: '',
         email: '',
@@ -12,7 +12,7 @@ const SystemOverview = () => {
         username: '',
         phoneNumber: '',
         countryCode: '',
-        id: ''
+        adminID: ''
     });
     const [admins, setAdmins] = useState([]);
     const [signupLink, setSignupLink] = useState('');
@@ -24,30 +24,38 @@ const SystemOverview = () => {
     const [backupHistory, setBackupHistory] = useState([]);
 
     useEffect(() => {
-        if (user && user.userId) {
-            fetchAdminDetails(user.userId);
+        console.log("Admin object:", admin); // Log the admin object
+    
+        if (admin && admin.adminID) {
+            console.log("Admin ID exists:", admin.adminID); // Confirm adminID presence
+            fetchAdminDetails(admin.adminID);
+        } else {
+            console.error('Admin ID is missing or admin object is not set', admin);
         }
-        fetchAdmins();
-        fetchBackupHistory();
-    }, [user]);
 
-    const fetchAdminDetails = (id) => {
-        axios.get(`${import.meta.env.VITE_API_URL}/admin/${id}`)
+        fetchAdmins();
+    }, [admin]);
+    
+    const fetchAdminDetails = (adminID) => {
+        console.log(`Fetching details for adminID: ${adminID}`); // Log adminID being fetched
+        axios.get(`${import.meta.env.VITE_API_URL}/admin/${adminID}`)
             .then(response => {
+                console.log('Fetched admin details:', response.data); // Log the response data
                 setAdminDetails(response.data);
             })
             .catch(error => {
-                console.error('Failed to fetch admin details:', error);
+                console.error('Failed to fetch admin details:', error.response ? error.response.data : error.message);
             });
     };
 
     const fetchAdmins = () => {
         axios.get(`${import.meta.env.VITE_API_URL}/admin/list`)
             .then(response => {
+                console.log('Fetched admins from server:', response.data); // Debugging line
                 setAdmins(response.data);
             })
             .catch(error => {
-                console.error('Failed to fetch admins:', error);
+                console.error('Failed to fetch admins:', error.response ? error.response.data : error.message);
             });
     };
 
@@ -80,7 +88,7 @@ const SystemOverview = () => {
         axios.put(`${import.meta.env.VITE_API_URL}/admin/${adminDetails.id}`, adminDetails)
             .then(response => {
                 console.log('Profile updated successfully.');
-                fetchAdminDetails(user.userId);
+                fetchAdminDetails(admin.adminID);
             })
             .catch(error => {
                 console.error('Failed to update profile:', error);
@@ -145,7 +153,7 @@ const SystemOverview = () => {
                             <input
                                 type="text"
                                 name="fullName"
-                                value={adminDetails.fullName}
+                                value={adminDetails.fullName || ''}
                                 onChange={handleInputChange}
                                 style={inputStyle}
                             />
@@ -153,7 +161,7 @@ const SystemOverview = () => {
                             <input
                                 type="email"
                                 name="email"
-                                value={adminDetails.email}
+                                value={adminDetails.email || ''}
                                 onChange={handleInputChange}
                                 style={inputStyle}
                             />
@@ -169,7 +177,7 @@ const SystemOverview = () => {
                             <input
                                 type="text"
                                 name="location"
-                                value={adminDetails.location}
+                                value={adminDetails.location || ''}
                                 onChange={handleInputChange}
                                 style={inputStyle}
                             />
@@ -177,7 +185,7 @@ const SystemOverview = () => {
                             <input
                                 type="text"
                                 name="username"
-                                value={adminDetails.username}
+                                value={adminDetails.username || ''}
                                 onChange={handleInputChange}
                                 style={inputStyle}
                             />
@@ -185,7 +193,7 @@ const SystemOverview = () => {
                             <input
                                 type="text"
                                 name="phoneNumber"
-                                value={adminDetails.phoneNumber}
+                                value={adminDetails.phoneNumber || ''}
                                 onChange={handleInputChange}
                                 style={inputStyle}
                             />
@@ -193,7 +201,7 @@ const SystemOverview = () => {
                             <input
                                 type="text"
                                 name="countryCode"
-                                value={adminDetails.countryCode}
+                                value={adminDetails.countryCode || ''}
                                 onChange={handleInputChange}
                                 style={inputStyle}
                             />
@@ -208,10 +216,10 @@ const SystemOverview = () => {
                 <div style={sectionStyle}>
                     <h2>Admins List</h2>
                     {admins.map((admin) => (
-                        <div key={admin.id} style={adminItemStyle}>
+                        <div key={admin.adminID} style={adminItemStyle}>
                             <strong>Username:</strong> {admin.username} <br />
                             <strong>Status:</strong> {admin.status || 'Active'}
-                            <button onClick={() => handleDeleteAdmin(admin.id)}>Delete</button>
+                            <button onClick={() => handleDeleteAdmin(admin.adminID)}>Delete</button>
                         </div>
                     ))}
                 </div>

@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             unique: true,
-            primaryKey: true
+            primarykey: true
         },
         username: {
             type: DataTypes.STRING,
@@ -41,10 +41,6 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATE,
             allowNull: true
         },
-        profilePicture: {
-            type: DataTypes.STRING,
-            allowNull: true
-        },
         address: {
             type: DataTypes.STRING,
             allowNull: true
@@ -56,10 +52,6 @@ module.exports = (sequelize, DataTypes) => {
         updatedAt: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW
-        },
-        lastLogin: {
-            type: DataTypes.DATE,
-            allowNull: true
         },
         status: {
             type: DataTypes.STRING,
@@ -77,20 +69,12 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: true
         },
-        linkedSocialMediaAccounts: {
-            type: DataTypes.TEXT,
-            allowNull: true
-        },
         twoFactorAuthEnabled: {
             type: DataTypes.BOOLEAN,
             defaultValue: false
         },
         languages: {
             type: DataTypes.STRING,
-            allowNull: true
-        },
-        securityQuestions: {
-            type: DataTypes.TEXT,
             allowNull: true
         },
         bio: {
