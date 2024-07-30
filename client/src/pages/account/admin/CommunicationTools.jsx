@@ -1,10 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const CommunicationTools = () => {
     const [formData, setFormData] = useState({ subject: '', message: '' });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [sentEmails, setSentEmails] = useState([]);
+
+    useEffect(() => {
+        fetchSentEmails();
+    }, []);
+
+    const fetchSentEmails = async () => {
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/communication/sent-emails`);
+            console.log('Fetched sent emails:', response.data);
+            setSentEmails(response.data);
+        } catch (error) {
+            console.error('Error fetching sent emails:', error);
+        }
+    };    
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -18,6 +33,7 @@ const CommunicationTools = () => {
         try {
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/communication/send-email`, formData);
             setSuccess(response.data.message);
+            fetchSentEmails();
         } catch (error) {
             setError(error.response ? error.response.data.error : 'An error occurred.');
         }
@@ -48,6 +64,23 @@ const CommunicationTools = () => {
             </form>
             {error && <div style={errorStyle}>{error}</div>}
             {success && <div style={successStyle}>{success}</div>}
+
+            <h2 style={headingStyle}>Sent Emails</h2>
+            <div style={emailListStyle}>
+                {sentEmails.length > 0 ? (
+                    sentEmails.map((email, index) => (
+                        <div key={index} style={emailItemStyle}>
+                            <h3>{email.subject}</h3>
+                            <p><strong>Sent by:</strong> {email.senderEmail}</p>
+                            <p><strong>Sent to:</strong> {email.recipientEmails}</p>
+                            <p><strong>Date:</strong> {new Date(email.sentAt).toLocaleString()}</p>
+                            <p>{email.message}</p>
+                        </div>
+                    ))
+                ) : (
+                    <p>No sent emails found.</p>
+                )}
+            </div>
         </div>
     );
 };
@@ -102,6 +135,17 @@ const errorStyle = {
 const successStyle = {
     color: 'green',
     marginTop: '10px'
+};
+
+const emailListStyle = {
+    marginTop: '20px',
+    maxHeight: '400px',
+    overflowY: 'auto',
+};
+
+const emailItemStyle = {
+    borderBottom: '1px solid #ccc',
+    padding: '10px 0',
 };
 
 export default CommunicationTools;

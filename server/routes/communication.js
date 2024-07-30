@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const nodemailer = require('nodemailer');
-const { User, Admin } = require('../models');
+const { User, Admin, SentEmail } = require('../models');
 const verifyToken = require('../middleware/verifyToken');
 require('dotenv').config();
 
@@ -43,10 +43,30 @@ router.post('/send-email', verifyToken, async (req, res) => {
         });
 
         console.log("Emails sent: %s", info.messageId);
+
+        await SentEmail.create({
+            subject,
+            message,
+            senderEmail: admin.email,
+            recipientEmails: emailAddresses.join(','),
+            sentAt: new Date()
+        });
+
         res.json({ message: 'Emails sent successfully!' });
     } catch (error) {
         console.error('Error sending emails:', error);
         res.status(500).json({ error: 'Failed to send emails.' });
+    }
+});
+
+// Route to get sent emails
+router.get('/sent-emails', verifyToken, async (req, res) => {
+    try {
+        const sentEmails = await SentEmail.findAll({ order: [['sentAt', 'DESC']] });
+        res.json(sentEmails);
+    } catch (error) {
+        console.error('Error fetching sent emails:', error);
+        res.status(500).json({ error: 'Failed to fetch sent emails.' });
     }
 });
 
