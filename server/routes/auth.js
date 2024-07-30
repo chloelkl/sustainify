@@ -1,30 +1,30 @@
-// auth.js
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { check, validationResult } = require('express-validator');
 const { User, Admin } = require('../models');
+require('dotenv').config();
+const verifyToken = require('../middleware/verifyToken');
 const generateUserID = require('../utils/generateUserID');
 const generateAdminID = require('../utils/generateAdminID');
-require('dotenv').config();
 
 // Generate JWT token
 const generateToken = (user) => {
-    return jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const idKey = user.role === 'admin' ? 'adminID' : 'userID';
+    return jwt.sign({ [idKey]: user[idKey], role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 };
 
 // Verify JWT token
-router.get('/verify', (req, res) => {
-    const token = req.headers.authorization.split(' ')[1];
-    if (!token) {
-        return res.status(401).json({ msg: 'No token, authorization denied' });
-    }
-
+router.get('/verify', verifyToken, (req, res) => {
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        res.json(decoded);
-    } catch (err) {
+        const idKey = req.user.role === 'admin' ? 'adminID' : 'userID';
+        res.json({
+            user: req.user,
+            role: req.user.role,
+            [idKey]: req.user[idKey],
+        });
+    } catch (error) {
         res.status(401).json({ msg: 'Token is not valid' });
     }
 });
@@ -55,8 +55,7 @@ router.post('/signup', [
         const newUser = await User.create({ userID, username, email, password: hashedPassword, phoneNumber, countryCode, role: 'user' });
 
         const token = generateToken(newUser);
-
-        res.status(201).json({ token, role: newUser.role });
+        res.status(201).json({ token, role: newUser.role, userID: newUser.userID });
     } catch (error) {
         console.error(error);
         res.status(500).json({ errors: [{ msg: 'Server error' }] });
@@ -74,19 +73,28 @@ router.post('/admin-signup', [
 ], async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+        console.log('Validation errors:', errors.array());
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { fullName, email, password, otp, token, username, phoneNumber, countryCode } = req.body;
+    const { fullName, email, password, otp, username, phoneNumber, countryCode } = req.body;
 
     try {
+        const token = req.body.token || req.query.token; // Fetch token from body or query
+        console.log('Token provided:', token);
+        if (!token) {
+            return res.status(401).json({ errors: [{ msg: 'No token provided' }] });
+        }
+
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log('Decoded token:', decoded);
         if (decoded.otp !== otp) {
             return res.status(401).json({ errors: [{ msg: 'Invalid OTP' }] });
         }
 
-        const existingUser = await Admin.findOne({ where: { email } });
-        if (existingUser) {
+        const existingAdmin = await Admin.findOne({ where: { email } });
+        if (existingAdmin) {
+            console.log('Admin already exists:', existingAdmin);
             return res.status(400).json({ errors: [{ msg: 'Admin already exists' }] });
         }
 
@@ -103,7 +111,9 @@ router.post('/admin-signup', [
             countryCode
         });
 
-        res.status(201).json({ token, role: newAdmin.role });
+        console.log('New admin created:', newAdmin);
+        const adminToken = generateToken(newAdmin);
+        res.status(201).json({ token: adminToken, role: newAdmin.role, adminID: newAdmin.adminID });
     } catch (error) {
         console.error('Error during admin signup:', error);
         res.status(500).json({ errors: [{ msg: 'Server error' }] });
@@ -140,8 +150,9 @@ router.post('/login', [
         }
 
         const token = generateToken(user);
+        const id = isAdmin ? user.adminID : user.userID;
 
-        res.status(200).json({ token, role: user.role, id: isAdmin ? user.adminID : user.userID });
+        res.status(200).json({ token, role: user.role, id });
     } catch (error) {
         console.error(error);
         res.status(500).json({ errors: [{ msg: 'Server error' }] });

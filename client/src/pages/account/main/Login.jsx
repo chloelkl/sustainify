@@ -19,16 +19,21 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors([]);
-
+    
         try {
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, formData);
             const { token, role, id } = response.data;
-            login(token, { role, id });
+    
+            const idField = role === 'admin' ? 'adminID' : 'userID';
+
+            // Pass the correct ID along with role
+            login(token, { role, [idField]: id });
             navigate(role === 'admin' ? '/account/admin/main' : '/account/user/main');
         } catch (error) {
             setErrors(error.response ? error.response.data.errors : [{ msg: 'Invalid credentials' }]);
         }
     };
+    
 
     const handleClickShowPassword = () => {
         setShowPassword(!showPassword);
