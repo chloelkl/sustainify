@@ -23,13 +23,12 @@ app.get("/", (req, res) => {
     res.send("Welcome to the learning space.");
 });
 
-// Routes -> Add routes based on DB created
-
+// Routes
 const challengeRoute = require('./routes/challenge');
-app.use('/challenge', challengeRoute)
+app.use('/challenge', challengeRoute);
 
-const forum = require('./routes/forum');
-app.use('/user', forum); // Mount forumRoutes under /users
+const forumRoute = require('./routes/forum');
+app.use("/forum", forumRoute);
 
 const userRoute = require('./routes/user');
 app.use("/user", userRoute);
@@ -49,14 +48,10 @@ app.use("/event", eventRoute);
 const eventpostRoute = require('./routes/eventpost');
 app.use("/eventpost", eventpostRoute);
 
-const forumRoute = require('./routes/forum');
-app.use("/forum", forumRoute);
-
 const rewardRoute = require('./routes/reward');
 app.use("/reward", rewardRoute);
 
-
-// Start server after synchronising the DB files under models folder
+// Start server after synchronizing the DB files under models folder
 const db = require('./models');
 db.sequelize.sync({ alter: true })
     .then(() => {
