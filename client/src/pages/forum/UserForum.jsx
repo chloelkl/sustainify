@@ -6,6 +6,7 @@ import { useParams, Link } from 'react-router-dom';
 import Masonry from "react-responsive-masonry";
 import { TbEdit } from "react-icons/tb";
 import EditForm from './EditForum';
+import { useAuth } from '../../context/AuthContext';
 
 const styles = {
   profileContainer: {
@@ -64,18 +65,29 @@ const styles = {
 };
 
 function UserForums() {
-  const { userId } = useAuth();
+  const { authToken } = useAuth();
+  const { userId } = useParams();
   const [forums, setForums] = useState([]);
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedForum, setSelectedForum] = useState(null);
 
+  console.log(authToken);
+  console.log(userId);
   useEffect(() => {
-    http.get(`/forum/user/${userId}/forums`)
+    http.get(`/forum/by/${userId}`, {
+      headers: {
+        'Authorization': `Bearer ${authToken}`
+      }
+    })
       .then(response => {
         const forumsData = response.data;
-        setForums(forumsData);
+        if (Array.isArray(response.data)) {
+          setForums(response.data);
+        } else {
+          setForums([]);
+        }
         if (forumsData.length > 0) {
           setUser(forumsData[0].User);
         } else {
@@ -122,45 +134,45 @@ function UserForums() {
 
   const ForumItems = forums.map((item) => (
     <Card key={item.id} sx={{ mb: 2, boxShadow: 3, position: 'relative' }}>
-  <Link to={`/user/${item.userId}/forum`} style={{ textDecoration: 'none' }}>
-    <CardMedia
-      component="img"
-      image={item.image || 'https://images.pexels.com/photos/355508/pexels-photo-355508.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'}
-      alt={item.title}
-      sx={{ width: '100%', height: 200, objectFit: 'cover', borderRadius: '4px 4px 0 0' }}
-    />
-    <CardContent sx={{ padding: 2 }}>
-      <Typography
-        variant="h5"
-        component="div"
-        sx={{ wordWrap: 'break-word', mb: 1, fontWeight: 'bold' }}
-      >
-        {item.title}
-      </Typography>
-      <Typography
-        variant="body1"
-        component="div"
-        sx={{ wordWrap: 'break-word', mb: 2 }}
-      >
-        {item.description}
-      </Typography>
-      <Box
-        sx={{
-          position: 'absolute',
-          bottom: 0,
-          right: 0,
-          marginRight: '10px',
-          marginBottom: '10px',
-          fontSize: '25px',
-          cursor: 'pointer',
-        }}
-        onClick={() => handleEditClick(item)}
-      >
-        <TbEdit />
-      </Box>
-    </CardContent>
-  </Link>
-</Card>
+      <Link to={`/user/${item.userId}/forum`} style={{ textDecoration: 'none' }}>
+        <CardMedia
+          component="img"
+          image={item.image || 'https://images.pexels.com/photos/355508/pexels-photo-355508.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'}
+          alt={item.title}
+          sx={{ width: '100%', height: 200, objectFit: 'cover', borderRadius: '4px 4px 0 0' }}
+        />
+        <CardContent sx={{ padding: 2 }}>
+          <Typography
+            variant="h5"
+            component="div"
+            sx={{ wordWrap: 'break-word', mb: 1, fontWeight: 'bold' }}
+          >
+            {item.title}
+          </Typography>
+          <Typography
+            variant="body1"
+            component="div"
+            sx={{ wordWrap: 'break-word', mb: 2 }}
+          >
+            {item.description}
+          </Typography>
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: 0,
+              right: 0,
+              marginRight: '10px',
+              marginBottom: '10px',
+              fontSize: '25px',
+              cursor: 'pointer',
+            }}
+            onClick={() => handleEditClick(item)}
+          >
+            <TbEdit />
+          </Box>
+        </CardContent>
+      </Link>
+    </Card>
 
 
   ));
@@ -220,7 +232,7 @@ function UserForums() {
           p: 4,
         }}>
           {selectedForum && (
-            <EditForm forum={selectedForum} onClose={handleCloseModal} onSave={handleSaveForum} onDelete={handleDeleteForum}/>
+            <EditForm forum={selectedForum} onClose={handleCloseModal} onSave={handleSaveForum} onDelete={handleDeleteForum} />
           )}
         </Box>
       </Modal>

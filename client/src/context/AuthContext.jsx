@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [admin, setAdmin] = useState(null);
     const [role, setRole] = useState(null);
+    const [authToken, setAuthToken] = useState(localStorage.getItem('token'));
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -27,7 +28,7 @@ export const AuthProvider = ({ children }) => {
                     console.error(error);
                 });
         }   
-    }, []);
+    }, [authToken]);
 
     const login = (token, user) => {
         localStorage.setItem('token', token);
@@ -46,10 +47,11 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
         setAdmin(null);
         setRole(null);
+        setAuthToken(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, admin, role, login, logout }}>
+        <AuthContext.Provider value={{ user, admin, role, authToken, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

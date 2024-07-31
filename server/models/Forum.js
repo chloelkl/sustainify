@@ -1,6 +1,12 @@
 module.exports = (sequelize, DataTypes) => {
     const Forum = sequelize.define("Forum", {
-
+        id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            unique: true,
+            primaryKey: true,
+            autoIncrement: true
+        },
         title: {
             type: DataTypes.STRING(100),
             allowNull: false
@@ -18,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             references: {
                 model: 'users',
-                key: 'id'
+                key: 'userID'
             }
         },
     }, {

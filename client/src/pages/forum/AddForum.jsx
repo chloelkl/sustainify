@@ -4,19 +4,25 @@ import { Box, Typography, TextField, Button } from '@mui/material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import http from '../../http';
+import { useAuth } from '../../context/AuthContext';
 
 function AddForum() {
-    const { userId } = useParams();
+    const { authToken, userId } = useAuth();
+    // const { userId } = useParams();
     const [user, setUser] = useState({});
     const navigate = useNavigate();
     
     useEffect(() => {
-        http.get(`/forum/user/${userId}/forums`).then(response => {
+        http.get(`/forum/by/${userId}`, {
+          headers: {
+              'Authorization': `Bearer ${authToken}`
+          }
+      }).then(response => {
             setUser(response.data);
         }).catch(error => {
             console.error("Error fetching username:", error);
         });
-    }, []);
+    }, [authToken, userId]);
     
     const formik = useFormik({
         initialValues: {

@@ -1,7 +1,7 @@
 // models/Admin.js
 module.exports = (sequelize, DataTypes) => {
     const Admin = sequelize.define("Admin", {
-        id: {
+        adminID: {
             type: DataTypes.INTEGER,
             allowNull: false,
             unique: true,

@@ -1,10 +1,10 @@
 module.exports = (sequelize, DataTypes) => {
     const User = sequelize.define("User", {
-        id: {
+        userID: {
             type: DataTypes.INTEGER,
             allowNull: false,
             unique: true,
-            primarykey: true
+            primaryKey: true
         },
         username: {
             type: DataTypes.STRING,
@@ -95,7 +95,14 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'users'
-
     });
+    
+    User.associate = (models) => {
+        User.hasMany(models.Forum, {
+            foreignKey: 'userId',
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE'
+        });
+    };
     return User;
 };
