@@ -34,17 +34,21 @@ router.get("/:id/settings", verifyToken, async (req, res) => {
 });
 
 // Update user settings
-router.put("/:id/settings", verifyToken, async (req, res) => {
+router.put("/:userID/settings", verifyToken, async (req, res) => {
     try {
-        let id = req.params.id;
-        let data = req.body;
-        let user = await User.findByPk(id);
+        let userID = req.params.userID;
+        let { language, twoFactorAuth } = req.body;
+
+        const user = await User.findByPk(userID);
         if (!user) return res.status(404).json({ error: 'User not found.' });
 
-        user.settings = data;
+        user.language = language || user.language;
+        user.twoFactorAuth = twoFactorAuth === 'Enabled';
+
         await user.save();
-        res.json({ message: 'Settings updated successfully' });
+        res.json({ message: 'Settings updated successfully.' });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Failed to update settings.' });
     }
 });
@@ -173,9 +177,9 @@ router.get('/', verifyToken, async (req, res) => {
 
 
 // Delete a user
-router.delete('/:id', verifyToken, async (req, res) => {
+router.delete('/:userID', verifyToken, async (req, res) => {
     try {
-        const user = await User.findByPk(req.params.id);
+        const user = await User.findByPk(req.params.userID);
         if (!user) {
             return res.status(404).json({ error: 'User not found.' });
         }

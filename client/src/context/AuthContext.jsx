@@ -6,21 +6,22 @@ const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [admin, setAdmin] = useState(null);
-    const [role, setRole] = useState(null);
+    const [ user, setUser ] = useState(null);
+    const [ admin, setAdmin ] = useState(null);
+    const [ role, setRole ] = useState(null);
+    const [ authToken, setAuthToken ] = useState(localStorage.getItem('token'));
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        console.log('Retrieved token from local storage:', token); // Debugging line
+        console.log('Retrieved token from local storage:', token);
 
         if (token) {
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            console.log('Authorization header set:', axios.defaults.headers.common['Authorization']); // Debugging line
+            console.log('Authorization header set:', axios.defaults.headers.common['Authorization']);
 
             axios.get(`${import.meta.env.VITE_API_URL}/auth/verify`)
                 .then(response => {
-                    console.log('Verification response:', response.data); // Debugging line
+                    console.log('Verification response:', response.data);
 
                     if (response.data.role === 'admin') {
                         setAdmin(response.data);
@@ -36,10 +37,8 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = (token, user) => {
-        console.log('Logging in with token:', token); // Debugging line
         localStorage.setItem('token', token);
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        console.log('Authorization header set during login:', axios.defaults.headers.common['Authorization']); // Debugging line
 
         if (user.role === 'admin') {
             setAdmin(user);
@@ -50,16 +49,17 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
-        console.log('Logging out'); // Debugging line
+        console.log('Logging out');
         localStorage.removeItem('token');
         delete axios.defaults.headers.common['Authorization'];
         setUser(null);
         setAdmin(null);
         setRole(null);
+        setAuthToken(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, admin, role, login, logout }}>
+        <AuthContext.Provider value={{ user, admin, role, authToken, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
