@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import theme from '../../themes/MyTheme.js';
 import { styled } from '@mui/system';
 import { Typography, Button } from "@mui/material";
+import { Link } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { useAuth } from '../../context/AuthContext';
 
@@ -32,7 +33,7 @@ const SideNav = styled('div')({
   alignItems: 'center'
 });
 
-const SideLink = styled('a')({
+const SideLink = styled(Link)({
   color: theme.palette.secondary.light,
   textDecoration: 'none',
   width: '130px'
@@ -82,6 +83,7 @@ function DailyChallenge() {
 
   const [daily, setDaily] = useState(null);
   const [completed, setCompleted] = useState(null);
+  const [participants, setParticipants] = useState(0);
 
   useEffect(() => {
     fetchDaily();
@@ -90,8 +92,9 @@ function DailyChallenge() {
   useEffect(() => {
     if (daily && user) {
       fetchCompleted(user.userID, daily.id);
-    }
-  }, [daily, user]);
+    } else if (daily && admin) {
+      fetchParticipants(daily.id);}
+  }, [daily, user, admin]);
 
   const fetchDaily = async () => {
     try {
@@ -110,6 +113,16 @@ function DailyChallenge() {
       setCompleted(result.completed);
     } catch (error) {
       console.error('Error checking completion:', error);
+    }
+  };
+
+  const fetchParticipants = async (challengeId) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/challenge/countToday?challengeId=${challengeId}`);
+      const result = await response.json();
+      setParticipants(result);
+    } catch (error) {
+      console.error('Error fetching participants:', error);
     }
   };
 
@@ -142,34 +155,34 @@ function DailyChallenge() {
         <Sidebar>
           <SideNav sx={{ background: theme.palette.secondary.dark }}>
             <AssignmentOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }} />
-            <SideLink href="/challenges">Today's Challenge</SideLink>
+            <SideLink to="/challenges">Today's Challenge</SideLink>
           </SideNav>
           <SideNav>
             <AssessmentOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }} />
-            <SideLink href="/challenges/statistics">Statistics</SideLink>
+            <SideLink to="/challenges/statistics">Statistics</SideLink>
           </SideNav>
           <SideNav>
             <ManageAccountsOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }} />
-            <SideLink href="/challenges/manage">Manage</SideLink>
+            <SideLink to="/challenges/manage">Manage</SideLink>
           </SideNav>
           <SideNav>
             <GroupsOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }} />
-            <SideLink href="/challenges/participation">Participation</SideLink>
+            <SideLink to="/challenges/participation">Participation</SideLink>
           </SideNav>
         </Sidebar>
       ) : (
         <Sidebar>
           <SideNav sx={{ background: theme.palette.primary.main }}>
             <AssignmentOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }} />
-            <SideLink href="/challenges">Today's Challenge</SideLink>
+            <SideLink to="/challenges">Today's Challenge</SideLink>
           </SideNav>
           <SideNav>
             <AssessmentOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }} />
-            <SideLink href="/challenges/mystatistics">My Statistics</SideLink>
+            <SideLink to="/challenges/mystatistics">My Statistics</SideLink>
           </SideNav>
           <SideNav>
             <HistoryOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }} />
-            <SideLink href="/challenges/past">Past Challenges</SideLink>
+            <SideLink to="/challenges/past">Past Challenges</SideLink>
           </SideNav>
         </Sidebar>
       )}
@@ -183,7 +196,9 @@ function DailyChallenge() {
           <Typography>
             {daily?.challenge ? daily.challenge : "No challenge set for today!"}
           </Typography>
-          <Complete onClick={() => handleComplete(user.userID, daily.id)} disabled={completed || daily == null || daily.found == false}>
+          {user ? (
+            <>
+            <Complete onClick={() => handleComplete(user.userID, daily.id)} disabled={completed || !daily}>
             <Typography>
               COMPLETE CHALLENGE
             </Typography>
@@ -192,6 +207,11 @@ function DailyChallenge() {
           <Typography marginTop="10px" >
             {completed ? "You've completed the challenge!" : ""}
           </Typography>
+          </>
+          ) : admin ? (
+            <Typography marginTop="20px" fontSize="0.8rem">{participants.count} users have completed today's challenge.</Typography>
+          ) : <></>}
+          
         </DailyContainer>
       </ManageParent>
     </StyledContainer>
