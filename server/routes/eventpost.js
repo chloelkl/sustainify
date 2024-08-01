@@ -1,10 +1,40 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const { EventPost } = require('../models'); // Call name of DB from models folder to use
 const { Op } = require("sequelize");
 const yup = require("yup");
+const path = require('path');
+const fs = require('fs');
 
-router.post("/", async (req, res) => {
+// Multer setup for file uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/'); // Specify the directory where you want to save uploaded files
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}-${file.originalname}`); // Generate a unique filename
+    }
+});
+
+const upload = multer({ storage: storage });
+
+// router.get('/statistics', async (req, res) => {
+//     const range = req.query.range || '12 months';
+//     // Assuming you have a logic to calculate statistics based on the time range
+//     // Here we create dummy data for demonstration purposes
+
+//     const statistics = [
+//         { week: 1, count: 5 },
+//         { week: 2, count: 3 },
+//         { week: 3, count: 8 },
+//         // add more weeks as per your logic
+//     ];
+
+//     res.json(statistics);
+// });
+
+router.post("/", upload.single('image'), async (req, res) => {
     let data = req.body;
     // Validate request body -> Update Details of request body to match fields define in DB
     let validationSchema = yup.object({
@@ -14,13 +44,17 @@ router.post("/", async (req, res) => {
         venue: yup.string().trim().min(3).max(100).required(),
         eventdescription: yup.string().trim().min(3).max(500).required()
     });
+
     try {
-        data = await validationSchema.validate(data,
-            { abortEarly: false });
+        data = await validationSchema.validate(data, { abortEarly: false });
+
+        if (req.file) {
+            data.image = req.file.path; // Save the image file path
+        }
+
         let result = await EventPost.create(data); // .create() used to insert data into DB table
         res.json(result);
-    }
-    catch (err) {
+    } catch (err) {
         res.status(400).json({ errors: err.errors });
     }
 });
@@ -54,7 +88,7 @@ router.get("/:id", async (req, res) => {
     res.json(eventpost);
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", upload.single('image'), async (req, res) => {
     let id = req.params.id;
     // Check id not found
     let eventpost = await EventPost.findByPk(id);
@@ -72,9 +106,17 @@ router.put("/:id", async (req, res) => {
         venue: yup.string().trim().min(3).max(100).required(),
         eventdescription: yup.string().trim().min(3).max(500).required()
     });
+
     try {
-        data = await validationSchema.validate(data,
-            { abortEarly: false });
+        data = await validationSchema.validate(data, { abortEarly: false });
+
+        if (req.file) {
+            // Delete the old image if it exists
+            if (eventpost.image) {
+                fs.unlinkSync(eventpost.image);
+            }
+            data.image = req.file.path; // Save the new image file path
+        }
 
         let num = await EventPost.update(data, {
             where: { id: id }
@@ -83,14 +125,12 @@ router.put("/:id", async (req, res) => {
             res.json({
                 message: "Event post was updated successfully."
             });
-        }
-        else {
+        } else {
             res.status(400).json({
                 message: `Cannot update event post with id ${id}.`
             });
         }
-    }
-    catch (err) {
+    } catch (err) {
         res.status(400).json({ errors: err.errors });
     }
 });
@@ -104,6 +144,11 @@ router.delete("/:id", async (req, res) => {
         return;
     }
 
+    // Delete the image file if it exists
+    if (eventpost.image) {
+        fs.unlinkSync(eventpost.image);
+    }
+
     let num = await EventPost.destroy({
         where: { id: id }
     })
@@ -111,8 +156,7 @@ router.delete("/:id", async (req, res) => {
         res.json({
             message: "Event post was deleted successfully."
         });
-    }
-    else {
+    } else {
         res.status(400).json({
             message: `Cannot delete event post with id ${id}.`
         });

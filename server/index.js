@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const multer = require('multer');
+const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
@@ -15,6 +17,14 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+// Ensure uploads directory exists
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+}
+
+
+
 // Serve static files from the client folder
 app.use(express.static(path.join(__dirname, '..', 'client')));
 
@@ -26,7 +36,7 @@ app.get("/", (req, res) => {
 // Routes -> Add routes based on DB created
 
 const challengeRoute = require('./routes/challenge');
-app.use('/challenge', challengeRoute)
+app.use('/challenge', challengeRoute);
 
 const forum = require('./routes/forum');
 app.use('/user', forum); // Mount forumRoutes under /users
@@ -52,6 +62,8 @@ app.use("/forum", forumRoute);
 const rewardRoute = require('./routes/reward');
 app.use("/reward", rewardRoute);
 
+// Route to serve uploaded images
+app.use('/uploads', express.static(uploadDir));
 
 // Start server after synchronising the DB files under models folder
 const db = require('./models');

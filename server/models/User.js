@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             unique: true,
-            primarykey: true
+            primaryKey: true
         },
         username: {
             type: DataTypes.STRING,
@@ -94,5 +94,6 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true
         }
     });
+
     return User;
 };

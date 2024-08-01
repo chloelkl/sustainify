@@ -19,6 +19,16 @@ function Navbar() {
     }
   };
 
+  const handleEventsClick = () => {
+    if (role === 'admin') {
+      navigate('/posteventadmin');
+    } else if (user) {
+      navigate('/eventoverview');
+    } else {
+      navigate('/account/login');
+    }
+  };
+
   return (
     <AppBar position="fixed" style={{ zIndex: 1300, backgroundColor: '#84a9ac' }}>
       <StyledToolbar>
@@ -26,9 +36,20 @@ function Navbar() {
           <StyledLink to="/challenges">
             <Typography>CHALLENGES</Typography>
           </StyledLink>
-          <StyledLink to="/eventoverview">
+          {(role === 'admin' || user) ? (
+            <IconButton color="inherit" onClick={handleEventsClick}>
+          <StyledLink >
             <Typography>EVENTS</Typography>
           </StyledLink>
+          </IconButton>
+          ): (
+            <AuthLinks>
+              <StyledLink to="/account/signup">
+                <Typography variant='body2'>EVENTS</Typography>
+              </StyledLink>
+            </AuthLinks>
+
+          )}
           <StyledLink to="/">
             <Logo src="/Logo.png" alt="sustainify" />
           </StyledLink>

@@ -4,12 +4,18 @@
 
 .postevent-content {
     flex: 2;
-    margin-left: 260px; /* Adjust this value based on the sidebar width */
+    /* margin-left: 260px;  */
+    /* Adjust this value based on the sidebar width */
     padding: 20px;
 }
 
 .event-card {
     margin-bottom: 20px;
+    position: relative;
+    display: flex; /* Enable flexbox for alignment */
+    flex-direction: column; /* Arrange children vertically */
+    align-items: center; /* Center children horizontally */
+    text-align: center; /* Center text within the card */
 }
 
 .event-card h2 {
@@ -18,6 +24,14 @@
 
 .event-card p {
     margin: 10px 0;
+}
+
+.event-card img {
+    width: 10cm;
+    height: 10cm;
+    object-fit: cover; /* Adjust as needed */
+    margin-bottom: 10px; /* Adjust space between image and text */
+    display: block;
 }
 
 .MuiCardContent-root {
