@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Challenge } = require('../models'); // Call name of DB from models folder to use
+const { User, Challenge, UserChallenges } = require('../models'); // Call name of DB from models folder to use
 const { Op } = require("sequelize");
 const yup = require("yup");
 
@@ -30,7 +30,7 @@ router.post("/add", async (req, res) => {
 // retrieve
 router.get("/get", async (req, res) => {
   let list = await Challenge.findAll({
-    order: [['date', 'ASC']] // The list of all items in DB, either in DESC or ASC order
+    order: [['date', 'ASC']] 
   });
   res.json(list);
 });
@@ -145,6 +145,40 @@ router.get("/getDaily", async (req, res) => {
     console.error('Error fetching today\'s challenge:', error);
     res.status(500).json({ message: 'An error occurred while fetching today\'s challenge' });
   }
+});
+
+router.post("/completeChallenge", async (req, res) => {
+  const { userId, challengeId } = req.body;
+
+  try {
+    const user = await User.findByPk(userId);
+    const challenge = await Challenge.findByPk(challengeId);
+    if (!user || !challenge) {
+      return res.status(404).json({ message: "User or Challenge not found!" });
+    }
+    
+    const existingCompletion = await UserChallenges.findOne({
+      where: { user: userId, challenge: challengeId }
+    });
+    
+    if (existingCompletion) {
+      return res.status(400).json({ message: "User has already completed this challenge!" });
+    }
+    
+    await user.addChallenge(challenge, { through: { completedAt: new Date() } });
+    
+    res.json({ message: "Challenge completed successfully!" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "An error occurred while completing the challenge." });
+  }
+});
+
+router.get("/getAllCompleted", async (req, res) => {
+  let list = await UserChallenges.findAll({
+    order: [['completedAt', 'ASC']] 
+  });
+  res.json(list);
 });
 
 module.exports = router;
