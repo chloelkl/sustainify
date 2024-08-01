@@ -28,3 +28,30 @@ html {
 .my-masonry-grid_column > div {
   margin-bottom: 10px;
 }
+
+
+/* CSS */
+.button-upload {
+  background-color: #94C4BB; /* Primary color */
+  color: #fff; /* Text color */
+  border: none; /* Remove default border */
+  border-radius: 4px; /* Rounded corners */
+  padding: 10px 20px; /* Top and bottom padding, left and right padding */
+  font-size: 16px; /* Font size */
+  font-family: Arial, sans-serif; /* Font family */
+  cursor: pointer; /* Change cursor to pointer on hover */
+  transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transition for hover effects */
+}
+
+.button-upload:hover {
+  background-color: #87AEA6; /* Darker shade for hover */
+}
+
+.button-upload:active {
+  background-color: #87AEA6; /* Even darker shade for active state */
+  transform: scale(0.98); /* Slightly shrink button when pressed */
+}
+
+.button-upload:focus {
+  outline: none; /* Remove default focus outline */
+}
