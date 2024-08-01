@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 const Chatbot = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
+    const { user } = useAuth();
 
     const toggleChatbot = () => {
         setIsOpen(!isOpen);
@@ -26,7 +28,7 @@ const Chatbot = () => {
         setInput('');
 
         // Send message to the AI chatbot
-        axios.post('http://localhost:5000/user/1/ai-chatbot', { message: input })
+        axios.post(`${import.meta.env.VITE_API_URL}/chatbot/${user.userID}/ai-chatbot`, { message: input })
             .then(response => {
                 const aiMessage = {
                     sender: 'ai',

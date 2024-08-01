@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../../../context/AuthContext';
 
 const UserProfile = () => {
-    const { user } = useAuth(); // Assume user object is available in AuthContext
+    const { user } = useAuth();
     const [userDetails, setUserDetails] = useState({
         fullName: '',
         email: '',
@@ -26,7 +26,7 @@ const UserProfile = () => {
 
     const fetchUserDetails = async (userID) => {
         try {
-            const response = await axios.get(`/user/${userID}`);
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/user/${userID}`);
             setUserDetails(response.data);
         } catch (error) {
             console.error('Error fetching user details:', error);
@@ -43,7 +43,7 @@ const UserProfile = () => {
 
     const handleSave = async () => {
         try {
-            await axios.put(`/user/${user.userID}`, userDetails);
+            await axios.put(`${import.meta.env.VITE_API_URL}/user/${user.userID}`, userDetails);
             alert('Profile updated successfully!');
             setEditMode(false);
             fetchUserDetails(user.userID);

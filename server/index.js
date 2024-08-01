@@ -51,6 +51,9 @@ app.use("/eventpost", eventpostRoute);
 const rewardRoute = require('./routes/reward');
 app.use("/reward", rewardRoute);
 
+const chatbotRoute = require('./routes/chatbot');
+app.use("/chatbot", chatbotRoute);
+
 // Start server after synchronizing the DB files under models folder
 const db = require('./models');
 db.sequelize.sync({ alter: true })

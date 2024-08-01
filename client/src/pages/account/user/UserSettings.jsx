@@ -14,7 +14,7 @@ const UserSettings = () => {
         },
     });
 
-    const navigate = useNavigate();
+    const navigate = useNavigate(); 
 
     const fetchUserSettings = useCallback(async () => {
         try {
