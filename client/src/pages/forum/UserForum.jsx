@@ -65,16 +65,20 @@ const styles = {
 };
 
 function UserForums() {
-  const { authToken } = useAuth();
+  const { user, authToken } = useAuth();
   const { userId } = useParams();
   const [forums, setForums] = useState([]);
-  const [user, setUser] = useState({});
+  const [userProfile, setUserProfile] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedForum, setSelectedForum] = useState(null);
 
-  console.log(authToken);
+  // Determine if the current user is viewing their own profile
+  const isCurrentUser = user && user.userID === parseInt(userId);
+  console.log(user.userID);
   console.log(userId);
+
+   
   useEffect(() => {
     http.get(`/forum/by/${userId}`, {
       headers: {
@@ -89,12 +93,12 @@ function UserForums() {
           setForums([]);
         }
         if (forumsData.length > 0) {
-          setUser(forumsData[0].User);
+          setUserProfile(forumsData[0].User);
         } else {
           // Fetch user data separately if no forums are found
           http.get(`/user/${userId}`)
             .then(userResponse => {
-              setUser(userResponse.data);
+              setUserProfile(userResponse.data);
             })
             .catch(userError => {
               setError(userError.message);
@@ -103,7 +107,7 @@ function UserForums() {
       })
       .catch(error => setError(error.message))
       .finally(() => setLoading(false));
-  }, [userId]);
+  }, [userId, authToken]);
 
   const handleEditClick = (forum) => {
     setSelectedForum(forum);
@@ -119,43 +123,34 @@ function UserForums() {
     ));
   };
 
-  const handleDeleteForum = async (forumId) => {
-    try {
-      await http.delete(`/forum/${userId}/${forumId}`);
-      setForums((prevForums) => prevForums.filter(forum => forum.id !== forumId));
-      handleCloseModal();
-    } catch (error) {
-      console.error("Error deleting forum:", error);
-    }
-  };
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
   const ForumItems = forums.map((item) => (
     <Card key={item.id} sx={{ mb: 2, boxShadow: 3, position: 'relative' }}>
-      {/* <Link to={`/user/${item.userId}/forum`} style={{ textDecoration: 'none' }}> */}
-        <CardMedia
-          component="img"
-          image={item.image || 'https://images.pexels.com/photos/355508/pexels-photo-355508.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'}
-          alt={item.title}
-          sx={{ width: '100%', height: 200, objectFit: 'cover', borderRadius: '4px 4px 0 0' }}
-        />
-        <CardContent sx={{ padding: 2 }}>
-          <Typography
-            variant="h5"
-            component="div"
-            sx={{ wordWrap: 'break-word', mb: 1, fontWeight: 'bold' }}
-          >
-            {item.title}
-          </Typography>
-          <Typography
-            variant="body1"
-            component="div"
-            sx={{ wordWrap: 'break-word', mb: 2 }}
-          >
-            {item.description}
-          </Typography>
+      <CardMedia
+        component="img"
+        image={item.image || 'https://images.pexels.com/photos/355508/pexels-photo-355508.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'}
+        alt={item.title}
+        sx={{ width: '100%', height: 200, objectFit: 'cover', borderRadius: '4px 4px 0 0' }}
+      />
+      <CardContent sx={{ padding: 2 }}>
+        <Typography
+          variant="h5"
+          component="div"
+          sx={{ wordWrap: 'break-word', mb: 1, fontWeight: 'bold' }}
+        >
+          {item.title}
+        </Typography>
+        <Typography
+          variant="body1"
+          component="div"
+          sx={{ wordWrap: 'break-word', mb: 2 }}
+        >
+          {item.description}
+        </Typography>
+        {isCurrentUser && (
           <Box
             sx={{
               position: 'absolute',
@@ -170,22 +165,20 @@ function UserForums() {
           >
             <TbEdit />
           </Box>
-        </CardContent>
- 
+        )}
+      </CardContent>
     </Card>
-
-
   ));
 
   return (
     <>
       <div style={styles.profileContainer}>
         <div style={styles.profileImage}>
-          <Avatar alt={user.username} src={user.profileImage || 'https://via.placeholder.com/150'} sx={{ width: 150, height: 150 }} />
+          <Avatar alt={userProfile.username} src={userProfile.profileImage || 'https://via.placeholder.com/150'} sx={{ width: 150, height: 150 }} />
         </div>
         <div style={styles.profileDetails}>
           <Typography variant="h4" component="div" style={styles.profileName}>
-            {user.username}
+            {userProfile.username}
           </Typography>
           <div style={styles.profileStats}>
             <div style={styles.profileStats}>
@@ -193,23 +186,27 @@ function UserForums() {
               <p>Blogs</p>
             </div>
             <div style={styles.profileStats}>
-              <p style={styles.stats}>{user.followers || 0}</p>
+              <p style={styles.stats}>{userProfile.followers || 0}</p>
               <p>Inspired</p>
             </div>
             <div style={styles.profileStats}>
-              <p style={styles.stats}>{user.following || 0}</p>
+              <p style={styles.stats}>{userProfile.following || 0}</p>
               <p>Connections</p>
             </div>
           </div>
-          <div style={styles.buttonContainer}>
-            <Button variant="contained" color="primary" style={styles.button}>Manage Profile</Button>
-            <Button variant="outlined" color="primary" style={styles.button}>Liked Blogs</Button>
-            <IconButton color="primary" aria-label="add">
-              <Link to={`/user/${userId}/forum/addforum`}>
-                <IoIosAddCircleOutline />
+          {isCurrentUser && (
+            <div style={styles.buttonContainer}>
+              <Link to="/account/admin/main">
+                <Button variant="contained" color="primary" style={styles.button}>Manage Profile</Button>
               </Link>
-            </IconButton>
-          </div>
+              <Button variant="outlined" color="primary" style={styles.button}>Liked Blogs</Button>
+              <IconButton color="primary" aria-label="add">
+                <Link to={`/user/${userId}/forum/addforum`}> 
+                  <IoIosAddCircleOutline />
+                </Link>
+              </IconButton>
+            </div>
+          )}
         </div>
       </div>
       <div>
@@ -232,7 +229,7 @@ function UserForums() {
           p: 4,
         }}>
           {selectedForum && (
-            <EditForm forum={selectedForum} onClose={handleCloseModal} onSave={handleSaveForum} onDelete={handleDeleteForum} />
+            <EditForm forum={selectedForum} onClose={handleCloseModal} onSave={handleSaveForum} />
           )}
         </Box>
       </Modal>
