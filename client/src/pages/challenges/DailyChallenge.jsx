@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
-import theme from '../../themes/MyTheme.js'
+import theme from '../../themes/MyTheme.js';
 import { styled } from '@mui/system';
-import { Link } from 'react-router-dom';
-import { AppBar, Button, Typography, IconButton } from "@mui/material";
+import { Typography, Button } from "@mui/material";
 import dayjs from 'dayjs';
-
 import { useAuth } from '../../context/AuthContext';
 
 import CameraAltOutlinedIcon from '@mui/icons-material/CameraAltOutlined';
@@ -59,8 +57,8 @@ const ChallengeIcon = styled('img')({
   margin: '10% auto 0'
 });
 
-const Complete = styled(Button)({
-  backgroundColor: theme.palette.secondary.dark,
+const Complete = styled(Button)(({ disabled }) => ({
+  backgroundColor: disabled ? 'grey' : theme.palette.secondary.dark,
   color: theme.palette.secondary.light,
   fontSize: '1rem',
   height: '50px',
@@ -68,20 +66,32 @@ const Complete = styled(Button)({
   margin: '10% auto 0',
   display: 'flex',
   justifyContent: 'space-around',
+  pointerEvents: 'fill !important',
+  cursor: disabled ? 'not-allowed !important' : 'pointer',
   '&:hover': {
     backgroundColor: 'grey'
-  }
-})
-
+  },
+  '& p': {
+    color: disabled ? 'lightgrey' : theme.palette.secondary.light,
+  } 
+}));
 
 function DailyChallenge() {
 
-  const { user, admin, role } = useAuth();
+  const { user, admin } = useAuth();
 
-  const [daily, setDaily] = useState('');
+  const [daily, setDaily] = useState(null);
+  const [completed, setCompleted] = useState(null);
+
   useEffect(() => {
     fetchDaily();
   }, []);
+
+  useEffect(() => {
+    if (daily && user) {
+      fetchCompleted(user.userID, daily.id);
+    }
+  }, [daily, user]);
 
   const fetchDaily = async () => {
     try {
@@ -93,7 +103,17 @@ function DailyChallenge() {
     }
   };
 
-  const handleComplete = async(userId, challengeId) => {
+  const fetchCompleted = async (userId, challengeId) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/challenge/checkCompletion?userId=${userId}&challengeId=${challengeId}`);
+      const result = await response.json();
+      setCompleted(result.completed);
+    } catch (error) {
+      console.error('Error checking completion:', error);
+    }
+  };
+
+  const handleComplete = async (userId, challengeId) => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/challenge/completeChallenge`, {
         method: 'POST',
@@ -102,19 +122,19 @@ function DailyChallenge() {
         },
         body: JSON.stringify({ userId, challengeId }),
       });
-  
+
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message);
       }
-  
+
       const result = await response.json();
       console.log(result);
+      setCompleted(true); // Mark challenge as completed
     } catch (error) {
       console.error('Error:', error.message);
     }
-  }
-
+  };
 
   return (
     <StyledContainer>
@@ -158,18 +178,20 @@ function DailyChallenge() {
         <DailyContainer sx={{ boxShadow: 2 }}>
           <ChallengeIcon src="/ChallengeIcon.png" alt="" />
           <Typography style={{ fontWeight: 'bold' }} variant="h6">Challenge of the Day</Typography>
-          <Typography variant="body2">{dayjs(daily.date).format('DD/MM/YYYY')}</Typography>
+          <Typography variant="body2">{dayjs(daily?.date).format('DD/MM/YYYY')}</Typography>
           <br />
           <Typography>
-            {daily.challenge ? daily.challenge : "No challenge set for today!"}
+            {daily?.challenge ? daily.challenge : "No challenge set for today!"}
           </Typography>
-
-          <Complete onClick={() => handleComplete(user.userID, daily.id)}>
+          <Complete onClick={() => handleComplete(user.userID, daily.id)} disabled={completed}>
             <Typography>
               COMPLETE CHALLENGE
             </Typography>
             <CameraAltOutlinedIcon />
           </Complete>
+          <Typography marginTop="10px" >
+            {completed ? "You've completed the challenge!" : ""}
+          </Typography>
         </DailyContainer>
       </ManageParent>
     </StyledContainer>
