@@ -77,7 +77,7 @@ function UserForums() {
   const isCurrentUser = user && user.userID === parseInt(userId);
   console.log(user.userID);
   console.log(userId);
-
+  console.log(user.username);
    
   useEffect(() => {
     http.get(`/forum/by/${userId}`, {
@@ -87,6 +87,8 @@ function UserForums() {
     })
       .then(response => {
         const forumsData = response.data;
+        console.log(forumsData);
+        console.log(response);
         if (Array.isArray(response.data)) {
           setForums(response.data);
         } else {
@@ -94,16 +96,16 @@ function UserForums() {
         }
         if (forumsData.length > 0) {
           setUserProfile(forumsData[0].User);
-        } else {
+        } //else {
           // Fetch user data separately if no forums are found
-          http.get(`/user/${userId}`)
-            .then(userResponse => {
-              setUserProfile(userResponse.data);
-            })
-            .catch(userError => {
-              setError(userError.message);
-            });
-        }
+        //   http.get(`/user/${userId}`)
+        //     .then(userResponse => {
+        //       setUserProfile(userResponse.data);
+        //     })
+        //     .catch(userError => {
+        //       setError(userError.message);
+        //     });
+        // }
       })
       .catch(error => setError(error.message))
       .finally(() => setLoading(false));
