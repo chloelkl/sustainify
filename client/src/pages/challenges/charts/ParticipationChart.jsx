@@ -52,6 +52,8 @@ const ParticipationChart = () => {
       setChallenges(result);
     } catch (error) {
       console.error("Error fetching challenges:", error);
+      setResponseMessage("Failed to fetch challenges.");
+      setResponseType("fail")
     }
   };
 
