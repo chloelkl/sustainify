@@ -1,63 +1,224 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useAuth } from '../../../context/AuthContext';
 
-const UserProfile = ({ userId }) => {
-    const [user, setUser] = useState({});
+const UserProfile = () => {
+    const { user } = useAuth(); // Assume user object is available in AuthContext
+    const [userDetails, setUserDetails] = useState({
+        fullName: '',
+        email: '',
+        password: '',
+        bio: '',
+        location: '',
+        phoneNumber: '',
+        countryCode: '',
+        points: 0
+    });
     const [editMode, setEditMode] = useState(false);
 
     useEffect(() => {
-        axios.get(`/user/${userId}`)
-            .then(response => setUser(response.data))
-            .catch(error => console.error("There was an error fetching the user!", error));
-    }, [userId]);
+        if (user && user.userID) {
+            fetchUserDetails(user.userID);
+        } else {
+            console.error('User ID is missing or user object is not set', user);
+        }
+    }, [user]);
+
+    const fetchUserDetails = async (userID) => {
+        try {
+            const response = await axios.get(`/user/${userID}`);
+            setUserDetails(response.data);
+        } catch (error) {
+            console.error('Error fetching user details:', error);
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setUser(prevState => ({ ...prevState, [name]: value }));
+        setUserDetails(prevDetails => ({
+            ...prevDetails,
+            [name]: value
+        }));
     };
 
-    const handleSave = () => {
-        axios.put(`/user/${userId}`, user)
-            .then(response => {
-                console.log(response.data);
-                setEditMode(false);
-            })
-            .catch(error => console.error("There was an error updating the user!", error));
-    };
-
-    const handleDelete = () => {
-        axios.delete(`/user/${userId}`)
-            .then(response => {
-                console.log(response.data);
-                // Redirect or update UI accordingly
-            })
-            .catch(error => console.error("There was an error deleting the user!", error));
+    const handleSave = async () => {
+        try {
+            await axios.put(`/user/${user.userID}`, userDetails);
+            alert('Profile updated successfully!');
+            setEditMode(false);
+            fetchUserDetails(user.userID);
+        } catch (error) {
+            console.error('Error updating user profile:', error);
+            alert('Failed to update profile.');
+        }
     };
 
     return (
-        <div>
-            {editMode ? (
-                <div>
-                    <input type="text" name="fullName" value={user.fullName} onChange={handleChange} />
-                    <input type="email" name="email" value={user.email} onChange={handleChange} />
-                    <input type="password" name="password" value={user.password} onChange={handleChange} />
-                    <textarea name="bio" value={user.bio} onChange={handleChange} />
-                    <input type="text" name="location" value={user.location} onChange={handleChange} />
-                    <button onClick={handleSave}>Save</button>
+        <div style={containerStyle}>
+            <h2 style={headingStyle}>User Profile</h2>
+            <div style={profileContainerStyle}>
+                <div style={sectionStyle}>
+                    <h3>Profile Details</h3>
+                    {editMode ? (
+                        <div style={editProfileContainerStyle}>
+                            <label>Full Name:</label>
+                            <input
+                                type="text"
+                                name="fullName"
+                                value={userDetails.fullName || ''}
+                                onChange={handleChange}
+                                style={inputStyle}
+                            />
+                            <label>Email:</label>
+                            <input
+                                type="email"
+                                name="email"
+                                value={userDetails.email || ''}
+                                onChange={handleChange}
+                                style={inputStyle}
+                            />
+                            <label>Password:</label>
+                            <input
+                                type="password"
+                                name="password"
+                                value={userDetails.password || ''}
+                                onChange={handleChange}
+                                style={inputStyle}
+                            />
+                            <label>Bio:</label>
+                            <textarea
+                                name="bio"
+                                value={userDetails.bio || ''}
+                                onChange={handleChange}
+                                style={textareaStyle}
+                            />
+                            <label>Location:</label>
+                            <input
+                                type="text"
+                                name="location"
+                                value={userDetails.location || ''}
+                                onChange={handleChange}
+                                style={inputStyle}
+                            />
+                            <label>Phone Number:</label>
+                            <input
+                                type="text"
+                                name="phoneNumber"
+                                value={userDetails.phoneNumber || ''}
+                                onChange={handleChange}
+                                style={inputStyle}
+                            />
+                            <label>Country Code:</label>
+                            <input
+                                type="text"
+                                name="countryCode"
+                                value={userDetails.countryCode || ''}
+                                onChange={handleChange}
+                                style={inputStyle}
+                            />
+                            <div style={buttonsContainerStyle}>
+                                <button onClick={handleSave} style={saveButtonStyle}>Save changes</button>
+                                <button onClick={() => setEditMode(false)} style={cancelButtonStyle}>Cancel</button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div style={viewProfileContainerStyle}>
+                            <p><strong>Full Name:</strong> {userDetails.fullName}</p>
+                            <p><strong>Email:</strong> {userDetails.email}</p>
+                            <p><strong>Bio:</strong> {userDetails.bio}</p>
+                            <p><strong>Location:</strong> {userDetails.location}</p>
+                            <p><strong>Phone Number:</strong> {userDetails.phoneNumber}</p>
+                            <p><strong>Country Code:</strong> {userDetails.countryCode}</p>
+                            <p><strong>Points:</strong> {userDetails.points}</p>
+                            <button onClick={() => setEditMode(true)} style={editButtonStyle}>Edit Profile</button>
+                        </div>
+                    )}
                 </div>
-            ) : (
-                <div>
-                    <h1>{user.fullName}</h1>
-                    <p>{user.email}</p>
-                    <p>{user.bio}</p>
-                    <p>{user.location}</p>
-                    <p>{user.points}</p>
-                    <button onClick={() => setEditMode(true)}>Edit</button>
-                    <button onClick={handleDelete}>Delete</button>
-                </div>
-            )}
+            </div>
         </div>
     );
+};
+
+// Styles
+const containerStyle = {
+    padding: '20px',
+    backgroundColor: '#f0f0f0',
+    borderRadius: '10px',
+    boxShadow: '0 0 10px rgba(0,0,0,0.1)',
+};
+
+const headingStyle = {
+    marginBottom: '20px',
+};
+
+const profileContainerStyle = {
+    display: 'grid',
+    gridTemplateColumns: '1fr',
+    gridGap: '20px',
+};
+
+const sectionStyle = {
+    backgroundColor: '#fff',
+    padding: '20px',
+    borderRadius: '10px',
+    boxShadow: '0 0 10px rgba(0,0,0,0.1)',
+};
+
+const editProfileContainerStyle = {
+    display: 'grid',
+    gridGap: '10px',
+};
+
+const viewProfileContainerStyle = {
+    display: 'grid',
+    gridGap: '10px',
+};
+
+const inputStyle = {
+    padding: '10px',
+    borderRadius: '5px',
+    border: '1px solid #ccc',
+};
+
+const textareaStyle = {
+    padding: '10px',
+    borderRadius: '5px',
+    border: '1px solid #ccc',
+    resize: 'vertical',
+    height: '100px',
+};
+
+const buttonsContainerStyle = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginTop: '20px',
+};
+
+const saveButtonStyle = {
+    backgroundColor: '#4CAF50',
+    color: 'white',
+    padding: '10px',
+    borderRadius: '5px',
+    border: 'none',
+    cursor: 'pointer',
+};
+
+const cancelButtonStyle = {
+    backgroundColor: '#e74c3c',
+    color: 'white',
+    padding: '10px',
+    borderRadius: '5px',
+    border: 'none',
+    cursor: 'pointer',
+};
+
+const editButtonStyle = {
+    backgroundColor: '#3498db',
+    color: 'white',
+    padding: '10px',
+    borderRadius: '5px',
+    border: 'none',
+    cursor: 'pointer',
 };
 
 export default UserProfile;
