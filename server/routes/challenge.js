@@ -181,4 +181,18 @@ router.get("/getAllCompleted", async (req, res) => {
   res.json(list);
 });
 
+router.get("/checkCompletion", async (req, res) => {
+  const { userId, challengeId } = req.query;
+  try {
+    const completed = await UserChallenges.findOne({
+      where: { user: userId, challenge: challengeId }
+    });
+    res.json({ completed: !!completed });
+    
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "An error occurred while checking challenge completion." });
+  }
+})
+
 module.exports = router;
