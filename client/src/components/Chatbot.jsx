@@ -83,6 +83,7 @@ const Chatbot = () => {
     );
 };
 
+// Styles
 const chatbotContainer = {
     position: 'fixed',
     bottom: '20px',
