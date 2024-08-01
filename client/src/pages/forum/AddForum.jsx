@@ -5,6 +5,7 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import http from '../../http';
 import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 function AddForum() {
     const { authToken } = useAuth();
@@ -63,6 +64,7 @@ function AddForum() {
         },
         enableReinitialize: true, // Allows Formik to reinitialize when initialValues change
     });
+
 
     return (
         <Box

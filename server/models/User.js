@@ -65,16 +65,13 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             defaultValue: 0
         },
-        preferences: {
-            type: DataTypes.TEXT,
+        language: {
+            type: DataTypes.STRING,
             allowNull: true
         },
-        twoFactorAuthEnabled: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false
-        },
-        languages: {
+        twoFactorAuth: {
             type: DataTypes.STRING,
+            defaultValue: 'Not Enabled',
             allowNull: true
         },
         bio: {
