@@ -49,7 +49,6 @@ const DailyContainer = styled('div')({
   height: '80%',
   background: theme.palette.secondary.light,
   margin: '5% auto',
-  overflow: 'auto',
   textAlign: 'center'
 });
 
@@ -64,7 +63,7 @@ const Complete = styled(Button)(({ disabled }) => ({
   fontSize: '1rem',
   height: '50px',
   width: '35%',
-  margin: '10% auto 0',
+  margin: '5% auto 0',
   display: 'flex',
   justifyContent: 'space-around',
   pointerEvents: 'fill !important',
