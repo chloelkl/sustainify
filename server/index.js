@@ -33,13 +33,12 @@ app.get("/", (req, res) => {
     res.send("Welcome to the learning space.");
 });
 
-// Routes -> Add routes based on DB created
-
+// Routes
 const challengeRoute = require('./routes/challenge');
-app.use('/challenge', challengeRoute);
+app.use('/challenge', challengeRoute);;
 
-const forum = require('./routes/forum');
-app.use('/user', forum); // Mount forumRoutes under /users
+const forumRoute = require('./routes/forum');
+app.use("/forum", forumRoute);
 
 const userRoute = require('./routes/user');
 app.use("/user", userRoute);
@@ -50,14 +49,14 @@ app.use("/admin", adminRoute);
 const authRoute = require('./routes/auth');
 app.use("/auth", authRoute);
 
+const communicationRoutes = require('./routes/communication');
+app.use('/communication', communicationRoutes);
+
 const eventRoute = require('./routes/event');
 app.use("/event", eventRoute);
 
 const eventpostRoute = require('./routes/eventpost');
 app.use("/eventpost", eventpostRoute);
-
-const forumRoute = require('./routes/forum');
-app.use("/forum", forumRoute);
 
 const rewardRoute = require('./routes/reward');
 app.use("/reward", rewardRoute);
@@ -65,7 +64,10 @@ app.use("/reward", rewardRoute);
 // Route to serve uploaded images
 app.use('/uploads', express.static(uploadDir));
 
-// Start server after synchronising the DB files under models folder
+const chatbotRoute = require('./routes/chatbot');
+app.use("/chatbot", chatbotRoute);
+
+// Start server after synchronizing the DB files under models folder
 const db = require('./models');
 db.sequelize.sync({ alter: true })
     .then(() => {

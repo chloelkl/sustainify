@@ -1,141 +1,123 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import {
+    Box,
+    Container,
+    Typography,
+    TextField,
+    List,
+    ListItem,
+    ListItemText,
+    ListItemSecondaryAction,
+    IconButton,
+    Button,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Paper
+} from '@mui/material';
+import { RemoveCircleOutline, Visibility } from '@mui/icons-material';
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
+    const [selectedUser, setSelectedUser] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [error, setError] = useState(null);
+    const [searchBy, setSearchBy] = useState('name');
 
     useEffect(() => {
         fetchUsers();
     }, []);
 
-    const fetchUsers = () => {
-        axios.get('http://localhost:3000/admin/users')
-            .then(response => {
-                console.log('Users response:', response.data);
-                if (Array.isArray(response.data)) {
-                    setUsers(response.data);
-                } else {
-                    throw new Error('Users response is not an array.');
-                }
-            })
-            .catch(error => {
-                console.error("There was an error fetching the users!", error);
-                setError('Failed to fetch users.');
-            });
+    const fetchUsers = async () => {
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/user`);
+            setUsers(response.data);
+        } catch (error) {
+            console.error("There was an error fetching the users!", error);
+            setError('Failed to fetch users.');
+        }
     };
 
-    const handleRemoveUser = (id) => {
-        axios.delete(`http://localhost:3000/admin/users/${id}`)
-            .then(response => {
-                console.log(response.data);
-                fetchUsers();
-            })
-            .catch(error => {
-                console.error("There was an error removing the user!", error);
-                setError('Failed to remove user.');
-            });
+    const handleRemoveUser = async (userID) => {
+        try {
+            await axios.delete(`${import.meta.env.VITE_API_URL}/user/${userID}`);
+            fetchUsers();
+            setSelectedUser(null);
+        } catch (error) {
+            console.error("There was an error removing the user!", error);
+            setError('Failed to remove user.');
+        }
     };
 
-    if (error) {
-        return <div>Error: {error}</div>;
-    }
+    const handleViewData = (user) => {
+        setSelectedUser(user);
+    };
 
     return (
-        <div style={containerStyle}>
-            <div style={searchContainerStyle}>
-                <label style={labelStyle}>
-                    Search by: 
-                    <select style={selectStyle}>
-                        <option value="name">Name</option>
-                        <option value="email">Email</option>
-                        {/* Add more search options as needed */}
-                    </select>
-                </label>
-                <input
-                    type="text"
-                    placeholder="Search"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={inputStyle}
-                />
-            </div>
-            <ul style={listStyle}>
-                {users.filter(user => user.name.includes(searchTerm)).map((user, index) => (
-                    <li key={index} style={listItemStyle}>
-                        <span>{user.name}</span>
-                        <button style={viewButtonStyle}>View Data</button>
-                        <button style={removeButtonStyle} onClick={() => handleRemoveUser(user.id)}>Remove User</button>
-                    </li>
-                ))}
-            </ul>
-        </div>
+        <Container>
+            <Paper elevation={3} sx={{ p: 2, borderRadius: '10px' }}>
+                <Typography variant="h6" gutterBottom>Admin's User Management</Typography>
+                {error && <Typography color="error">{error}</Typography>}
+                <Box display="flex" mb={2}>
+                    <FormControl sx={{ minWidth: 120, mr: 2 }}>
+                        <InputLabel>Search by</InputLabel>
+                        <Select
+                            value={searchBy}
+                            onChange={(e) => setSearchBy(e.target.value)}
+                        >
+                            <MenuItem value="name">Name</MenuItem>
+                            <MenuItem value="email">Email</MenuItem>
+                        </Select>
+                    </FormControl>
+                    <TextField
+                        fullWidth
+                        label={`Search by ${searchBy}`}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </Box>
+                <List>
+                    {users.filter(user => 
+                        user.username.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                        user.email.toLowerCase().includes(searchTerm.toLowerCase())
+                    ).map((user, index) => (
+                        <ListItem key={index} divider>
+                            <ListItemText
+                                primary={user.username}
+                                secondary={user.email}
+                            />
+                            <ListItemSecondaryAction>
+                                <IconButton
+                                    edge="end"
+                                    onClick={() => handleViewData(user)}
+                                    sx={{ color: '#3498db' }}
+                                >
+                                    <Visibility />
+                                </IconButton>
+                                <IconButton
+                                    edge="end"
+                                    onClick={() => handleRemoveUser(user.userID)}
+                                    sx={{ color: '#e74c3c', ml: 2 }}
+                                >
+                                    <RemoveCircleOutline />
+                                </IconButton>
+                            </ListItemSecondaryAction>
+                        </ListItem>
+                    ))}
+                </List>
+                {selectedUser && (
+                    <Paper elevation={3} sx={{ p: 2, mt: 2, borderRadius: '10px' }}>
+                        <Typography variant="h6">User Details</Typography>
+                        <Typography><strong>Username:</strong> {selectedUser.username}</Typography>
+                        <Typography><strong>Email:</strong> {selectedUser.email}</Typography>
+                        {/* Add more fields as necessary */}
+                    </Paper>
+                )}
+            </Paper>
+        </Container>
     );
-};
-
-const containerStyle = {
-    padding: '20px',
-    backgroundColor: '#fff',
-    borderRadius: '10px',
-    boxShadow: '0 0 10px rgba(0,0,0,0.1)',
-};
-
-const searchContainerStyle = {
-    display: 'flex',
-    marginBottom: '20px',
-};
-
-const labelStyle = {
-    marginRight: '10px',
-};
-
-const selectStyle = {
-    marginRight: '10px',
-    padding: '5px',
-    borderRadius: '5px',
-    border: '1px solid #ccc',
-};
-
-const inputStyle = {
-    padding: '5px',
-    borderRadius: '5px',
-    border: '1px solid #ccc',
-    flex: 1,
-};
-
-const listStyle = {
-    listStyleType: 'none',
-    padding: '0',
-};
-
-const listItemStyle = {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '10px',
-    backgroundColor: '#f9f9f9',
-    borderRadius: '5px',
-    marginBottom: '10px',
-};
-
-const viewButtonStyle = {
-    padding: '5px',
-    borderRadius: '5px',
-    border: 'none',
-    backgroundColor: '#3498db',
-    color: 'white',
-    cursor: 'pointer',
-    marginRight: '10px',
-};
-
-const removeButtonStyle = {
-    padding: '5px',
-    borderRadius: '5px',
-    border: 'none',
-    backgroundColor: '#e74c3c',
-    color: 'white',
-    cursor: 'pointer',
 };
 
 export default UserManagement;

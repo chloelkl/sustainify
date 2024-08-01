@@ -127,11 +127,11 @@ const mainOptionsStyle = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 'calc(100vh - 64px)', // Adjusted to take into account the height of the navbar
+    height: 'calc(100vh - 64px)',
     width: '100vw',
     textAlign: 'center',
     position: 'relative',
-    transition: 'opacity 1s ease', // Smooth fade-in effect
+    transition: 'opacity 1s ease',
 };
 
 const optionStyle = {

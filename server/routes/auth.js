@@ -111,7 +111,6 @@ router.post('/admin-signup', [
             countryCode
         });
 
-        console.log('New admin created:', newAdmin);
         const adminToken = generateToken(newAdmin);
         res.status(201).json({ token: adminToken, role: newAdmin.role, adminID: newAdmin.adminID });
     } catch (error) {

@@ -7,7 +7,7 @@ import http from '../../http';
 import { useAuth } from '../../context/AuthContext';
 
 function Forum() {
-    const { user, role } = useAuth();
+    const { user, role, authToken } = useAuth();
     const [forumList, setForumList] = useState([]);
     const [search, setSearch] = useState('');
 
@@ -16,9 +16,23 @@ function Forum() {
     };
 
     const getForums = () => {
-        http.get('/forum').then((res) => {
-            setForumList(res.data);
-        });
+        http.get('/forum', {
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        })
+            .then((res) => {
+                if (Array.isArray(res.data)) {
+                    setForumList(res.data);
+                    console.log('Fetched Forums:', res.data); // Log the fetched forums
+                } else {
+                    setForumList([]);
+                    console.error('Expected array but received:', res.data);
+                }
+            })
+            .catch((error) => {
+                console.error('Error fetching forums:', error);
+            });
     };
 
     const searchForums = () => {

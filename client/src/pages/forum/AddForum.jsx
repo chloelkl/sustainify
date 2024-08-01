@@ -4,55 +4,62 @@ import { Box, Typography, TextField, Button } from '@mui/material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import http from '../../http';
+import { useAuth } from '../../context/AuthContext';
 
 function AddForum() {
-    const { userId } = useParams();
-    const [user, setUser] = useState({});
-    const navigate = useNavigate();
-    
-    useEffect(() => {
-        http.get(`/forum/user/${userId}/forums`).then(response => {
-            setUser(response.data);
-        }).catch(error => {
-            console.error("Error fetching username:", error);
-        });
-    }, []);
-    
-    const formik = useFormik({
-        initialValues: {
-            userName: user.username,
-            title: "",
-            description: ""
-        },
-        validationSchema: yup.object({
-            title: yup.string().trim()
-                .min(3, 'Title must be at least 3 characters')
-                .max(100, 'Title must be at most 100 characters')
-                .required('Title is required'),
-            description: yup.string().trim()
-                .min(3, 'Description must be at least 3 characters')
-                .max(500, 'Description must be at most 500 characters')
-                .required('Description is required')
-            // Add validation for image if needed
-        }),
-        onSubmit: (data) => {
-            // User Account
-            data.name = user.username;
-            data.title = data.title.trim();
-            data.description = data.description.trim();
-            data.userId = userId;
-            // image handling
-            http.post("/forum", data)
-                .then((res) => {
-                    console.log(res.data);
-                    navigate("/forum");
-                })
-                .catch((error) => {
-                    console.error("Error adding forum:", error);
-                });
-        },
-        enableReinitialize: true, // Allows Formik to reinitialize when initialValues change
+  const { authToken } = useAuth();
+  const { userID } = useAuth();
+  const [user, setUser] = useState({});
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+      http.get(`/forum/by/${userID}` , {
+        headers: {
+            'Authorization': `Bearer ${authToken}`
+        }
+    }).then(response => {
+          setUser(response.data);
+      }).catch(error => {
+          console.error("Error fetching username:", error);
+      });
+  }, [authToken, userID]);
+  
+  const formik = useFormik({
+      initialValues: {
+          userName: user.username,
+          title: "",
+          description: ""
+      },
+      validationSchema: yup.object({
+          title: yup.string().trim()
+              .min(3, 'Title must be at least 3 characters')
+              .max(100, 'Title must be at most 100 characters')
+              .required('Title is required'),
+          description: yup.string().trim()
+              .min(3, 'Description must be at least 3 characters')
+              .max(500, 'Description must be at most 500 characters')
+              .required('Description is required')
+          // Add validation for image if needed
+      }),
+      onSubmit: (data) => {
+          // User Account
+          data.name = user.username;
+          data.title = data.title.trim();
+          data.description = data.description.trim();
+          data.userId = userID;
+          // image handling
+          http.post("/forum", data)
+              .then((res) => {
+                  console.log(res.data);
+                  navigate("/forum");
+              })
+              .catch((error) => {
+                  console.error("Error adding forum:", error);
+              });
+      },
+      enableReinitialize: true, // Allows Formik to reinitialize when initialValues change
     });
+
 
     return (
         <Box
