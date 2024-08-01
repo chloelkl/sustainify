@@ -7,8 +7,8 @@ import http from '../../http';
 import { useAuth } from '../../context/AuthContext';
 
 function AddForum() {
-    const { authToken, userId } = useAuth();
-    // const { userId } = useParams();
+    const { authToken } = useAuth();
+    const { userId } = useParams();
     const [user, setUser] = useState({});
     const navigate = useNavigate();
     
@@ -24,6 +24,8 @@ function AddForum() {
         });
     }, [authToken, userId]);
     
+    console.log(userId);
+
     const formik = useFormik({
         initialValues: {
             userName: user.username,
@@ -43,10 +45,12 @@ function AddForum() {
         }),
         onSubmit: (data) => {
             // User Account
+            data.userId = userId;
             data.name = user.username;
             data.title = data.title.trim();
             data.description = data.description.trim();
-            data.userId = userId;
+            
+            console.log("Data being sent:", data);
             // image handling
             http.post("/forum", data)
                 .then((res) => {
