@@ -97,12 +97,12 @@ router.delete('/backup/:id', verifyToken, async (req, res) => {
 });
 
 // Update admin profile
-router.put('/:id', verifyToken, async (req, res) => {
-    const { id } = req.params;
+router.put('/:adminID', verifyToken, async (req, res) => {
+    const { adminID } = req.params;
     const { fullName, email, password, location, username, phoneNumber, countryCode } = req.body;
 
     try {
-        const admin = await Admin.findByPk(id);
+        const admin = await Admin.findByPk(adminID);
         if (!admin) {
             return res.status(404).json({ error: 'Admin not found.' });
         }
@@ -153,23 +153,31 @@ router.get('/:id', verifyToken, async (req, res) => {
 
 
 // Delete an admin
-router.post('/delete', verifyToken, async (req, res) => {
-    const { id, password } = req.body;
+router.delete('/delete', verifyToken, async (req, res) => {
+    const { adminID, password } = req.body;
 
     try {
-        const admin = await Admin.findOne({ where: { id } });
+        // Ensure id and password are defined
+        if (!adminID || !password) {
+            return res.status(400).json({ error: 'Missing id or password.' });
+        }
+
+        const admin = await Admin.findOne({ where: { adminID } });
         if (!admin) {
+            console.error('Admin not found with ID:', adminID);
             return res.status(404).json({ error: 'Admin not found.' });
         }
 
         const isMatch = await bcrypt.compare(password, admin.password);
         if (!isMatch) {
+            console.error('Incorrect password provided for admin ID:', id);
             return res.status(401).json({ error: 'Incorrect password.' });
         }
 
-        await Admin.destroy({ where: { id } });
+        await Admin.destroy({ where: { adminID } });
         res.json({ message: 'Admin deleted successfully.' });
     } catch (error) {
+        console.error('Error deleting admin:', error);
         res.status(500).json({ error: 'Failed to delete admin.' });
     }
 });

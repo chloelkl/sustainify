@@ -1,7 +1,14 @@
+/* EventHosting.css */
+.event-hosting-page {
+    display: flex;
+    width: 100%;
+}
+
 .event-hosting-container {
-    display: flex ;
-    width: 100% ;
-    padding: 20px ;
+    flex: 2;
+    display: flex;
+    width: 100%;
+    padding: 20px;
     box-sizing: border-box;
 }
 
@@ -16,20 +23,20 @@
 }
 
 .form-title {
-    font-weight: 600 ; 
-    margin-bottom: 10px ; 
+    font-weight: 600; /* Make the title bold */
+    margin-bottom: 10px; /* Reduce the bottom margin */
 }
 
 .form-subtitle {
-    margin-bottom: 20px ; 
+    margin-bottom: 20px; /* Reduce the bottom margin */
 }
 
 .event-form .MuiTextField-root {
-    margin-bottom: 20px ;
+    margin-bottom: 20px;
 }
 
 .submit-button {
-    background-color: #000000 ; 
-    color: #ffffff ;
-    margin-top: 20px ; 
+    background-color: #000000; /* Change to black */
+    color: #ffffff;
+    margin-top: 20px; /* Add top margin for separation */
 }

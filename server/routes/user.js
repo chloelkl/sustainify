@@ -15,21 +15,25 @@ const userSchema = yup.object().shape({
     location: yup.string().max(100),
 });
 
-// Get user settings
-router.get("/:id/settings", verifyToken, async (req, res) => {
+router.get("/:userID/settings", verifyToken, async (req, res) => {
     try {
-        let id = req.params.id;
-        let user = await User.findByPk(id);
-        if (!user) return res.sendStatus(404);
+        const userID = req.params.userID;
 
-        const settings = {
-            language: user.language || 'English',
-            twoFactorAuth: user.twoFactorAuth || false,
-            socialMediaLinks: user.socialMediaLinks || { google: '', apple: '' }
-        };
-        res.json(settings);
+        const user = await User.findByPk(userID, {
+            attributes: ['language', 'twoFactorAuth'] // specify the attributes you want to retrieve
+        });
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        res.json({
+            language: user.language,
+            twoFactorAuth: user.twoFactorAuth ? 'Enabled' : 'Not Enabled',
+        });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch settings.' });
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch user settings.' });
     }
 });
 
@@ -132,30 +136,16 @@ router.post("/:id/messages", verifyToken, async (req, res) => {
     }
 });
 
-// AI Chatbot interaction
-router.post("/:id/ai-chatbot", verifyToken, async (req, res) => {
-    try {
-        let { id } = req.params;
-        let { message } = req.body;
-
-        // Simple echo bot response
-        const aiResponse = `You said: ${message}`;
-        res.json({ response: aiResponse });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to process message.' });
-    }
-});
-
 // Update user profile
-router.put("/:id", verifyToken, async (req, res) => {
+router.put("/:userID", verifyToken, async (req, res) => {
     try {
-        let id = req.params.id;
-        const { username, email, password, phoneNumber, countryCode, location } = req.body;
+        let userID = req.params.userID;
+        const { username, email, password, phoneNumber, countryCode, location, fullName, bio } = req.body;
 
         // Validate incoming data
         await userSchema.validate(req.body, { abortEarly: false });
 
-        const user = await User.findByPk(id);
+        const user = await User.findByPk(userID);
         if (!user) return res.status(404).json({ error: 'User not found.' });
 
         // Update only fields that are present in the request body
@@ -164,6 +154,8 @@ router.put("/:id", verifyToken, async (req, res) => {
         user.phoneNumber = phoneNumber || user.phoneNumber;
         user.countryCode = countryCode || user.countryCode;
         user.location = location || user.location;
+        user.fullName = fullName || user.fullName;
+        user.bio = bio || user.bio;
 
         if (password) {
             user.password = await bcrypt.hash(password, 10);
@@ -174,8 +166,9 @@ router.put("/:id", verifyToken, async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to update profile.' });
-    }
+    } 
 });
+
 
 // Get all users (for user management in admin panel)
 router.get('/', verifyToken, async (req, res) => {
@@ -190,6 +183,17 @@ router.get('/', verifyToken, async (req, res) => {
     }
 });
 
+router.get("/:userID", verifyToken, async (req, res) => {
+    try {
+        let userID = req.params.userID;
+        let user = await User.findByPk(userID);
+        if (!user) return res.sendStatus(404);
+
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch user details.' });
+    }
+});
 
 // Delete a user
 router.delete('/:userID', verifyToken, async (req, res) => {
@@ -205,6 +209,13 @@ router.delete('/:userID', verifyToken, async (req, res) => {
     }
 });
 
-
+router.get("/retrieveDetails/:id", async (req, res) => {
+  const id = req.params.id;
+  const user = await User.findByPk(id);
+  if (!user) {
+    return res.status(404).json({ error: 'User not found.' });
+  }
+  res.json(user);
+})
 
 module.exports = router;

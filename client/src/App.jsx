@@ -34,6 +34,7 @@ import PostEventAdmin from './pages/events/posteventadmin';
 import EditHostingAdmin from './pages/events/edithostingadmin';
 import CreateEventAdmin from './pages/events/createeventadmin';
 import EventOverview from './pages/events/eventoverview';
+// import EventStatisticsAdmin from './pages/events/eventstatisticsadmin.jsx';
 
 // Forum
 import Forum from './pages/forum/Forum';
@@ -49,8 +50,10 @@ import UserReward from './pages/rewards/UserReward';
 
 // Challenges
 import DailyChallenge from './pages/challenges/DailyChallenge';
-import ManageTask from './pages/challenges/ManageTask';
-import PastChallenges from './pages/challenges/PastChallenges';
+import ManageTask from './pages/challenges/admin/ManageTask';
+import TasksStats from './pages/challenges/admin/TasksStats';
+import TaskParticipation from './pages/challenges/admin/TaskParticipation';
+import PastChallenges from './pages/challenges/user/PastChallenges';
 
 
 function App() {
@@ -77,22 +80,25 @@ function App() {
               <Route path="/account/admin/main" element={<ProtectedRoute roles={['admin']}><AdminMain /></ProtectedRoute>} />
               <Route path="/account/admin/user-management" element={<ProtectedRoute roles={['admin']}><UserManagement /></ProtectedRoute>} />
               <Route path="/account/admin/communication-tools" element={<ProtectedRoute roles={['admin']}><CommunicationTools /></ProtectedRoute>} />
-              <Route path="/account/admin/system-overview" element={<ProtectedRoute roles={['admin']}><SystemOverview /></ProtectedRoute>} />
+              <Route path="/account/admin/system-overview" element={<SystemOverview />} />
               <Route path="/account/admin/dashboard" element={<ProtectedRoute roles={['admin']}><Dashboard /></ProtectedRoute>} />
 
               {/* Event */}
-              <Route path="/eventhosting" element={<EventHosting />} />
-              <Route path="/eventhostingadmin" element={<EventHostingAdmin />} />
-              <Route path="/postevent" element={<PostEvent />} />
-              <Route path="/posteventadmin" element={<PostEventAdmin />} />
-              <Route path={"/edithostingadmin/:id"} element={<EditHostingAdmin />} />
-              <Route path="/createeventadmin" element={<CreateEventAdmin />} />
-              <Route path="/eventoverview" element={<EventOverview />} />
+              
+              <Route path="/eventhosting" element={<ProtectedRoute roles= {['user']}><EventHosting /></ProtectedRoute> } />
+              <Route path="/eventhostingadmin" element={<ProtectedRoute roles= {['admin']}><EventHostingAdmin /></ProtectedRoute>} />
+              <Route path="/postevent" element={<ProtectedRoute roles= {['user']}><PostEvent /></ProtectedRoute> } />
+              <Route path="/posteventadmin" element={<ProtectedRoute roles= {['admin']}><PostEventAdmin /></ProtectedRoute>} />
+              <Route path={"/edithostingadmin/:id"} element={<ProtectedRoute roles= {['admin']}><EditHostingAdmin /></ProtectedRoute>} />
+              <Route path="/createeventadmin" element={<ProtectedRoute roles= {['admin']}><CreateEventAdmin /></ProtectedRoute>} />
+              <Route path="/eventoverview" element={<ProtectedRoute roles= {['user']}><EventOverview /></ProtectedRoute>} />
+              {/* <Route path="/eventstatisticsadmin" element={<ProtectedRoute roles= {['admin']}><EventStatisticsAdmin /></ProtectedRoute>} /> */}
+
 
               {/* Forum */}
-              <Route path={"/forum"} element={<Forum />} />
-              <Route path={"/user/:userId/forum/addforum"} element={<AddForum />} />
-              <Route path={"/user/:userId/forum"} element={<UserForum />} />
+              <Route path={"/forum"} element={<ProtectedRoute roles={['user', 'admin']}><Forum /></ProtectedRoute>} />
+              <Route path={"/user/:userId/forum/addforum"} element={<AddForum/>} />
+              <Route path={"/forum/by/:userId"} element={<ProtectedRoute roles={['user', 'admin']}><UserForum/></ProtectedRoute>} />
 
               {/* Rewards Page */}
               <Route path={"/rewards/Rewards"} element={<ProtectedRoute roles={['admin']}><Rewards /></ProtectedRoute>} />
@@ -103,9 +109,11 @@ function App() {
 
 
               {/* challenges */}
-            <Route path={"/challenges"} element={<DailyChallenge />}/>
-            <Route path={"/challenges/manage"} element={<ManageTask />}/>
-            <Route path={"/challenges/past"} element={<PastChallenges />} />
+              <Route path={"/challenges"} element={<ProtectedRoute roles={['user', 'admin']}><DailyChallenge /></ProtectedRoute>} />
+              <Route path={"/challenges/manage"} element={<ProtectedRoute roles={['admin']}><ManageTask /></ProtectedRoute>} />
+              <Route path={"/challenges/statistics"} element={<ProtectedRoute roles={['admin']}><TasksStats /></ProtectedRoute>} />
+              <Route path={"/challenges/participation"} element={<ProtectedRoute roles={['admin']}><TaskParticipation /></ProtectedRoute>} />
+              <Route path={"/challenges/past"} element={<ProtectedRoute roles={['user']}><PastChallenges /></ProtectedRoute>} />
             </Routes>
           </Container>
           <Chatbot />

@@ -4,7 +4,7 @@ import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
     Typography, IconButton, Dialog, DialogActions, DialogContent, DialogContentText,
     DialogTitle, Button} from '@mui/material';
 import { Delete as DeleteIcon } from '@mui/icons-material';
-import EventAdminSidebar from '../../components/EventAdminSidebar';
+import EventHostingAdminSidebar from '../../components/EventHostingAdminSidebar';
 import { useNavigate } from 'react-router-dom';
 import './EventHostingAdmin.css';
 
@@ -53,7 +53,7 @@ const EventHostingAdmin = () => {
     return (
         <div className="eventhostingadmin">
             <div className="eventhostingadmin-sidebar">
-                <EventAdminSidebar />
+                <EventHostingAdminSidebar />
             </div>
             <div className="eventhostingadmin-content">
                 <Typography variant="h4" component="h1" className="admin-title">

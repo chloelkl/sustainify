@@ -5,26 +5,36 @@
     padding: 20px;
 }
 
-.host-with-us,
-.full-free-services,
+.combined-container,
 .explore-events {
     margin-bottom: 40px;
     text-align: center;
 }
 
-.host-with-us h2,
-.full-free-services h2,
-.explore-events h2 {
-    font-size: 24px;
-    margin-bottom: 10px;
-    color: #333;
+.combined-container {
+    position: relative;
+    background-image: url('../../assets/eventoverview1.jpg'); /* Update with the correct path */
+    background-size: cover;
+    background-position: center;
+    padding: 100px 70px;
+    border-radius: 10px;
+    color: #000; /* Set text color to black */
 }
 
-.host-with-us p,
-.full-free-services p {
-    font-size: 16px;
-    margin-bottom: 20px;
-    color: #666;
+.combined-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8); /* Light overlay */
+    border-radius: 10px;
+}
+
+.combined-container *:not(.host-now-button):not(.view-all-events-button) {
+    position: relative;
+    z-index: 1;
 }
 
 .host-now-button,
@@ -37,41 +47,19 @@
     border: none;
     cursor: pointer;
     border-radius: 10px;
-
+    position: relative;
+    z-index: 1;
 }
 
-.explore-events-container {
-    background-color: #fff;
-    padding: 40px 40px 70px 40px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    display: inline-block;
-    width: 80%;
-    max-width: 600px; 
-    margin: 0 auto; 
+.host-now-button {
+    margin-bottom: 20px; /* Add margin to create space */
 }
 
-form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
 
-form label {
-    font-size: 16px;
-    margin: 10px 0;
-}
 
-form input,
-form select {
-    padding: 10px;
-    font-size: 16px;
-    margin-top: 5px;
-    width: 100%;
 
-}
-
-form .search-button {
-    margin-top: 20px;
-    
+/* Added bold style for all headings and paragraphs in combined-container */
+.combined-container h2,
+.combined-container p {
+    font-weight: bolder;
 }

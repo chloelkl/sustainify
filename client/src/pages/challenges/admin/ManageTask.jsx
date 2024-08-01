@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import theme from '../../themes/MyTheme.js'
+import theme from '../../../themes/MyTheme.js'
 import { styled, shadows } from '@mui/system';
 import { Button, TextField, Typography, Modal, Box } from "@mui/material";
+import { Link } from 'react-router-dom';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -9,6 +10,10 @@ import dayjs from 'dayjs';
 
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
+import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
+import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
+import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined';
+import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined';
 
 const StyledContainer = styled('div')({
   margin: '5vh 2vw',
@@ -16,10 +21,24 @@ const StyledContainer = styled('div')({
   justifyContent: 'space-around'
 });
 
-const PlaceholderSidebar = styled('div')({
-  width: '20vw',
-  height: '80vh',
+const Sidebar = styled('div')({
+  width: '22vw',
+  height: '75vh',
   background: theme.palette.primary.light,
+});
+
+const SideNav = styled('div')({
+  height: '10%',
+  width: '100%',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center'
+});
+
+const  SideLink = styled(Link)({
+  color: theme.palette.secondary.light,
+  textDecoration: 'none',
+  width: '130px'
 });
 
 const ManageParent = styled('div')({
@@ -191,7 +210,7 @@ function ManageTask() {
 
   const fetchChallenges = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/challenge/get`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/challenge/get`);
       const result = await response.json();
       setChallenges(result);
     } catch (error) {
@@ -227,7 +246,7 @@ function ManageTask() {
       date: selectedDate ? selectedDate.format('YYYY-MM-DD') : null,
     };
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/challenge/add`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/challenge/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -260,7 +279,7 @@ function ManageTask() {
       date: currentDate ? currentDate.format('YYYY-MM-DD') : null,
     };
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/challenge/update/${currentID}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/challenge/update/${currentID}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -319,7 +338,7 @@ function ManageTask() {
 
   const handleDeleteConfirm = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/challenge/delete/${currentID}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/challenge/delete/${currentID}`, {
         method: 'DELETE',
       });
 
@@ -342,7 +361,24 @@ function ManageTask() {
 
   return (
     <StyledContainer>
-      <PlaceholderSidebar></PlaceholderSidebar>
+      <Sidebar>
+        <SideNav>
+          <AssignmentOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }}/>
+          <SideLink to="/challenges">Today's Challenge</SideLink>
+        </SideNav>
+        <SideNav>
+          <AssessmentOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }}/>
+          <SideLink to="/challenges/statistics">Statistics</SideLink>
+        </SideNav>
+        <SideNav sx={{ background: theme.palette.secondary.dark }}>
+          <ManageAccountsOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }}/>
+          <SideLink to="/challenges/manage">Manage</SideLink>
+        </SideNav>
+        <SideNav>
+          <GroupsOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }}/>
+          <SideLink to="/challenges/participation">Participation</SideLink>
+        </SideNav>
+      </Sidebar>
       <ManageParent>
         <ManageContainer sx={{ boxShadow: 2 }}>
           <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', justifyContent: 'center', flexDirection: 'row' }} >

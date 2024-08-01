@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './PostEvent.css';
-import EventAdminSidebar from '../../components/EventAdminSidebar';
+import PostEventAdminSidebar from '../../components/PostEventAdminSidebar';
 import {
     Typography, IconButton, Card, CardContent, CardActions,
     Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button
@@ -57,7 +57,7 @@ const PostEventAdmin = () => {
 
     return (
         <div className="postevent">
-            <EventAdminSidebar />
+            <PostEventAdminSidebar />
 
             <div className="postevent-content">
                 <Typography variant="h4" component="h1" gutterBottom>
@@ -66,6 +66,13 @@ const PostEventAdmin = () => {
                 {events.map(event => (
                     <Card className="event-card" key={event.id}>
                         <CardContent>
+                            {event.image && (
+                                <img
+                                    src={`${import.meta.env.VITE_API_URL}/${event.image}`}
+                                    alt={event.eventname}
+                                    className="event-image"
+                                />
+                            )}
                             <Typography variant="h5" component="h2">
                                 {event.eventname}
                                 <Typography color="textSecondary">

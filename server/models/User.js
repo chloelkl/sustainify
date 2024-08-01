@@ -91,12 +91,17 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true
         }
     }, {
-        tableName: 'users'
+      tableName: 'users'
     });
-
+    
     User.associate = (models) => {
-        User.belongsToMany(models.Reward, { through: "RewardUser", foreignKey: 'user'});
+      User.hasMany(models.Forum, {
+          foreignKey: 'userId',
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE'
+      });
+      User.belongsToMany(models.Challenge, { through: "UserChallenges", foreignKey: 'user' });
+      User.belongsToMany(models.Reward, { through: "RewardUser", foreignKey: 'user'});
     };
-
     return User;
 };

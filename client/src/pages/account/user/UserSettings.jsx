@@ -1,28 +1,23 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../context/AuthContext'; // Import useAuth for authentication context
+import { useAuth } from '../../../context/AuthContext';
 
 const UserSettings = () => {
     const { user } = useAuth();
     const [settings, setSettings] = useState({
         language: '',
         twoFactorAuth: false,
-        socialMediaLinks: {
-            google: false,
-            apple: false,
-        },
     });
 
-    const navigate = useNavigate();
+    const navigate = useNavigate(); 
 
     const fetchUserSettings = useCallback(async () => {
         try {
             const response = await axios.get(`${import.meta.env.VITE_API_URL}/user/${user.userID}/settings`);
             setSettings({
                 language: response.data.language || '',
-                twoFactorAuth: response.data.twoFactorAuth || false,
-                socialMediaLinks: response.data.socialMediaLinks || { google: false, apple: false },
+                twoFactorAuth: response.data.twoFactorAuth === 'Enabled',
             });
         } catch (error) {
             console.error('Error fetching user settings:', error);
@@ -35,27 +30,16 @@ const UserSettings = () => {
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        if (name === "language") {
+        if (type === "radio" && name === "language") {
             setSettings(prevSettings => ({
                 ...prevSettings,
                 language: value
             }));
         } else if (type === "checkbox") {
-            if (name.includes('socialMediaLinks.')) {
-                const key = name.split('.')[1];
-                setSettings(prevSettings => ({
-                    ...prevSettings,
-                    socialMediaLinks: {
-                        ...prevSettings.socialMediaLinks,
-                        [key]: checked,
-                    },
-                }));
-            } else {
-                setSettings(prevSettings => ({
-                    ...prevSettings,
-                    [name]: checked,
-                }));
-            }
+            setSettings(prevSettings => ({
+                ...prevSettings,
+                [name]: checked
+            }));
         }
     };
 
@@ -126,12 +110,12 @@ const UserSettings = () => {
                 </div>
 
                 <div style={sectionStyle}>
-                    <h3>View and download data</h3>
+                    <h3>View and Download Data</h3>
                     <button style={viewButtonStyle}>View</button>
                 </div>
 
                 <div style={sectionStyle}>
-                    <h3>Two-factor authentication</h3>
+                    <h3>Two-factor Authentication</h3>
                     <label style={checkboxLabelStyle}>
                         <input
                             type="checkbox"
@@ -143,7 +127,7 @@ const UserSettings = () => {
                 </div>
 
                 <div style={sectionStyle}>
-                    <h3>Delete account</h3>
+                    <h3>Delete Account</h3>
                     <button style={deleteButtonStyle} onClick={handleDeleteAccount}>Delete</button>
                 </div>
             </div>

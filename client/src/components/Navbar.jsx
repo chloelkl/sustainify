@@ -15,7 +15,17 @@ function Navbar() {
     if (role === 'admin') {
       navigate('/account/admin/main');
     } else {
-      navigate('/account/user/main');
+      navigate(`/forum/by/${user.userID}`);
+    }
+  };
+
+  const handleEventsClick = () => {
+    if (role === 'admin') {
+      navigate('/posteventadmin');
+    } else if (user) {
+      navigate('/eventoverview');
+    } else {
+      navigate('/account/login');
     }
   };
 
@@ -34,9 +44,20 @@ function Navbar() {
           <StyledLink to="/challenges">
             <Typography>CHALLENGES</Typography>
           </StyledLink>
-          <StyledLink to="/eventoverview">
+          {(role === 'admin' || user) ? (
+            <IconButton color="inherit" onClick={handleEventsClick}>
+          <StyledLink >
             <Typography>EVENTS</Typography>
           </StyledLink>
+          </IconButton>
+          ): (
+            <AuthLinks>
+              <StyledLink to="/account/signup">
+                <Typography variant='body2'>EVENTS</Typography>
+              </StyledLink>
+            </AuthLinks>
+
+          )}
           <StyledLink to="/">
             <Logo src="/Logo.png" alt="sustainify" />
           </StyledLink>
@@ -56,7 +77,7 @@ function Navbar() {
               </StyledLink>
             </AuthLinks>
           )}          
-          {user ? (
+          {user || admin ? (
             <IconButton color="inherit" onClick={handleProfileClick}>
               <AccountCircle />
             </IconButton>

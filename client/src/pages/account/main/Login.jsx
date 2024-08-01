@@ -96,8 +96,7 @@ const Login = () => {
 
 const container = {
     display: 'flex',
-    height: 'calc(100vh - 64px)',
-    marginTop: '64px',
+    height: '100vh',
 };
 
 const leftContainer = {
