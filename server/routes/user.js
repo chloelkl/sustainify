@@ -151,7 +151,7 @@ router.put("/:userID", verifyToken, async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to update profile.' });
-    }
+    } 
 });
 
 
@@ -193,5 +193,14 @@ router.delete('/:userID', verifyToken, async (req, res) => {
         res.status(500).json({ error: 'Failed to delete user.' });
     }
 });
+
+router.get("/retrieveDetails/:id", async (req, res) => {
+  const id = req.params.id;
+  const user = await User.findByPk(id);
+  if (!user) {
+    return res.status(404).json({ error: 'User not found.' });
+  }
+  res.json(user);
+})
 
 module.exports = router;
