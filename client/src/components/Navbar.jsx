@@ -29,6 +29,14 @@ function Navbar() {
     }
   };
 
+  const handleRewardsClick = () => {
+    if (role === 'admin') {
+      navigate('/rewards/Rewards');
+    } else if (user){
+      navigate(`/userreward/${user.userID}`);
+    }
+  };
+
   return (
     <AppBar position="fixed" style={{ zIndex: 1300, backgroundColor: '#84a9ac' }}>
       <StyledToolbar>
@@ -56,9 +64,19 @@ function Navbar() {
           <StyledLink to="/forum">
             <Typography>FORUM</Typography>
           </StyledLink>
-          <StyledLink to="/rewards/Rewards">
-            <Typography>REWARDS</Typography>
-          </StyledLink>
+          {user || admin ? (
+            <IconButton color="inherit" onClick={handleRewardsClick}>
+              <StyledLink>
+                <Typography>REWARDS</Typography>
+              </StyledLink>
+            </IconButton>
+          ) : (
+            <AuthLinks>
+              <StyledLink to="/account/signup">
+                <Typography variant="body2">REWARDS</Typography>
+              </StyledLink>
+            </AuthLinks>
+          )}          
           {user || admin ? (
             <IconButton color="inherit" onClick={handleProfileClick}>
               <AccountCircle />
