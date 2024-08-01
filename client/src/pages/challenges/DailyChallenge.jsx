@@ -183,7 +183,7 @@ function DailyChallenge() {
           <Typography>
             {daily?.challenge ? daily.challenge : "No challenge set for today!"}
           </Typography>
-          <Complete onClick={() => handleComplete(user.userID, daily.id)} disabled={completed || daily == null || !daily.found}>
+          <Complete onClick={() => handleComplete(user.userID, daily.id)} disabled={completed || daily == null || daily.found == false}>
             <Typography>
               COMPLETE CHALLENGE
             </Typography>
