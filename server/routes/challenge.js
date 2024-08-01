@@ -195,4 +195,18 @@ router.get("/checkCompletion", async (req, res) => {
   }
 })
 
+router.get("/countToday", async (req, res) => {
+  const { challengeId } = req.query;
+  try {
+    const completed = await UserChallenges.findAll({
+      where: { challenge: challengeId }
+    });
+    res.json({ count: completed.length });
+    
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "An error occurred while checking today's challenge completion." });
+  }
+})
+
 module.exports = router;
