@@ -102,7 +102,16 @@ router.put("/:id", verifyToken, async (req, res) => {
         res.json({ message: 'Profile updated successfully.' });
     } catch (error) {
         res.status(500).json({ error: 'Failed to update profile.' });
-    }
+    } 
 });
+
+router.get("/retrieveDetails/:id", async (req, res) => {
+  const id = req.params.id;
+  const user = await User.findByPk(id);
+  if (!user) {
+    return res.status(404).json({ error: 'User not found.' });
+  }
+  res.json(user);
+})
 
 module.exports = router;
