@@ -96,9 +96,9 @@ function App() {
 
 
               {/* Forum */}
-              <Route path={"/forum"} element={<Forum />} />
-              <Route path={"/user/:userId/forum/addforum"} element={<AddForum />} />
-              <Route path={"/user/:userId/forum"} element={<UserForum />} />
+              <Route path={"/forum"} element={<ProtectedRoute roles={['user', 'admin']}><Forum /></ProtectedRoute>} />
+              <Route path={"/user/:userId/forum/addforum"} element={<AddForum/>} />
+              <Route path={"/forum/by/:userId"} element={<ProtectedRoute roles={['user', 'admin']}><UserForum/></ProtectedRoute>} />
 
               {/* Rewards Page */}
               <Route path={"/rewards/Rewards"} element={<Rewards />} />

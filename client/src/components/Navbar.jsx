@@ -15,7 +15,7 @@ function Navbar() {
     if (role === 'admin') {
       navigate('/account/admin/main');
     } else {
-      navigate('/account/user/main');
+      navigate(`/forum/by/${user.userID}`);
     }
   };
 

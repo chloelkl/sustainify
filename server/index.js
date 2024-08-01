@@ -15,15 +15,13 @@ const corsOptions = {
     credentials: true,
 };
 
+// Ensure uploads directory exists 
+const uploadDir = path.join(__dirname, 'uploads'); 
+if (!fs.existsSync(uploadDir)) { 
+    fs.mkdirSync(uploadDir); 
+} 
+
 app.use(cors(corsOptions));
-
-// Ensure uploads directory exists
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
-}
-
-
 
 // Serve static files from the client folder
 app.use(express.static(path.join(__dirname, '..', 'client')));

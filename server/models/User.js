@@ -93,8 +93,14 @@ module.exports = (sequelize, DataTypes) => {
     }, {
       tableName: 'users'
     });
+    
     User.associate = (models) => {
+      User.hasMany(models.Forum, {
+          foreignKey: 'userId',
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE'
+      });
       User.belongsToMany(models.Challenge, { through: "UserChallenges", foreignKey: 'user' });
-    };
+  };
     return User;
 };

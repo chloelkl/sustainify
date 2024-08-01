@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
                     console.error('Error during verification:', error);
                 });
         }   
-    }, []);
+    }, [authToken]);
 
     const login = (token, user) => {
         localStorage.setItem('token', token);

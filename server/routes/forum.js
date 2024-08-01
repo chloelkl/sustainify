@@ -3,22 +3,40 @@ const router = express.Router();
 const { Forum, User } = require('../models'); // Call name of DB from models folder to use
 const { Op } = require("sequelize");
 const yup = require("yup");
+const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
+
+// Multer setup for file uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}-${file.originalname}`);
+    }
+})
+
+const upload = multer({ storage: storage });
 
 // Route to create a new forum
-router.post("/", async (req, res) => {
+router.post("/", upload.single('image'), async (req, res) => {
     let data = req.body;
     // Validate request body -> Update Details of request body to match fields defined in DB
     let validationSchema = yup.object({
         title: yup.string().trim().min(3).max(100).required(),
-        description: yup.string().trim().min(3).max(500).required(),
-        userId: yup.number().required()
+        description: yup.string().trim().min(3).max(500).required()
+        // No need to validate 'image' field here as it is handled by Multer
     });
+
     try {
         data = await validationSchema.validate(data, { abortEarly: false });
+        if (req.file) {
+            data.image = req.file.path; // Save the image path in the database
+        }
         let result = await Forum.create(data); // .create() used to insert data into DB table
         res.json(result);
-    }
-    catch (err) {
+    } catch (err) {
         res.status(400).json({ errors: err.errors });
     }
 });
@@ -65,7 +83,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // Route to get forums for a specific user
-router.get("/user/:userId/forums", async (req, res) => {
+router.get("/by/:userId", async (req, res) => {
     try {
         const userId = req.params.userId;
         const forums = await Forum.findAll({
@@ -83,8 +101,8 @@ router.get("/user/:userId/forums", async (req, res) => {
 });
 
 // Route to update a forum
-router.put("/:userId/:id", async (req, res) => {
-    const { userId, id } = req.params; // Extract both userId and id from the route parameters
+router.put("/:userId/:id", upload.single('image'), async (req, res) => {
+    const { userId, id } = req.params;
     console.log('UserId:', userId, 'ForumId:', id);
 
     const { title, description } = req.body;
@@ -92,20 +110,25 @@ router.put("/:userId/:id", async (req, res) => {
     try {
         const forum = await Forum.findByPk(id);
 
-        // Check if the forum was found
         if (!forum) {
-            res.sendStatus(404);
-            return;
+            return res.status(404).json({ error: 'Forum not found' });
         }
 
-        // Update the forum with new data
+        if (req.file) {
+            if (forum.image) {
+                const oldImagePath = path.resolve(forum.image);
+                if (fs.existsSync(oldImagePath)) {
+                    fs.unlinkSync(oldImagePath); // Delete the old image
+                }
+            }
+            forum.image = req.file.path; // Update image path
+        }
+
         forum.title = title;
         forum.description = description;
 
-        // Save the updated forum
         await forum.save();
 
-        // Send back the updated forum as a response
         res.json(forum);
     } catch (error) {
         console.error("Error updating forum:", error);
@@ -114,35 +137,30 @@ router.put("/:userId/:id", async (req, res) => {
 });
 
 // Route to delete a forum
-// Route to delete a forum
 router.delete("/:userId/:id", async (req, res) => {
-    let { userId, id } = req.params;
+    const { userId, id } = req.params;
     console.log('UserId:', userId, 'ForumId:', id);
 
     try {
-        // Find the forum by its ID
-        let forum = await Forum.findByPk(id);
+        const forum = await Forum.findByPk(id);
 
-        // Check if the forum exists
         if (!forum) {
-            res.sendStatus(404);
-            return;
+            return res.status(404).json({ error: 'Forum not found' });
         }
 
-        // Delete the forum
-        await Forum.destroy({
-            where: { id: id }
-        });
+        if (forum.image) {
+            const imagePath = path.resolve(forum.image);
+            if (fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath); // Delete the old image
+            }
+        }
 
-        // Send a success response
-        res.json({
-            message: "Forum was deleted successfully."
-        });
+        await Forum.destroy({ where: { id:id } });
+
+        res.json({ message: "Forum was deleted successfully." });
     } catch (error) {
         console.error("Error deleting forum:", error);
-        res.status(500).json({
-            error: `An error occurred while deleting the forum with id ${id}`
-        });
+        res.status(500).json({ error: `An error occurred while deleting the forum with id ${id}` });
     }
 });
 
