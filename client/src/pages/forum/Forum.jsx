@@ -83,12 +83,11 @@ function Forum() {
         return (
             <Card key={item.id} sx={{ mb: 2, boxShadow: 3 }}>
                 <Link to={`/forum/by/${item.userId}`} style={{ textDecoration: 'none' }}>
-                    <CardMedia
-                        component="img"
-                        image={item.image || 'https://images.pexels.com/photos/355508/pexels-photo-355508.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'}
-                        alt={item.title}
-                        sx={{ width: '100%', height: 200, objectFit: 'cover', borderRadius: '4px 4px 0 0' }}
-                    />
+                <CardMedia component="img" 
+                image={item.image? `${import.meta.env.VITE_API_URL}/${item.image}`: 'https://images.pexels.com/photos/355508/pexels-photo-355508.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'}
+                alt={item.title}
+                sx={{ width: '100%', height: 200, objectFit: 'cover', borderRadius: '4px 4px 0 0' }}
+                />
                     <CardContent sx={{ padding: 2 }}>
                         <Typography
                             variant="h5"
