@@ -1,5 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import {
+    Grid,
+    Box,
+    Button,
+    Container,
+    Typography,
+    TextField,
+    Paper,
+    IconButton,
+    List,
+    ListItem,
+    ListItemText,
+    ListItemSecondaryAction,
+    ListSubheader,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Divider,
+} from '@mui/material';
+import { Delete } from '@mui/icons-material';
 
 const CommunicationTools = () => {
     const [formData, setFormData] = useState({ subject: '', message: '' });
@@ -14,12 +35,11 @@ const CommunicationTools = () => {
     const fetchSentEmails = async () => {
         try {
             const response = await axios.get(`${import.meta.env.VITE_API_URL}/communication/sent-emails`);
-            console.log('Fetched sent emails:', response.data);
             setSentEmails(response.data);
         } catch (error) {
             console.error('Error fetching sent emails:', error);
         }
-    };    
+    };
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -39,113 +59,82 @@ const CommunicationTools = () => {
         }
     };
 
+    const handleDeleteEmail = async (emailID) => {
+        try {
+            await axios.delete(`${import.meta.env.VITE_API_URL}/communication/sent-emails/${emailID}`);
+            setSuccess('Email deleted successfully!');
+            fetchSentEmails(); // Refresh the list of emails after deletion
+        } catch (error) {
+            console.error('Failed to delete email:', error.response ? error.response.data : error.message);
+            setError('Failed to delete email.');
+        }
+    };
+
     return (
-        <div style={containerStyle}>
-            <h2 style={headingStyle}>Send Email to All Users</h2>
-            <form onSubmit={handleSubmit} style={formStyle}>
-                <input
-                    type="text"
-                    name="subject"
-                    placeholder="Subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    required
-                    style={inputStyle}
-                />
-                <textarea
-                    name="message"
-                    placeholder="Message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    required
-                    style={textareaStyle}
-                />
-                <button type="submit" style={buttonStyle}>Send Email</button>
-            </form>
-            {error && <div style={errorStyle}>{error}</div>}
-            {success && <div style={successStyle}>{success}</div>}
-
-            <h2 style={headingStyle}>Sent Emails</h2>
-            <div style={emailListStyle}>
-                {sentEmails.length > 0 ? (
-                    sentEmails.map((email, index) => (
-                        <div key={index} style={emailItemStyle}>
-                            <h3>{email.subject}</h3>
-                            <p><strong>Sent by:</strong> {email.senderEmail}</p>
-                            <p><strong>Sent to:</strong> {email.recipientEmails}</p>
-                            <p><strong>Date:</strong> {new Date(email.sentAt).toLocaleString()}</p>
-                            <p>{email.message}</p>
-                        </div>
-                    ))
-                ) : (
-                    <p>No sent emails found.</p>
-                )}
-            </div>
-        </div>
+        <Container>
+            <Grid container spacing={4}>
+                <Grid item xs={12} md={6}>
+                    <Paper elevation={3} sx={{ p: 2, borderRadius: '10px' }}>
+                        <Typography variant="h6" gutterBottom>Email Blast</Typography>
+                        <form onSubmit={handleSubmit} style={formStyle}>
+                            <TextField
+                                label="Subject"
+                                name="subject"
+                                value={formData.subject}
+                                onChange={handleChange}
+                                fullWidth
+                                sx={{ mb: 2 }}
+                            />
+                            <TextField
+                                label="Message"
+                                name="message"
+                                value={formData.message}
+                                onChange={handleChange}
+                                fullWidth
+                                multiline
+                                rows={4}
+                                sx={{ mb: 2 }}
+                            />
+                            <Button type="submit" variant="contained" color="primary">
+                                Compose Email
+                            </Button>
+                        </form>
+                        {error && <Typography color="error">{error}</Typography>}
+                        {success && <Typography color="success">{success}</Typography>}
+                    </Paper>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                    <Paper elevation={3} sx={{ p: 2, borderRadius: '10px' }}>
+                        <Typography variant="h6" gutterBottom>Email History</Typography>
+                        <List>
+                            {sentEmails.length > 0 ? (
+                                sentEmails.map((email) => (
+                                    <ListItem key={email.emailID} divider>
+                                        <ListItemText
+                                            primary={email.subject}
+                                            secondary={`Sent by: ${email.senderEmail} | Sent to: ${email.recipientEmails} | Date: ${new Date(email.sentAt).toLocaleString()}`}
+                                        />
+                                        <ListItemSecondaryAction>
+                                            <IconButton edge="end" onClick={() => handleDeleteEmail(email.emailID)}>
+                                                <Delete />
+                                            </IconButton>
+                                        </ListItemSecondaryAction>
+                                    </ListItem>
+                                ))
+                            ) : (
+                                <Typography>No sent emails found.</Typography>
+                            )}
+                        </List>
+                    </Paper>
+                </Grid>
+            </Grid>
+        </Container>
     );
-};
-
-const containerStyle = {
-    padding: '20px',
-    backgroundColor: '#fff',
-    borderRadius: '10px',
-    boxShadow: '0 0 10px rgba(0,0,0,0.1)',
-};
-
-const headingStyle = {
-    marginBottom: '20px',
-    fontSize: '24px',
-    color: '#333',
 };
 
 const formStyle = {
     display: 'flex',
     flexDirection: 'column',
-};
-
-const inputStyle = {
-    marginBottom: '10px',
-    padding: '10px',
-    borderRadius: '5px',
-    border: '1px solid #ccc',
-};
-
-const textareaStyle = {
-    marginBottom: '10px',
-    padding: '10px',
-    borderRadius: '5px',
-    border: '1px solid #ccc',
-    height: '150px'
-};
-
-const buttonStyle = {
-    padding: '10px',
-    borderRadius: '5px',
-    border: 'none',
-    backgroundColor: '#4CAF50',
-    color: 'white',
-    cursor: 'pointer',
-};
-
-const errorStyle = {
-    color: 'red',
-    marginTop: '10px'
-};
-
-const successStyle = {
-    color: 'green',
-    marginTop: '10px'
-};
-
-const emailListStyle = {
-    marginTop: '20px',
-    maxHeight: '400px',
-    overflowY: 'auto',
-};
-
-const emailItemStyle = {
-    borderBottom: '1px solid #ccc',
-    padding: '10px 0',
 };
 
 export default CommunicationTools;

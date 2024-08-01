@@ -1,5 +1,12 @@
 module.exports = (sequelize, DataTypes) => {
     const SentEmail = sequelize.define("SentEmail", {
+        emailID: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            unique: true,
+            autoIncrement: true,
+            primaryKey: true
+        },
         subject: {
             type: DataTypes.STRING,
             allowNull: false
