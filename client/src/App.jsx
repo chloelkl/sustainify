@@ -49,8 +49,10 @@ import UserReward from './pages/rewards/UserReward';
 
 // Challenges
 import DailyChallenge from './pages/challenges/DailyChallenge';
-import ManageTask from './pages/challenges/ManageTask';
-import PastChallenges from './pages/challenges/PastChallenges';
+import ManageTask from './pages/challenges/admin/ManageTask';
+import TasksStats from './pages/challenges/admin/TasksStats';
+import TaskParticipation from './pages/challenges/admin/TaskParticipation';
+import PastChallenges from './pages/challenges/user/PastChallenges';
 
 
 function App() {
@@ -77,7 +79,7 @@ function App() {
               <Route path="/account/admin/main" element={<ProtectedRoute roles={['admin']}><AdminMain /></ProtectedRoute>} />
               <Route path="/account/admin/user-management" element={<ProtectedRoute roles={['admin']}><UserManagement /></ProtectedRoute>} />
               <Route path="/account/admin/communication-tools" element={<ProtectedRoute roles={['admin']}><CommunicationTools /></ProtectedRoute>} />
-              <Route path="/account/admin/system-overview" element={<ProtectedRoute roles={['admin']}><SystemOverview /></ProtectedRoute>} />
+              <Route path="/account/admin/system-overview" element={<SystemOverview />} />
               <Route path="/account/admin/dashboard" element={<ProtectedRoute roles={['admin']}><Dashboard /></ProtectedRoute>} />
 
               {/* Event */}
@@ -104,6 +106,8 @@ function App() {
               {/* challenges */}
             <Route path={"/challenges"} element={<DailyChallenge />}/>
             <Route path={"/challenges/manage"} element={<ManageTask />}/>
+            <Route path={"/challenges/statistics"} element={<TasksStats />}/>
+            <Route path={"/challenges/participation"} element={<TaskParticipation />}/>
             <Route path={"/challenges/past"} element={<PastChallenges />} />
             </Routes>
           </Container>
