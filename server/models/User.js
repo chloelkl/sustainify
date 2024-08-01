@@ -90,6 +90,13 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: true
         }
+    }, {
+      tableName: 'users'
     });
+
+    User.associate = (models) => {
+      User.belongsToMany(models.Challenge, { through: "UserChallenges", foreignKey: 'user' });
+    };
+  
     return User;
 };
