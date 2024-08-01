@@ -19,21 +19,24 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors([]);
-    
+        
         try {
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, formData);
-            const { token, role, id } = response.data;
+            const { token, role, id, pointsEarned } = response.data;
     
             const idField = role === 'admin' ? 'adminID' : 'userID';
-
-            // Pass the correct ID along with role
-            login(token, { role, [idField]: id });
+    
+            // Pass the correct ID along with role and pointsEarned
+            login(token, { role, [idField]: id, pointsEarned });
+            
+            // Optionally store pointsEarned in localStorage if needed
+            localStorage.setItem('pointsEarned', pointsEarned);
+    
             navigate(role === 'admin' ? '/account/admin/main' : '/account/user/main');
         } catch (error) {
             setErrors(error.response ? error.response.data.errors : [{ msg: 'Invalid credentials' }]);
         }
     };
-    
 
     const handleClickShowPassword = () => {
         setShowPassword(!showPassword);

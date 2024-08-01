@@ -63,7 +63,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         pointsEarned: {
             type: DataTypes.INTEGER,
-            defaultValue: 0
+            defaultValue: 1500
         },
         language: {
             type: DataTypes.STRING,
@@ -101,6 +101,7 @@ module.exports = (sequelize, DataTypes) => {
           onUpdate: 'CASCADE'
       });
       User.belongsToMany(models.Challenge, { through: "UserChallenges", foreignKey: 'user' });
-  };
+      User.belongsToMany(models.Reward, { through: "RewardUser", foreignKey: 'user'});
+    };
     return User;
 };
