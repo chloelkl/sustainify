@@ -6,6 +6,7 @@ export const Sidebar = styled('div')({
   width: '22vw',
   height: '75vh',
   background: theme.palette.primary.light,
+  marginTop: '20px',
 });
 
 export const SideNav = styled('div')({

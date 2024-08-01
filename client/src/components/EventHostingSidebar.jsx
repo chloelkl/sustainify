@@ -13,7 +13,7 @@ const SidebarComponent = () => {
         <GroupsOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }}/>
         <SideLink to="../postevent">Upcoming Events</SideLink>
       </SideNav>
-      <SideNav sx={{ background: theme.palette.secondary.dark }}>
+      <SideNav sx={{ background: theme.palette.primary.main }}>
         <AssignmentOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }}/>
         <SideLink to="../eventhosting">Host Events</SideLink>
       </SideNav>

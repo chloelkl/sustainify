@@ -9,7 +9,7 @@ import theme from '../themes/MyTheme'; // Adjust the path to where your theme is
 const SidebarComponent = () => {
   return (
     <Sidebar>
-      <SideNav sx={{ background: theme.palette.secondary.dark }}>
+      <SideNav sx={{ background: theme.palette.primary.main }}>
         <GroupsOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }}/>
         <SideLink to="../postevent">Upcoming Events</SideLink>
       </SideNav>
