@@ -1,6 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../context/AuthContext';
+import {
+    Box,
+    Button,
+    Container,
+    Typography,
+    TextField,
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
+    Grid,
+    Paper,
+    IconButton,
+    List,
+    ListItem,
+    ListItemText,
+    ListItemSecondaryAction,
+    ListSubheader,
+    Divider
+} from '@mui/material';
+import { Delete, Backup } from '@mui/icons-material';
 
 const SystemOverview = () => {
     const { admin } = useAuth();
@@ -24,39 +45,23 @@ const SystemOverview = () => {
     const [backupHistory, setBackupHistory] = useState([]);
 
     useEffect(() => {
-        console.log("Admin object:", admin); // Log the admin object
-    
         if (admin && admin.adminID) {
-            console.log("Admin ID exists:", admin.adminID); // Confirm adminID presence
             fetchAdminDetails(admin.adminID);
-        } else {
-            console.error('Admin ID is missing or admin object is not set', admin);
         }
 
         fetchAdmins();
     }, [admin]);
-    
+
     const fetchAdminDetails = (adminID) => {
-        console.log(`Fetching details for adminID: ${adminID}`); // Log adminID being fetched
         axios.get(`${import.meta.env.VITE_API_URL}/admin/${adminID}`)
-            .then(response => {
-                console.log('Fetched admin details:', response.data); // Log the response data
-                setAdminDetails(response.data);
-            })
-            .catch(error => {
-                console.error('Failed to fetch admin details:', error.response ? error.response.data : error.message);
-            });
+            .then(response => setAdminDetails(response.data))
+            .catch(error => console.error('Failed to fetch admin details:', error));
     };
 
     const fetchAdmins = () => {
         axios.get(`${import.meta.env.VITE_API_URL}/admin/list`)
-            .then(response => {
-                console.log('Fetched admins from server:', response.data); // Debugging line
-                setAdmins(response.data);
-            })
-            .catch(error => {
-                console.error('Failed to fetch admins:', error.response ? error.response.data : error.message);
-            });
+            .then(response => setAdmins(response.data))
+            .catch(error => console.error('Failed to fetch admins:', error));
     };
 
     const fetchBackupHistory = () => {
@@ -68,30 +73,35 @@ const SystemOverview = () => {
                     throw new Error('Backup history response is not an array.');
                 }
             })
-            .catch(error => {
-                console.error('Failed to fetch backup history:', error);
-            });
+            .catch(error => console.error('Failed to fetch backup history:', error));
     };
 
-    const handleDeleteAdmin = (id) => {
+    const handleDeleteAdmin = (adminID) => {
         const password = prompt('Enter admin password to confirm deletion');
-        axios.post(`${import.meta.env.VITE_API_URL}/admin/delete`, { id, password })
-            .then(response => {
-                fetchAdmins();
-            })
-            .catch(error => {
-                console.error('Failed to delete admin:', error);
-            });
+        axios.delete(`${import.meta.env.VITE_API_URL}/admin/delete`, { data: { adminID: adminID, password } })
+        .then(response => {
+            console.log(response.data.message);
+            // Handle successful deletion
+            setAdmins(prevAdmins => prevAdmins.filter(admin => admin.adminID !== adminID));
+            fetchAdmins();
+        })
+        .catch(error => {
+            console.error('Failed to delete admin:', error);
+            // Handle errors
+        });
+    
     };
 
-    const handleSaveChanges = () => {
-        axios.put(`${import.meta.env.VITE_API_URL}/admin/${adminDetails.id}`, adminDetails)
+    const handleSaveChanges = () => {    
+        axios.put(`${import.meta.env.VITE_API_URL}/admin/${admin.adminID}`, adminDetails)
             .then(response => {
-                console.log('Profile updated successfully.');
+                console.log('Profile updated successfully:', response.data);
                 fetchAdminDetails(admin.adminID);
+                alert('Profile updated successfully.');
             })
             .catch(error => {
-                console.error('Failed to update profile:', error);
+                console.error('Failed to update profile:', error.response ? error.response.data : error.message);
+                alert('Failed to update profile.');
             });
     };
 
@@ -103,9 +113,7 @@ const SystemOverview = () => {
                 setOtpTimer(300);
                 setLinkValid(true);
             })
-            .catch(error => {
-                console.error('Failed to generate admin signup link:', error);
-            });
+            .catch(error => console.error('Failed to generate admin signup link:', error));
     };
 
     const handleRevokeLink = () => {
@@ -116,22 +124,14 @@ const SystemOverview = () => {
 
     const handleBackupNow = () => {
         axios.post(`${import.meta.env.VITE_API_URL}/admin/backup`, { type: backupType, format: fileFormat })
-            .then(response => {
-                fetchBackupHistory();
-            })
-            .catch(error => {
-                console.error('Failed to create backup:', error);
-            });
+            .then(() => fetchBackupHistory())
+            .catch(error => console.error('Failed to create backup:', error));
     };
 
     const handleDeleteBackup = (id) => {
         axios.delete(`${import.meta.env.VITE_API_URL}/admin/backup/${id}`)
-            .then(response => {
-                fetchBackupHistory();
-            })
-            .catch(error => {
-                console.error('Failed to delete backup:', error);
-            });
+            .then(() => fetchBackupHistory())
+            .catch(error => console.error('Failed to delete backup:', error));
     };
 
     const handleInputChange = (e) => {
@@ -143,235 +143,147 @@ const SystemOverview = () => {
     };
 
     return (
-        <div style={containerStyle}>
-            <div style={leftContainerStyle}>
-                <div style={sectionStyle}>
-                    <h2>Edit Profile</h2>
-                    <div style={editProfileContainerStyle}>
-                        <div style={editProfileLeftStyle}>
-                            <label>Full name:</label>
-                            <input
-                                type="text"
-                                name="fullName"
-                                value={adminDetails.fullName || ''}
-                                onChange={handleInputChange}
-                                style={inputStyle}
-                            />
-                            <label>Email address:</label>
-                            <input
-                                type="email"
-                                name="email"
-                                value={adminDetails.email || ''}
-                                onChange={handleInputChange}
-                                style={inputStyle}
-                            />
-                            <label>Password:</label>
-                            <input
-                                type="password"
-                                name="password"
-                                value={adminDetails.password}
-                                onChange={handleInputChange}
-                                style={inputStyle}
-                            />
-                            <label>Location:</label>
-                            <input
-                                type="text"
-                                name="location"
-                                value={adminDetails.location || ''}
-                                onChange={handleInputChange}
-                                style={inputStyle}
-                            />
-                            <label>Username:</label>
-                            <input
-                                type="text"
-                                name="username"
-                                value={adminDetails.username || ''}
-                                onChange={handleInputChange}
-                                style={inputStyle}
-                            />
-                            <label>Phone Number:</label>
-                            <input
-                                type="text"
-                                name="phoneNumber"
-                                value={adminDetails.phoneNumber || ''}
-                                onChange={handleInputChange}
-                                style={inputStyle}
-                            />
-                            <label>Country Code:</label>
-                            <input
-                                type="text"
-                                name="countryCode"
-                                value={adminDetails.countryCode || ''}
-                                onChange={handleInputChange}
-                                style={inputStyle}
-                            />
-                        </div>
-                        <div style={editProfileRightStyle}>
-                            <div style={buttonsContainerStyle}>
-                                <button onClick={handleSaveChanges} style={saveButtonStyle}>Save changes</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div style={sectionStyle}>
-                    <h2>Admins List</h2>
-                    {admins.map((admin) => (
-                        <div key={admin.adminID} style={adminItemStyle}>
-                            <strong>Username:</strong> {admin.username} <br />
-                            <strong>Status:</strong> {admin.status || 'Active'}
-                            <button onClick={() => handleDeleteAdmin(admin.adminID)}>Delete</button>
-                        </div>
-                    ))}
-                </div>
-            </div>
-            <div style={rightContainerStyle}>
-                <div style={sectionStyle}>
-                    <h2>Generate Admin Signup Link</h2>
-                    <button onClick={handleGenerateAdminSignupLink}>Generate Link</button>
-                    {signupLink && linkValid && (
-                        <div>
-                            <p>Admin Signup Link: <a href={signupLink} target="_blank" rel="noopener noreferrer">{signupLink}</a></p>
-                            <p>OTP: {otp}</p>
-                            <p>OTP valid for: {otpTimer} seconds</p>
-                        </div>
-                    )}
-                    {signupLink && (
-                        <button onClick={handleRevokeLink}>Revoke Link</button>
-                    )}
-                </div>
-                <div style={sectionStyle}>
-                    <h2>Backup History</h2>
-                    <label>
-                        Backup Type:
-                        <select value={backupType} onChange={(e) => setBackupType(e.target.value)}>
-                            <option value="full">Full</option>
-                            <option value="analytics">Analytics</option>
-                            <option value="users">Users</option>
-                            <option value="admin">Admin</option>
-                        </select>
-                    </label>
-                    <label>
-                        File Format:
-                        <select value={fileFormat} onChange={(e) => setFileFormat(e.target.value)}>
-                            <option value="csv">CSV</option>
-                            <option value="pdf">PDF</option>
-                        </select>
-                    </label>
-                    <button onClick={handleBackupNow}>Backup Now</button>
-                    <ul>
-                        {backupHistory.map((backup, index) => (
-                            <li key={index} style={backupItemStyle}>
-                                <strong>Name:</strong> {backup.name} <br />
-                                <strong>Date:</strong> {backup.date} <br />
-                                <strong>Type:</strong> {backup.type}
-                                <button onClick={() => handleDeleteBackup(backup.id)}>Delete</button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </div>
-        </div>
+        <Container>
+            <Grid container spacing={4}>
+                <Grid item xs={12} md={6}>
+                    <Paper elevation={3} sx={{ p: 2, borderRadius: '10px' }}>
+                        <Typography variant="h6" gutterBottom>Edit Profile</Typography>
+                        <TextField
+                            label="Full name"
+                            name="fullName"
+                            value={adminDetails.fullName || ''}
+                            onChange={handleInputChange}
+                            fullWidth
+                            sx={{ mb: 2 }}
+                        />
+                        <TextField
+                            label="Email address"
+                            name="email"
+                            value={adminDetails.email || ''}
+                            onChange={handleInputChange}
+                            fullWidth
+                            sx={{ mb: 2 }}
+                        />
+                        <TextField
+                            label="Password"
+                            name="password"
+                            type="password"
+                            value={adminDetails.password}
+                            onChange={handleInputChange}
+                            fullWidth
+                            sx={{ mb: 2 }}
+                        />
+                        <TextField
+                            label="Location"
+                            name="location"
+                            value={adminDetails.location || ''}
+                            onChange={handleInputChange}
+                            fullWidth
+                            sx={{ mb: 2 }}
+                        />
+                        <TextField
+                            label="Username"
+                            name="username"
+                            value={adminDetails.username || ''}
+                            onChange={handleInputChange}
+                            fullWidth
+                            sx={{ mb: 2 }}
+                        />
+                        <TextField
+                            label="Phone Number"
+                            name="phoneNumber"
+                            value={adminDetails.phoneNumber || ''}
+                            onChange={handleInputChange}
+                            fullWidth
+                            sx={{ mb: 2 }}
+                        />
+                        <TextField
+                            label="Country Code"
+                            name="countryCode"
+                            value={adminDetails.countryCode || ''}
+                            onChange={handleInputChange}
+                            fullWidth
+                            sx={{ mb: 2 }}
+                        />
+                        <Button variant="contained" color="primary" onClick={handleSaveChanges}>
+                            Save changes
+                        </Button>
+                    </Paper>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                    <Paper elevation={3} sx={{ p: 2, borderRadius: '10px' }}>
+                        <Typography variant="h6" gutterBottom>Admins List</Typography>
+                        <List>
+                            {admins.map((admin) => (
+                                <ListItem key={admin.adminID} divider>
+                                    <ListItemText
+                                        primary={admin.username}
+                                        secondary={`Status: ${admin.status || 'Active'}`}
+                                    />
+                                    <ListItemSecondaryAction>
+                                        <IconButton edge="end" onClick={() => handleDeleteAdmin(admin.adminID)}>
+                                            <Delete />
+                                        </IconButton>
+                                    </ListItemSecondaryAction>
+                                </ListItem>
+                            ))}
+                        </List>
+                    </Paper>
+                    <Paper elevation={3} sx={{ p: 2, borderRadius: '10px', mt: 2 }}>
+                        <Typography variant="h6" gutterBottom>Generate Admin Signup Link</Typography>
+                        <Button variant="contained" onClick={handleGenerateAdminSignupLink}>
+                            Generate Link
+                        </Button>
+                        {signupLink && linkValid && (
+                            <Box sx={{ mt: 2 }}>
+                                <Typography>Admin Signup Link: <a href={signupLink} target="_blank" rel="noopener noreferrer">{signupLink}</a></Typography>
+                                <Typography>OTP: {otp}</Typography>
+                                <Typography>OTP valid for: {otpTimer} seconds</Typography>
+                                <Button variant="outlined" onClick={handleRevokeLink} sx={{ mt: 1 }}>Revoke Link</Button>
+                            </Box>
+                        )}
+                    </Paper>
+                    <Paper elevation={3} sx={{ p: 2, borderRadius: '10px', mt: 2 }}>
+                        <Typography variant="h6" gutterBottom>Backup History</Typography>
+                        <FormControl fullWidth sx={{ mb: 2 }}>
+                            <InputLabel>Backup Type</InputLabel>
+                            <Select value={backupType} onChange={(e) => setBackupType(e.target.value)} label="Backup Type">
+                                <MenuItem value="full">Full</MenuItem>
+                                <MenuItem value="analytics">Analytics</MenuItem>
+                                <MenuItem value="users">Users</MenuItem>
+                                <MenuItem value="admin">Admin</MenuItem>
+                            </Select>
+                        </FormControl>
+                        <FormControl fullWidth sx={{ mb: 2 }}>
+                            <InputLabel>File Format</InputLabel>
+                            <Select value={fileFormat} onChange={(e) => setFileFormat(e.target.value)} label="File Format">
+                                <MenuItem value="csv">CSV</MenuItem>
+                                <MenuItem value="pdf">PDF</MenuItem>
+                            </Select>
+                        </FormControl>
+                        <Button variant="contained" onClick={handleBackupNow} startIcon={<Backup />}>
+                            Backup Now
+                        </Button>
+                        <List subheader={<ListSubheader>Backup History</ListSubheader>} sx={{ mt: 2 }}>
+                            {backupHistory.map((backup, index) => (
+                                <ListItem key={index} divider>
+                                    <ListItemText
+                                        primary={backup.name}
+                                        secondary={`Date: ${backup.date}`}
+                                    />
+                                    <ListItemSecondaryAction>
+                                        <IconButton edge="end" onClick={() => handleDeleteBackup(backup.id)}>
+                                            <Delete />
+                                        </IconButton>
+                                    </ListItemSecondaryAction>
+                                </ListItem>
+                            ))}
+                        </List>
+                    </Paper>
+                </Grid>
+            </Grid>
+        </Container>
     );
-};
-
-const containerStyle = {
-    display: 'flex',
-    padding: '20px',
-    backgroundColor: '#f0f0f0',
-    borderRadius: '10px',
-    boxShadow: '0 0 10px rgba(0,0,0,0.1)',
-    gap: '20px'
-};
-
-const leftContainerStyle = {
-    flex: 2,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '20px'
-};
-
-const rightContainerStyle = {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '20px'
-};
-
-const sectionStyle = {
-    backgroundColor: '#ffffff',
-    padding: '20px',
-    borderRadius: '10px',
-    boxShadow: '0 0 5px rgba(0,0,0,0.1)',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px'
-};
-
-const editProfileContainerStyle = {
-    display: 'flex',
-    gap: '20px'
-};
-
-const editProfileLeftStyle = {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px'
-};
-
-const editProfileRightStyle = {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px'
-};
-
-const inputStyle = {
-    padding: '10px',
-    borderRadius: '5px',
-    border: '1px solid #ccc'
-};
-
-const pointsContainerStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px'
-};
-
-const buttonsContainerStyle = {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    gap: '10px',
-    marginTop: '20px'
-};
-
-const saveButtonStyle = {
-    backgroundColor: '#4CAF50',
-    color: 'white',
-    padding: '10px',
-    borderRadius: '5px',
-    border: 'none',
-    cursor: 'pointer'
-};
-
-const adminItemStyle = {
-    backgroundColor: '#f9f9f9',
-    padding: '10px',
-    borderRadius: '5px',
-    marginBottom: '10px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '5px'
-};
-
-const backupItemStyle = {
-    backgroundColor: '#f9f9f9',
-    padding: '10px',
-    borderRadius: '5px',
-    marginBottom: '10px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '5px'
 };
 
 export default SystemOverview;
