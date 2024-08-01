@@ -104,11 +104,11 @@ function App() {
               <Route path={"/rewards/UserReward"} element={<UserReward />} />
 
               {/* challenges */}
-            <Route path={"/challenges"} element={<DailyChallenge />}/>
-            <Route path={"/challenges/manage"} element={<ManageTask />}/>
-            <Route path={"/challenges/statistics"} element={<TasksStats />}/>
-            <Route path={"/challenges/participation"} element={<TaskParticipation />}/>
-            <Route path={"/challenges/past"} element={<PastChallenges />} />
+              <Route path={"/challenges"} element={<ProtectedRoute roles={['user', 'admin']}><DailyChallenge /></ProtectedRoute>} />
+              <Route path={"/challenges/manage"} element={<ProtectedRoute roles={['admin']}><ManageTask /></ProtectedRoute>} />
+              <Route path={"/challenges/statistics"} element={<ProtectedRoute roles={['admin']}><TasksStats /></ProtectedRoute>} />
+              <Route path={"/challenges/participation"} element={<ProtectedRoute roles={['admin']}><TaskParticipation /></ProtectedRoute>} />
+              <Route path={"/challenges/past"} element={<ProtectedRoute roles={['user']}><PastChallenges /></ProtectedRoute>} />
             </Routes>
           </Container>
           <Chatbot />
