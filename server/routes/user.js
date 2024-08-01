@@ -15,6 +15,28 @@ const userSchema = yup.object().shape({
     location: yup.string().max(100),
 });
 
+router.get("/:userID/settings", verifyToken, async (req, res) => {
+    try {
+        const userID = req.params.userID;
+
+        const user = await User.findByPk(userID, {
+            attributes: ['language', 'twoFactorAuth'] // specify the attributes you want to retrieve
+        });
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        res.json({
+            language: user.language,
+            twoFactorAuth: user.twoFactorAuth ? 'Enabled' : 'Not Enabled',
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch user settings.' });
+    }
+});
+
 // Update user settings
 router.put("/:userID/settings", verifyToken, async (req, res) => {
     try {
