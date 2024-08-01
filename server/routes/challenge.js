@@ -139,7 +139,7 @@ router.get("/getDaily", async (req, res) => {
     if (list) {
       res.json(list);
     } else {
-      res.status(404).json({ message: "No challenge found for today!" });
+      res.status(404).json({ message: "No challenge found for today!", found: false });
     }
   } catch (error) {
     console.error('Error fetching today\'s challenge:', error);
