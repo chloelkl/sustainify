@@ -99,7 +99,7 @@ const ParticipationChart = () => {
     labels: filteredData.map(chal => dayjs(chal.date).format("DD MMM YYYY")),
     datasets: [
       {
-        label: "Completed Challenges",
+        label: "Completed Challenges by Users",
         backgroundColor: "rgb(255, 99, 132)",
         borderColor: "rgb(255, 99, 132)",
         data: filteredData.map(chal => chal.count),
