@@ -9,11 +9,9 @@ router.post('/send-email', verifyToken, async (req, res) => {
     const { subject, message } = req.body;
 
     try {
-        // Extract the admin ID from the token
         const adminID = req.user.adminID;
-
-        // Fetch the admin's details
         const admin = await Admin.findByPk(adminID);
+
         if (!admin) {
             return res.status(404).json({ error: 'Admin not found.' });
         }
@@ -42,8 +40,6 @@ router.post('/send-email', verifyToken, async (req, res) => {
             html: `<p>${message}</p>`
         });
 
-        console.log("Emails sent: %s", info.messageId);
-
         await SentEmail.create({
             subject,
             message,
@@ -67,6 +63,23 @@ router.get('/sent-emails', verifyToken, async (req, res) => {
     } catch (error) {
         console.error('Error fetching sent emails:', error);
         res.status(500).json({ error: 'Failed to fetch sent emails.' });
+    }
+});
+
+// Route to delete a sent email
+router.delete('/sent-emails/:emailID', verifyToken, async (req, res) => {
+    try {
+        const { emailID } = req.params;
+        const result = await SentEmail.destroy({ where: { emailID } });
+
+        if (result === 0) {
+            return res.status(404).json({ error: 'Email not found.' });
+        }
+
+        res.json({ message: 'Email deleted successfully!' });
+    } catch (error) {
+        console.error('Error deleting email:', error);
+        res.status(500).json({ error: 'Failed to delete email.' });
     }
 });
 
