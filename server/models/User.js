@@ -91,7 +91,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true
         }
     }, {
-        tableName: 'users'
+      tableName: 'users'
     });
     
     User.associate = (models) => {
@@ -100,6 +100,9 @@ module.exports = (sequelize, DataTypes) => {
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE'
         });
+    User.associate = (models) => {
+      User.belongsToMany(models.Challenge, { through: "UserChallenges", foreignKey: 'user' });
+    };
     };
     return User;
 };

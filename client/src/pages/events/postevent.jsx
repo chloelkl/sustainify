@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './PostEvent.css';
-import EventSidebar from '../../components/EventSidebar';
-import { Typography, Button, Card, CardContent, CardActions } from '@mui/material';
+import PostEventSidebar from '../../components/PostEventSidebar';
+import { Typography, Card, CardContent } from '@mui/material';
 
 const PostEvent = () => {
     const [events, setEvents] = useState([]);
@@ -20,7 +20,7 @@ const PostEvent = () => {
 
     return (
         <div className="postevent">
-            <EventSidebar />
+            <PostEventSidebar />
 
             <div className="postevent-content">
                 <Typography variant="h4" component="h1" gutterBottom>
@@ -29,11 +29,18 @@ const PostEvent = () => {
                 {events.map(event => (
                     <Card className="event-card" key={event.id}>
                         <CardContent>
+                            {event.image && (
+                                <img
+                                    src={`${import.meta.env.VITE_API_URL}/${event.image}`}
+                                    alt={event.eventname}
+                                    className="event-image"
+                                />
+                            )}
                             <Typography variant="h5" component="h2">
                                 {event.eventname}
                                 <Typography color="textSecondary">
-                                Date: {event.eventdate}
-                            </Typography>
+                                    Date: {event.eventdate}
+                                </Typography>
                             </Typography>
                             <Typography color="textSecondary">
                                 Time: {event.eventtime}
@@ -45,11 +52,6 @@ const PostEvent = () => {
                                 Event Description: {event.eventdescription}
                             </Typography>
                         </CardContent>
-                        <CardActions>
-                            <Button size="small" color="primary" variant="contained">
-                                Sign Up
-                            </Button>
-                        </CardActions>
                     </Card>
                 ))}
             </div>

@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
     const EventPost = sequelize.define("EventPost", { // Data model instance
-        // define your DB fields with their required datatypes
+        // Define your DB fields with their required datatypes
         
         eventname: {
             type: DataTypes.STRING(100),
@@ -27,6 +27,10 @@ module.exports = (sequelize, DataTypes) => {
         eventdescription: {
             type: DataTypes.STRING(500),
             allowNull: false
+        },
+        image: {
+            type: DataTypes.STRING,
+            allowNull: true
         }
     }, {
         tableName: 'eventposts'  // DB table name

@@ -115,7 +115,7 @@ function Forum() {
     return (
         <Box>
             <Typography variant="h5" sx={{ my: 2 }}>
-                {/* Page Title or Heading */}
+
             </Typography>
             <Box
                 sx={{

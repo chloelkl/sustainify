@@ -23,6 +23,14 @@ if (!fs.existsSync(uploadDir)) {
 
 app.use(cors(corsOptions));
 
+// Ensure uploads directory exists
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+}
+
+
+
 // Serve static files from the client folder
 app.use(express.static(path.join(__dirname, '..', 'client')));
 
@@ -33,7 +41,7 @@ app.get("/", (req, res) => {
 
 // Routes
 const challengeRoute = require('./routes/challenge');
-app.use('/challenge', challengeRoute);
+app.use('/challenge', challengeRoute);;
 
 const forumRoute = require('./routes/forum');
 app.use("/forum", forumRoute);
@@ -59,7 +67,11 @@ app.use("/eventpost", eventpostRoute);
 const rewardRoute = require('./routes/reward');
 app.use("/reward", rewardRoute);
 
+// Route to serve uploaded images
 app.use('/uploads', express.static(uploadDir));
+
+const chatbotRoute = require('./routes/chatbot');
+app.use("/chatbot", chatbotRoute);
 
 // Start server after synchronizing the DB files under models folder
 const db = require('./models');
