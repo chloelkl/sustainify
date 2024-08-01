@@ -63,7 +63,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         pointsEarned: {
             type: DataTypes.INTEGER,
-            defaultValue: 0
+            defaultValue: 1500
         },
         language: {
             type: DataTypes.STRING,
@@ -90,6 +90,13 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: true
         }
+    }, {
+        tableName: 'users'
     });
+
+    User.associate = (models) => {
+        User.belongsToMany(models.Reward, { through: "RewardUser", foreignKey: 'user'});
+    };
+
     return User;
 };
