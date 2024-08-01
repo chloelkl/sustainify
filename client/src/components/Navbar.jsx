@@ -8,7 +8,7 @@ import theme from '../themes/MyTheme.js';
 import { useAuth } from '../context/AuthContext';
 
 function Navbar() {
-  const { user, role, isAuthenticated } = useAuth();
+  const { user, admin, role, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const handleProfileClick = () => {
@@ -16,6 +16,14 @@ function Navbar() {
       navigate('/account/admin/main');
     } else {
       navigate('/account/user/main');
+    }
+  };
+
+  const handleRewardsClick = () => {
+    if (role === 'admin') {
+      navigate('/rewards/Rewards');
+    } else if (user){
+      navigate(`/userreward/${user.userID}`);
     }
   };
 
@@ -35,9 +43,19 @@ function Navbar() {
           <StyledLink to="/forum">
             <Typography>FORUM</Typography>
           </StyledLink>
-          <StyledLink to="/rewards/Rewards">
-            <Typography>REWARDS</Typography>
-          </StyledLink>
+          {user || admin ? (
+            <IconButton color="inherit" onClick={handleRewardsClick}>
+              <StyledLink>
+                <Typography>REWARDS</Typography>
+              </StyledLink>
+            </IconButton>
+          ) : (
+            <AuthLinks>
+              <StyledLink to="/account/signup">
+                <Typography variant="body2">REWARDS</Typography>
+              </StyledLink>
+            </AuthLinks>
+          )}          
           {user ? (
             <IconButton color="inherit" onClick={handleProfileClick}>
               <AccountCircle />
