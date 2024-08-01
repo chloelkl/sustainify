@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import theme from '../../../themes/MyTheme.js'
 import { styled, shadows } from '@mui/system';
 import { Button, TextField, Typography, Modal, Box } from "@mui/material";
+import { Link } from 'react-router-dom';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -34,7 +35,7 @@ const SideNav = styled('div')({
   alignItems: 'center'
 });
 
-const  SideLink = styled('a')({
+const  SideLink = styled(Link)({
   color: theme.palette.secondary.light,
   textDecoration: 'none',
   width: '130px'
@@ -363,19 +364,19 @@ function ManageTask() {
       <Sidebar>
         <SideNav>
           <AssignmentOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }}/>
-          <SideLink href="/challenges">Today's Challenge</SideLink>
+          <SideLink to="/challenges">Today's Challenge</SideLink>
         </SideNav>
         <SideNav>
           <AssessmentOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }}/>
-          <SideLink href="/challenges/statistics">Statistics</SideLink>
+          <SideLink to="/challenges/statistics">Statistics</SideLink>
         </SideNav>
         <SideNav sx={{ background: theme.palette.secondary.dark }}>
           <ManageAccountsOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }}/>
-          <SideLink href="/challenges/manage">Manage</SideLink>
+          <SideLink to="/challenges/manage">Manage</SideLink>
         </SideNav>
         <SideNav>
           <GroupsOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }}/>
-          <SideLink href="/challenges/participation">Participation</SideLink>
+          <SideLink to="/challenges/participation">Participation</SideLink>
         </SideNav>
       </Sidebar>
       <ManageParent>
