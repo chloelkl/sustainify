@@ -33,7 +33,7 @@ function DeleteReward() {
   };
 
   return (
-    <Box sx={{ bgcolor: 'white', p: 2, borderRadius: 8, marginTop: '100px', paddingLeft: '120px', paddingRight: '120px', paddingTop: '50px', paddingBottom: '50px' }}>
+    <Box sx={{ bgcolor: 'white', p: 2, borderRadius: 8, marginTop: '100px', paddingLeft: '120px', paddingRight: '120px', paddingTop: '50px', paddingBottom: '50px', }}>
       <Typography variant="h5" sx={{ mb: 2, fontSize: '40px', fontWeight: 'bold', textAlign: 'center' }}>
         Delete Reward
       </Typography>
@@ -68,8 +68,19 @@ function DeleteReward() {
                 />
               </Grid>
             </Grid>
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center',
+                       height: '200px', marginBottom: '40px', marginTop: '20px', 
+                       paddingTop: '25px', paddingBottom: '25px', border: '2px solid lightgrey', 
+                       borderRadius: '8px', overflow: 'hidden' }}>
+              <img
+                alt="reward"
+                src={`${import.meta.env.VITE_FILE_BASE_URL}${reward.rewardImage}`}
+                style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+              />
+            </Box>
 
-            <Box sx={{ mt: 2, fontWeight: 'bold', textAlign: 'center'}}>
+
+            <Box sx={{ mt: 2, fontWeight: 'bold', textAlign: 'center' }}>
               <Button variant="contained" color="secondary" onClick={handleDelete}>
                 Delete
               </Button>
