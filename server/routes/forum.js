@@ -10,8 +10,7 @@ router.post("/", async (req, res) => {
     // Validate request body -> Update Details of request body to match fields defined in DB
     let validationSchema = yup.object({
         title: yup.string().trim().min(3).max(100).required(),
-        description: yup.string().trim().min(3).max(500).required(),
-        userId: yup.number().required()
+        description: yup.string().trim().min(3).max(500).required()
     });
     try {
         data = await validationSchema.validate(data, { abortEarly: false });
@@ -65,7 +64,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // Route to get forums for a specific user
-router.get("/user/:userId/forums", async (req, res) => {
+router.get("/by/:userId", async (req, res) => {
     try {
         const userId = req.params.userId;
         const forums = await Forum.findAll({
