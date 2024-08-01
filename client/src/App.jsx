@@ -34,6 +34,7 @@ import PostEventAdmin from './pages/events/posteventadmin';
 import EditHostingAdmin from './pages/events/edithostingadmin';
 import CreateEventAdmin from './pages/events/createeventadmin';
 import EventOverview from './pages/events/eventoverview';
+// import EventStatisticsAdmin from './pages/events/eventstatisticsadmin.jsx';
 
 // Forum
 import Forum from './pages/forum/Forum';
@@ -83,13 +84,16 @@ function App() {
               <Route path="/account/admin/dashboard" element={<ProtectedRoute roles={['admin']}><Dashboard /></ProtectedRoute>} />
 
               {/* Event */}
-              <Route path="/eventhosting" element={<EventHosting />} />
-              <Route path="/eventhostingadmin" element={<EventHostingAdmin />} />
-              <Route path="/postevent" element={<PostEvent />} />
-              <Route path="/posteventadmin" element={<PostEventAdmin />} />
-              <Route path={"/edithostingadmin/:id"} element={<EditHostingAdmin />} />
-              <Route path="/createeventadmin" element={<CreateEventAdmin />} />
-              <Route path="/eventoverview" element={<EventOverview />} />
+              
+              <Route path="/eventhosting" element={<ProtectedRoute roles= {['user']}><EventHosting /></ProtectedRoute> } />
+              <Route path="/eventhostingadmin" element={<ProtectedRoute roles= {['admin']}><EventHostingAdmin /></ProtectedRoute>} />
+              <Route path="/postevent" element={<ProtectedRoute roles= {['user']}><PostEvent /></ProtectedRoute> } />
+              <Route path="/posteventadmin" element={<ProtectedRoute roles= {['admin']}><PostEventAdmin /></ProtectedRoute>} />
+              <Route path={"/edithostingadmin/:id"} element={<ProtectedRoute roles= {['admin']}><EditHostingAdmin /></ProtectedRoute>} />
+              <Route path="/createeventadmin" element={<ProtectedRoute roles= {['admin']}><CreateEventAdmin /></ProtectedRoute>} />
+              <Route path="/eventoverview" element={<ProtectedRoute roles= {['user']}><EventOverview /></ProtectedRoute>} />
+              {/* <Route path="/eventstatisticsadmin" element={<ProtectedRoute roles= {['admin']}><EventStatisticsAdmin /></ProtectedRoute>} /> */}
+
 
               {/* Forum */}
               <Route path={"/forum"} element={<Forum />} />

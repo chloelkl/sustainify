@@ -13,13 +13,18 @@ const EditHostingAdmin = () => {
         eventdate: '',
         eventtime: '',
         venue: '',
-        eventdescription: ''
+        eventdescription: '',
+        image: null,
     });
+    const [imagePreview, setImagePreview] = useState(null);
 
     useEffect(() => {
         axios.get(`${import.meta.env.VITE_API_URL}/eventpost/${id}`)
             .then(response => {
                 setEvent(response.data);
+                if (response.data.image) {
+                    setImagePreview(`${import.meta.env.VITE_API_URL}/images/${response.data.image}`);
+                }
             })
             .catch(error => {
                 console.error('There was an error fetching the event data!', error);
@@ -31,11 +36,25 @@ const EditHostingAdmin = () => {
         eventdate: Yup.string().trim().matches(/^\d{2}\/\d{2}\/\d{4}$/, 'Date must be in the format dd/mm/yyyy').required('Required'),
         eventtime: Yup.string().trim().matches(/^([01]\d|2[0-3]):?([0-5]\d)$/, 'Time must be in 24-hour format (HH:MM)').required('Required'),
         venue: Yup.string().trim().min(3, 'Venue must be at least 3 characters').max(100, 'Venue cannot exceed 100 characters').required('Required'),
-        eventdescription: Yup.string().trim().min(3, 'Description must be at least 3 characters').max(500, 'Description cannot exceed 500 characters').required('Required')
+        eventdescription: Yup.string().trim().min(3, 'Description must be at least 3 characters').max(500, 'Description cannot exceed 500 characters').required('Required'),
     });
 
     const handleSubmit = (values) => {
-        axios.put(`${import.meta.env.VITE_API_URL}/eventpost/${id}`, values)
+        const formData = new FormData();
+        formData.append('eventname', values.eventname);
+        formData.append('eventdate', values.eventdate);
+        formData.append('eventtime', values.eventtime);
+        formData.append('venue', values.venue);
+        formData.append('eventdescription', values.eventdescription);
+        if (values.image) {
+            formData.append('image', values.image);
+        }
+
+        axios.put(`${import.meta.env.VITE_API_URL}/eventpost/${id}`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        })
             .then(response => {
                 console.log('Event updated successfully:', response.data);
                 navigate('/posteventadmin');
@@ -55,7 +74,12 @@ const EditHostingAdmin = () => {
                 <Typography variant="h5" sx={{ my: 2 }}>
                     Edit Event
                 </Typography>
-                <Formik initialValues={event} enableReinitialize={true} validationSchema={validationSchema} onSubmit={handleSubmit}>
+                <Formik
+                    initialValues={event}
+                    enableReinitialize={true}
+                    validationSchema={validationSchema}
+                    onSubmit={handleSubmit}
+                >
                     {formik => (
                         <Form className="event-form">
                             <Grid container spacing={2}>
@@ -120,21 +144,50 @@ const EditHostingAdmin = () => {
                                         helperText={<ErrorMessage name="eventdescription" />}
                                     />
                                 </Grid>
+                                <Grid item xs={12}>
+                                    <Button
+                                        variant="contained"
+                                        component="label"
+                                        color="primary"
+                                    >
+                                        Choose File
+                                        <input
+                                            type="file"
+                                            hidden
+                                            onChange={(event) => {
+                                                const file = event.currentTarget.files[0];
+                                                formik.setFieldValue("image", file);
+                                                if (file) {
+                                                    setImagePreview(URL.createObjectURL(file));
+                                                }
+                                            }}
+                                        />
+                                    </Button>
+                                    <ErrorMessage name="image" component="div" className="field-error" />
+                                    {imagePreview && (
+                                        <Box mt={2}>
+                                            <Typography variant="body2">Selected file:</Typography>
+                                            <Typography variant="body2" color="textSecondary">{imagePreview}</Typography>
+                                        </Box>
+                                    )}
+                                </Grid>
                             </Grid>
                             <Box sx={{ my: 2 }}>
                                 <Button type="submit" variant="contained" color="primary">
                                     Update
                                 </Button>
-                                <Button variant="contained" 
-                                    color="secondary" 
-                                    onClick={handleCancel} 
-                                    sx={{ 
+                                <Button
+                                    variant="contained"
+                                    color="secondary"
+                                    onClick={handleCancel}
+                                    sx={{
                                         ml: 2,
                                         ':hover': {
                                             backgroundColor: '#94C4BB',
                                             color: 'white',
                                         }
-                                    }}>
+                                    }}
+                                >
                                     Cancel
                                 </Button>
                             </Box>

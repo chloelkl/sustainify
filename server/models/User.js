@@ -93,10 +93,8 @@ module.exports = (sequelize, DataTypes) => {
     }, {
       tableName: 'users'
     });
-
     User.associate = (models) => {
       User.belongsToMany(models.Challenge, { through: "UserChallenges", foreignKey: 'user' });
     };
-  
     return User;
 };

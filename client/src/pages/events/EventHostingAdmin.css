@@ -4,7 +4,8 @@
 
 .eventhostingadmin-content {
   flex: 2;
-  margin-left: 260px; /* Adjust this value based on the sidebar width */
+  /* margin-left: 260px;  */
+  /* Adjust this value based on the sidebar width */
   padding: 20px;
 }
 

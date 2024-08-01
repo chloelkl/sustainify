@@ -4,7 +4,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import CloseIcon from '@mui/icons-material/Close';
 import './EventHosting.css';
-import EventSidebar from '../../components/EventSidebar';
+import EventHostingSidebar from '../../components/EventHostingSidebar';
 import axios from 'axios';
 
 const EventHosting = () => {
@@ -67,7 +67,7 @@ const EventHosting = () => {
 
     return (
         <div className="event-hosting-page">
-            <EventSidebar />
+            <EventHostingSidebar />
             <Container className="event-hosting-container">
                 <Box className="form-box">
                     <Typography variant="h4" component="h1" className="form-title">

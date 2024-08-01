@@ -100,8 +100,8 @@ function Forum() {
     return (
         <Box>
             <Typography variant="h5" sx={{ my: 2 }}>
-                    
-                </Typography>
+
+            </Typography>
             <Box
                 sx={{
                     display: 'flex',
@@ -110,9 +110,9 @@ function Forum() {
                     width: '100%',
                     mb: 2,
                     backgroundColor: 'white',
-                        borderRadius: 2,
-                        padding: 1,
-                        boxShadow: 1,
+                    borderRadius: 2,
+                    padding: 1,
+                    boxShadow: 1,
                 }}
             >
                 <Typography variant="h5" sx={{ my: 2, fontWeight: 'bold' }}>
@@ -124,7 +124,7 @@ function Forum() {
                         display: 'flex',
                         alignItems: 'center',
                         width: '40%',
-                        
+
                     }}
                 >
                     <Input

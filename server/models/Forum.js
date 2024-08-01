@@ -13,18 +13,13 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: true
         },
-    }, {
-        tableName: 'forums'
-
+        userID: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            primarykey: true
+        },
     });
 
-    Forum.associate = (models) => {
-        Forum.belongsTo(models.User, {
-            foreignKey: 'userId',
-            onDelete: 'CASCADE'
-        });
-    };
-    
     return Forum;
     
 };
