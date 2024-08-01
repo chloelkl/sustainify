@@ -5,6 +5,8 @@ require('dotenv').config();
 
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(express.static('public'))
 
 const corsOptions = {
     origin: process.env.CLIENT_URL,
@@ -51,6 +53,11 @@ app.use("/eventpost", eventpostRoute);
 const rewardRoute = require('./routes/reward');
 app.use("/reward", rewardRoute);
 
+const userRewardRoute = require('./routes/userreward');
+app.use("/userreward", userRewardRoute);
+
+const fileRoute = require('./routes/file');
+app.use("/file", fileRoute);
 // Start server after synchronizing the DB files under models folder
 const db = require('./models');
 db.sequelize.sync({ alter: true })
