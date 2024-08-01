@@ -134,7 +134,7 @@ function UserForums() {
 
   const ForumItems = forums.map((item) => (
     <Card key={item.id} sx={{ mb: 2, boxShadow: 3, position: 'relative' }}>
-      <Link to={`/user/${item.userId}/forum`} style={{ textDecoration: 'none' }}>
+      {/* <Link to={`/user/${item.userId}/forum`} style={{ textDecoration: 'none' }}> */}
         <CardMedia
           component="img"
           image={item.image || 'https://images.pexels.com/photos/355508/pexels-photo-355508.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'}
@@ -171,7 +171,7 @@ function UserForums() {
             <TbEdit />
           </Box>
         </CardContent>
-      </Link>
+ 
     </Card>
 
 
