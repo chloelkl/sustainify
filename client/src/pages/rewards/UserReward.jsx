@@ -1,31 +1,33 @@
-import React, { useState, useEffect } from "react";
-import { Button, Box, Typography, Card, CardContent, IconButton, Grid, TextField } from "@mui/material";
+import React, { useState, useCallback, useEffect } from "react";
+import { Button, Box, Typography, Card, CardContent, IconButton, Dialog, DialogActions } from "@mui/material";
 import http from '../../http';
+import axios from 'axios';
 import dayjs from 'dayjs';
-import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { useParams } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const styles = {
     container: {
         display: 'flex',
         flexWrap: 'wrap',
-        gap: '16px', // Adjust spacing as needed
+        gap: '16px',
     },
     item: {
-        flex: '0 1 calc(20% - 16px)', // Ensure each item takes up 20% width minus the gap
-        maxWidth: 'calc(20% - 16px)', // Ensure maximum width of 20% minus the gap
+        flex: '0 1 calc(20% - 16px)',
+        maxWidth: 'calc(20% - 16px)',
         boxSizing: 'border-box',
     },
 };
 
 function UserReward() {
+    const { user } = useAuth();
     const [rewardList, setRewardList] = useState([]);
-    const expiryTime = dayjs().add(72, 'hour'); // Set expiry time 72 hours from now
-    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft()); // State to hold remaining time
+    const [expiryTime, setExpiryTime] = useState(dayjs().add(72, 'hour'));
+    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
     const { id } = useParams();
+    const [rewardPoints, setRewardPoints] = useState({ pointsEarned: 0 });
 
-    // Function to calculate time left
     function calculateTimeLeft() {
         const now = dayjs();
         const diffSeconds = expiryTime.diff(now, 'second');
@@ -38,41 +40,73 @@ function UserReward() {
         return { hours, minutes, seconds };
     }
 
-    // Function to update time left every second
     useEffect(() => {
         const timer = setInterval(() => {
             setTimeLeft(calculateTimeLeft());
         }, 1000);
-
         return () => clearInterval(timer);
-    }, []);
+    }, [expiryTime]);
+
+    const fetchRewardPoints = useCallback(async () => {
+        if (!user) {
+            console.error('User not available.');
+            return;
+        }
+    
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/user/${user.userID}/rewards`);
+            console.log(response);
+            setRewardPoints({ pointsEarned: response.data });
+        } catch (error) {
+            console.error('Error fetching reward points:', error);
+        }
+    }, [user]);
 
     useEffect(() => {
-        http.get('/reward').then((res) => {
-            console.log(res.data);
-            setRewardList(res.data);
-        });
-    }, []);
-
-
-    const [reward, setReward] = useState({
-        rewardname: "",
-        points: ""
-    });
-    const [loading, setLoading] = useState(true);
+        if (user) {
+            fetchRewardPoints();
+        }
+    }, [fetchRewardPoints, user]);
 
     useEffect(() => {
-        http.get(`/reward/${id}`).then((res) => {
-            setReward(res.data);
-            setLoading(false);
-        }).catch((error) => {
-            console.error("Error fetching reward data: ", error);
-            setLoading(false);
-        });
-    }, [id]);
+        http.get('/reward')
+            .then((res) => setRewardList(res.data))
+            .catch((error) => console.error("Error fetching reward list: ", error));
+    }, []);
+
+    const redeemReward = async (reward) => {
+        const confirmRedemption = window.confirm(`Are you sure you want to redeem the reward: ${reward.rewardname}?`);
+    
+        if (!confirmRedemption) {
+            return; // User chose to cancel the redemption
+        }
+    
+        const payload = { userId: user.userID, rewardId: reward.id };
+    
+        try {
+            const response = await http.post('/userreward/Redeemed', payload);
+            console.log(response.data);
+    
+            // Update the reward points state with the latest points
+            setRewardPoints({ pointsEarned: response.data.pointsEarned });
+    
+            alert('Reward redeemed successfully!'); // Notify user of successful redemption
+    
+        } catch (error) {
+            if (error.response && error.response.status === 400) {
+                // Handle specific error for already redeemed rewards
+                alert('You have already redeemed this reward.');
+            } else {
+                // Handle other errors
+                console.error('Error redeeming reward:', error.response ? error.response.data : error.message);
+                alert('There was an error redeeming the reward. Please try again later.');
+            }
+        }
+    };
+    
 
     const [open, setOpen] = useState(false);
-    const [selectedReward, setSelectedReward] = useState(null); // State for selected reward
+    const [selectedReward, setSelectedReward] = useState(null);
 
     const handleOpen = (reward) => {
         setSelectedReward(reward);
@@ -86,26 +120,41 @@ function UserReward() {
     return (
         <>
             <Box sx={{ textAlign: 'center', paddingTop: '50px' }}>
-                <Typography variant="h4" color='green' sx={{ fontWeight: 'bold', fontSize: '80px' }}>1000</Typography>
-                <Typography variant="h4" color='black' sx={{ fontWeight: 'bold', fontSize: '25px' }}>Total Points</Typography>
+                <Typography variant="h4" color='green' sx={{ fontWeight: 'bold', fontSize: '80px' }}>
+                    {rewardPoints.pointsEarned}
+                </Typography>
+                <Typography variant="h4" color='black' sx={{ fontWeight: 'bold', fontSize: '25px' }}>
+                    Total Points
+                </Typography>
             </Box>
             <Box sx={{ textAlign: 'center', paddingTop: '50px' }}>
-                <Typography variant="h4" color='black' sx={{ fontWeight: 'bold', fontSize: '20px' }}>Transaction</Typography>
+                <Typography variant="h4" color='black' sx={{ fontWeight: 'bold', fontSize: '20px' }}>
+                    Transaction
+                </Typography>
             </Box>
             <Box sx={{ textAlign: 'center', paddingTop: '50px' }}>
-                <Typography variant="h4" color='black' sx={{ fontWeight: 'bold', fontSize: '50px' }}>Rewards</Typography>
+                <Typography variant="h4" color='black' sx={{ fontWeight: 'bold', fontSize: '50px' }}>
+                    Rewards
+                </Typography>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingLeft: '60px', paddingRight: '90px', paddingTop: '50px', paddingBottom: '20px' }}>
                 <Typography variant="h5">Voucher Reset: {timeLeft.hours}:{timeLeft.minutes}:{timeLeft.seconds}</Typography>
             </Box>
             <Box>
-
                 <div style={styles.container}>
-                    {rewardList.map((reward, i) => (
+                    {rewardList.map((reward) => (
                         <div style={styles.item} key={reward.id}>
                             <Card>
-                                <Typography variant="h4" sx={{ fontWeight: 'bold', textAlign: 'center', paddingTop: '50px' }}>IMAGE</Typography>
                                 <CardContent style={{ textAlign: 'center', paddingTop: '50px', paddingBottom: '30px' }}>
+                                    {reward.rewardImage && (
+                                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100px', marginBottom: '40px', marginTop: '20px' }}>
+                                            <img
+                                                alt="reward"
+                                                src={`${import.meta.env.VITE_FILE_BASE_URL}${reward.rewardImage}`}
+                                                style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+                                            />
+                                        </Box>
+                                    )}
                                     <Typography variant="h6" sx={{ mb: 1 }}>
                                         {reward.rewardname}
                                     </Typography>
@@ -115,23 +164,23 @@ function UserReward() {
                                     <Button variant="contained" sx={{ mb: 1, color: "black", marginTop: '20px' }} color="secondary" onClick={() => handleOpen(reward)}>
                                         View
                                     </Button>
+                                    <Button variant="contained" sx={{ mb: 1, color: "black", marginTop: '20px' }} color="secondary" onClick={() => redeemReward(reward)}>
+                                        Redeem
+                                    </Button>
                                 </CardContent>
                             </Card>
                         </div>
                     ))}
                 </div>
-
-
             </Box>
             <Dialog open={open} onClose={handleClose}>
                 <DialogActions>
                     <Button onClick={handleClose} style={{ marginRight: 'auto' }}>
-                        <IconButton color="primary" >
+                        <IconButton color="primary">
                             <ArrowBackIosIcon />
                         </IconButton>
                     </Button>
                 </DialogActions>
-                
                 {selectedReward && (
                     <Card>
                         <Typography variant="h4" sx={{ fontWeight: 'bold', textAlign: 'center', paddingTop: '50px' }}>IMAGE</Typography>
@@ -149,5 +198,4 @@ function UserReward() {
         </>
     );
 }
-
 export default UserReward;
