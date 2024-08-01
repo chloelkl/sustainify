@@ -95,11 +95,12 @@ function App() {
               <Route path={"/user/:userId/forum"} element={<UserForum />} />
 
               {/* Rewards Page */}
-              <Route path={"/rewards/Rewards"} element={<Rewards />} />
-              <Route path={"/rewards/AddReward"} element={<AddReward />} />
-              <Route path={"/rewards/EditReward/:id"} element={<EditReward />} />
-              <Route path={"/rewards/DeleteReward/:id"} element={<DeleteReward />} />
-              <Route path={"/rewards/UserReward"} element={<UserReward />} />
+              <Route path={"/rewards/Rewards"} element={<ProtectedRoute roles={['admin']}><Rewards /></ProtectedRoute>} />
+              <Route path={"/rewards/AddReward"} element={<ProtectedRoute roles={['admin']}><AddReward /></ProtectedRoute>} />
+              <Route path={"/rewards/EditReward/:id"} element={<ProtectedRoute roles={['admin']}><EditReward /></ProtectedRoute>} />
+              <Route path={"/rewards/DeleteReward/:id"} element={<ProtectedRoute roles={['admin']}><DeleteReward /></ProtectedRoute>} />
+              <Route path={"/userreward/:id"} element={<UserReward />}/>
+
 
               {/* challenges */}
             <Route path={"/challenges"} element={<DailyChallenge />}/>
