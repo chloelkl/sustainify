@@ -1,11 +1,15 @@
-/* .event-statistics-admin {
+.event-statistics-admin {
     display: flex;
-    padding-left: 240px; 
+    /* flex-direction: column; */
+    padding: 20px;
+    width: 100%;
 }
 
 .event-statistics-admin .content {
     flex: 1;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
 }
 
 .event-statistics-admin h2 {
@@ -13,9 +17,27 @@
 }
 
 .event-statistics-admin .controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
     margin-bottom: 20px;
 }
 
 .event-statistics-admin .controls label {
     margin-right: 10px;
-} */
+}
+
+.chart-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    overflow: hidden;
+    min-height: 400px; /* Adjust this value as needed */
+}
+
+.chart {
+    width: 100%;
+    height: 100%;
+}

@@ -34,7 +34,7 @@ import PostEventAdmin from './pages/events/posteventadmin';
 import EditHostingAdmin from './pages/events/edithostingadmin';
 import CreateEventAdmin from './pages/events/createeventadmin';
 import EventOverview from './pages/events/eventoverview';
-// import EventStatisticsAdmin from './pages/events/eventstatisticsadmin.jsx';
+import EventStatisticsAdmin from './pages/events/eventstatisticsadmin.jsx';
 
 // Forum
 import Forum from './pages/forum/Forum';
@@ -92,7 +92,7 @@ function App() {
               <Route path={"/edithostingadmin/:id"} element={<ProtectedRoute roles= {['admin']}><EditHostingAdmin /></ProtectedRoute>} />
               <Route path="/createeventadmin" element={<ProtectedRoute roles= {['admin']}><CreateEventAdmin /></ProtectedRoute>} />
               <Route path="/eventoverview" element={<ProtectedRoute roles= {['user']}><EventOverview /></ProtectedRoute>} />
-              {/* <Route path="/eventstatisticsadmin" element={<ProtectedRoute roles= {['admin']}><EventStatisticsAdmin /></ProtectedRoute>} /> */}
+              <Route path="/eventstatisticsadmin" element={<ProtectedRoute roles= {['admin']}><EventStatisticsAdmin /></ProtectedRoute>} />
 
 
               {/* Forum */}

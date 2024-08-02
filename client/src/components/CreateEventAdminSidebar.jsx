@@ -21,6 +21,10 @@ const SidebarComponent = () => {
         <AssessmentOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }}/>
         <SideLink to="../eventhostingadmin">Hosting Details</SideLink>
       </SideNav>
+      <SideNav >
+        <AssessmentOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }}/>
+        <SideLink to="../eventstatisticsadmin">Event Statistics</SideLink>
+      </SideNav>
     </Sidebar>
   );
 };

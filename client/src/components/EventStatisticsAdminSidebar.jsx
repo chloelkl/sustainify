@@ -3,7 +3,7 @@ import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
 import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined';
 // import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined';
-import { Sidebar, SideNav, SideLink } from './EventHostingAdminSidebar.styles'; // Adjust the path as needed
+import { Sidebar, SideNav, SideLink } from './EventStatisticsAdminSidebar.styles'; // Adjust the path as needed
 import theme from '../themes/MyTheme'; // Adjust the path to where your theme is located
 
 const SidebarComponent = () => {
@@ -13,19 +13,18 @@ const SidebarComponent = () => {
         <ManageAccountsOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }}/>
         <SideLink to="../posteventadmin">Upcoming Events</SideLink>
       </SideNav>
-      <SideNav >
+      <SideNav>
         <AssignmentOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }}/>
         <SideLink to="../createeventadmin">Create Events</SideLink>
       </SideNav>
-      <SideNav sx={{ background: theme.palette.secondary.dark }}>
+      <SideNav >
         <AssessmentOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }}/>
         <SideLink to="../eventhostingadmin">Hosting Details</SideLink>
       </SideNav>
-      <SideNav >
+      <SideNav sx={{ background: theme.palette.secondary.dark }}>
         <AssessmentOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }}/>
         <SideLink to="../eventstatisticsadmin">Event Statistics</SideLink>
       </SideNav>
-
     </Sidebar>
   );
 };
