@@ -57,6 +57,21 @@ router.put("/:userID/settings", verifyToken, async (req, res) => {
     }
 });
 
+router.get("/:userID/rewards", verifyToken, async (req, res) => {
+    try {
+        let userID = req.params.userID;
+
+        const user = await User.findByPk(userID);
+        if (!user) return res.status(404).json({ error: 'User not found.' });
+        const points = user.pointsEarned
+
+        res.json(points);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to update points.' });
+    }
+});
+
 // Get user analytics
 router.get("/:id/analytics", verifyToken, async (req, res) => {
     try {

@@ -7,6 +7,8 @@ require('dotenv').config();
 
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(express.static('public'))
 
 const corsOptions = {
     origin: process.env.CLIENT_URL,
@@ -15,15 +17,13 @@ const corsOptions = {
     credentials: true,
 };
 
+// Ensure uploads directory exists 
+const uploadDir = path.join(__dirname, 'uploads'); 
+if (!fs.existsSync(uploadDir)) { 
+    fs.mkdirSync(uploadDir); 
+} 
+
 app.use(cors(corsOptions));
-
-// Ensure uploads directory exists
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
-}
-
-
 
 // Serve static files from the client folder
 app.use(express.static(path.join(__dirname, '..', 'client')));
@@ -67,6 +67,11 @@ app.use('/uploads', express.static(uploadDir));
 const chatbotRoute = require('./routes/chatbot');
 app.use("/chatbot", chatbotRoute);
 
+const userRewardRoute = require('./routes/userreward');
+app.use("/userreward", userRewardRoute);
+
+const fileRoute = require('./routes/file');
+app.use("/file", fileRoute);
 // Start server after synchronizing the DB files under models folder
 const db = require('./models');
 db.sequelize.sync({ alter: true })
