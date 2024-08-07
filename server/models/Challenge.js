@@ -18,6 +18,11 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Challenge.associate = (models) => {
+    Challenge.hasMany(models.Forum, {
+      foreignKey: 'challenge',
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE'
+    });
     Challenge.belongsToMany(models.User, { through: "UserChallenges", foreignKey: 'challenge' });
   };
 
