@@ -1,8 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const { User, Challenge, UserChallenges } = require('../models'); // Call name of DB from models folder to use
+const { User, Challenge, UserChallenges, Forum } = require('../models'); // Call name of DB from models folder to use
 const { Op } = require("sequelize");
+const multer = require('multer');
 const yup = require("yup");
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+      cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+      cb(null, `${Date.now()}-${file.originalname}`);
+  }
+})
+
+const upload = multer({ storage: storage });
 
 // create
 router.post("/add", async (req, res) => {
@@ -147,30 +159,46 @@ router.get("/getDaily", async (req, res) => {
   }
 });
 
-router.post("/completeChallenge", async (req, res) => {
-  const { userId, challengeId } = req.body;
+router.post('/completeChallenge', upload.single('image'), async (req, res) => {
+  const { userId, challengeId, title, description } = req.body;
+  const image = req.file ? req.file.path : null;
 
   try {
     const user = await User.findByPk(userId);
     const challenge = await Challenge.findByPk(challengeId);
+
     if (!user || !challenge) {
-      return res.status(404).json({ message: "User or Challenge not found!" });
+      return res.status(404).json({ message: 'User or Challenge not found!' });
     }
-    
+
     const existingCompletion = await UserChallenges.findOne({
       where: { user: userId, challenge: challengeId }
     });
-    
+
     if (existingCompletion) {
-      return res.status(400).json({ message: "User has already completed this challenge!" });
+      return res.status(400).json({ message: 'User has already completed this challenge!' });
     }
-    
+
+    // Complete the challenge
     await user.addChallenge(challenge, { through: { completedAt: new Date() } });
-    
-    res.json({ message: "Challenge completed successfully!" });
+
+    // Validate forum post data
+    const validationSchema = yup.object({
+      title: yup.string().trim().min(3).max(100).required(),
+      description: yup.string().trim().min(3).max(500).required(),
+      image: yup.mixed().notRequired() // Image validation is handled by multer
+    });
+
+    const forumData = { title: title.trim(), description: description.trim(), image };
+    await validationSchema.validate(forumData, { abortEarly: false });
+
+    // Create forum post
+    const forumPost = await Forum.create({ ...forumData, userId, challengeId });
+
+    res.json({ message: 'Challenge completed and forum post created successfully!', forumPost });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "An error occurred while completing the challenge." });
+    res.status(500).json({ message: 'An error occurred while completing the challenge and creating the forum post.' });
   }
 });
 
