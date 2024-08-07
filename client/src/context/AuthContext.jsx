@@ -13,16 +13,14 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        console.log('Retrieved token from local storage:', token);
-
+    
         if (token) {
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            console.log('Authorization header set:', axios.defaults.headers.common['Authorization']);
-
+    
             axios.get(`${import.meta.env.VITE_API_URL}/auth/verify`)
                 .then(response => {
                     console.log('Verification response:', response.data);
-
+    
                     if (response.data.role === 'admin') {
                         setAdmin(response.data);
                     } else {
@@ -31,10 +29,10 @@ export const AuthProvider = ({ children }) => {
                     setRole(response.data.role);
                 })
                 .catch(error => {
-                    console.error('Error during verification:', error);
+                    console.error('Error during verification:', error.response || error.message);
                 });
-        }   
-    }, [authToken]);
+        }
+    }, [authToken]);    
 
     const login = (token, user) => {
         localStorage.setItem('token', token);

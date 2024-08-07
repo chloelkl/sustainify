@@ -157,7 +157,6 @@ router.delete('/delete', verifyToken, async (req, res) => {
     const { adminID, password } = req.body;
 
     try {
-        // Ensure id and password are defined
         if (!adminID || !password) {
             return res.status(400).json({ error: 'Missing id or password.' });
         }
@@ -175,7 +174,10 @@ router.delete('/delete', verifyToken, async (req, res) => {
         }
 
         await Admin.destroy({ where: { adminID } });
-        res.json({ message: 'Admin deleted successfully.' });
+
+        if (totalAdmins <= 1) {
+            return res.status(200).json({ message: 'Admin deleted successfully. No more admins left.' });
+        }
     } catch (error) {
         console.error('Error deleting admin:', error);
         res.status(500).json({ error: 'Failed to delete admin.' });
