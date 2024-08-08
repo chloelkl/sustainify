@@ -4,6 +4,8 @@ const { User } = require('../models');
 const verifyToken = require('../middleware/verifyToken');
 const bcrypt = require('bcrypt');
 const yup = require("yup");
+const nodemailer = require('nodemailer');
+require('dotenv').config();
 
 // Validation schema for user updates
 const userSchema = yup.object().shape({
@@ -15,25 +17,61 @@ const userSchema = yup.object().shape({
     location: yup.string().max(100),
 });
 
-router.get("/:userID/settings", verifyToken, async (req, res) => {
+// Send OTP
+router.post('/send-otp', async (req, res) => {
+    const { email } = req.body;
+
     try {
-        const userID = req.params.userID;
-
-        const user = await User.findByPk(userID, {
-            attributes: ['language', 'twoFactorAuth'] // specify the attributes you want to retrieve
-        });
-
+        const user = await User.findOne({ where: { email } });
         if (!user) {
             return res.status(404).json({ error: 'User not found.' });
         }
 
-        res.json({
-            language: user.language,
-            twoFactorAuth: user.twoFactorAuth ? 'Enabled' : 'Not Enabled',
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        user.otp = otp;
+        await user.save();
+
+        let transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port: process.env.SMTP_PORT,
+            secure: false,
+            auth: {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS,
+            },
         });
+
+        await transporter.sendMail({
+            from: process.env.SMTP_USER,
+            to: email,
+            subject: 'Your OTP Code',
+            text: `Your OTP code is ${otp}`,
+        });
+
+        res.json({ message: 'OTP sent successfully.' });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Failed to fetch user settings.' });
+        console.error('Error sending OTP:', error);
+        res.status(500).json({ error: 'Failed to send OTP.' });
+    }
+});
+
+// Validate OTP
+router.post('/validate-otp', async (req, res) => {
+    const { email, otp } = req.body;
+
+    try {
+        const user = await User.findOne({ where: { email } });
+        if (!user || user.otp !== otp) {
+            return res.status(400).json({ error: 'Invalid OTP.' });
+        }
+
+        user.otp = null; // Clear the OTP after successful validation
+        await user.save();
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error validating OTP:', error);
+        res.status(500).json({ error: 'Failed to validate OTP.' });
     }
 });
 
@@ -166,9 +204,8 @@ router.put("/:userID", verifyToken, async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to update profile.' });
-    } 
+    }
 });
-
 
 // Get all users (for user management in admin panel)
 router.get('/', verifyToken, async (req, res) => {
