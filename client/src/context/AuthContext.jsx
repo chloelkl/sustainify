@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
 
@@ -10,6 +11,8 @@ export const AuthProvider = ({ children }) => {
     const [ admin, setAdmin ] = useState(null);
     const [ role, setRole ] = useState(null);
     const [ authToken, setAuthToken ] = useState(localStorage.getItem('token'));
+    const [ loading, setLoading ] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -25,27 +28,43 @@ export const AuthProvider = ({ children }) => {
 
                     if (response.data.role === 'admin') {
                         setAdmin(response.data);
+                        setRole('admin');
                     } else {
                         setUser(response.data);
+                        setRole('user');
                     }
-                    setRole(response.data.role);
+                    setLoading(false);
                 })
                 .catch(error => {
                     console.error('Error during verification:', error);
+                    logout();
+                    setLoading(false);
                 });
-        }   
+        } else {
+            setUser(null);
+            setAdmin(null);
+            setRole(null);
+            setLoading(false);
+        }
     }, [authToken]);
 
-    const login = (token, user) => {
+    const login = (token, userData) => {
         localStorage.setItem('token', token);
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        setAuthToken(token);
 
-        if (user.role === 'admin') {
-            setAdmin(user);
+        setUser(null);
+        setAdmin(null);
+
+        if (userData.role === 'admin') {
+            setAdmin(userData);
+            setRole('admin');
+            navigate('/account/admin/main');
         } else {
-            setUser(user);
+            setUser(userData);
+            setRole('user');
+            navigate('/account/user/main');
         }
-        setRole(user.role);
     };
 
     const logout = () => {
@@ -56,10 +75,11 @@ export const AuthProvider = ({ children }) => {
         setAdmin(null);
         setRole(null);
         setAuthToken(null);
+        navigate('/account/login');
     };
 
     return (
-        <AuthContext.Provider value={{ user, admin, role, authToken, login, logout }}>
+        <AuthContext.Provider value={{ user, admin, role, authToken, loading, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
