@@ -9,41 +9,49 @@ export const AuthProvider = ({ children }) => {
     const [ user, setUser ] = useState(null);
     const [ admin, setAdmin ] = useState(null);
     const [ role, setRole ] = useState(null);
-    const [ authToken, setAuthToken ] = useState(localStorage.getItem('token'));
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-    
-        if (token) {
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    
-            axios.get(`${import.meta.env.VITE_API_URL}/auth/verify`)
-                .then(response => {
+        const verifyToken = async () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                    const response = await axios.get(`${import.meta.env.VITE_API_URL}/auth/verify`);
                     console.log('Verification response:', response.data);
-    
+
                     if (response.data.role === 'admin') {
                         setAdmin(response.data);
                     } else {
                         setUser(response.data);
                     }
                     setRole(response.data.role);
-                })
-                .catch(error => {
+                    setIsAuthenticated(true);
+                } catch (error) {
                     console.error('Error during verification:', error.response || error.message);
-                });
-        }
-    }, [authToken]);    
+                    logout();
+                }
+            }
+            setIsLoading(false);
+        };
 
-    const login = (token, user) => {
+        verifyToken();
+    }, []);    
+
+    const login = (token, userData) => {
         localStorage.setItem('token', token);
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-        if (user.role === 'admin') {
-            setAdmin(user);
+        if (userData.role === 'admin') {
+            setAdmin(userData);
+            setUser(null);
         } else {
-            setUser(user);
+            setUser(userData);
+            setAdmin(null);
         }
-        setRole(user.role);
+        setRole(userData.role);
+        setIsAuthenticated(true);
     };
 
     const logout = () => {
@@ -53,11 +61,11 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
         setAdmin(null);
         setRole(null);
-        setAuthToken(null);
+        setIsAuthenticated(false);
     };
 
     return (
-        <AuthContext.Provider value={{ user, admin, role, authToken, login, logout }}>
+        <AuthContext.Provider value={{ user, admin, role, isAuthenticated, isLoading, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
