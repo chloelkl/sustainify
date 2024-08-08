@@ -7,10 +7,10 @@ const yup = require("yup");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-      cb(null, 'uploads/');
+    cb(null, 'uploads/');
   },
   filename: (req, file, cb) => {
-      cb(null, `${Date.now()}-${file.originalname}`);
+    cb(null, `${Date.now()}-${file.originalname}`);
   }
 })
 
@@ -42,7 +42,7 @@ router.post("/add", async (req, res) => {
 // retrieve
 router.get("/get", async (req, res) => {
   let list = await Challenge.findAll({
-    order: [['date', 'ASC']] 
+    order: [['date', 'ASC']]
   });
   res.json(list);
 });
@@ -74,7 +74,7 @@ router.put("/update/:id", async (req, res) => {
         date: data.date,
         challenge: data.challenge
       }
-    }) ;
+    });
     if (currentChallenge) {
       return res.status(400).json({ errors: 'No change supplied.' });
     }
@@ -82,7 +82,7 @@ router.put("/update/:id", async (req, res) => {
     // make sure date does not overlap with other challenges
     const existingChallenge = await Challenge.findOne({
       where: {
-        id: { [Op.ne]: id }, 
+        id: { [Op.ne]: id },
         date: data.date
       }
     });
@@ -186,7 +186,7 @@ router.post('/completeChallenge', upload.single('image'), async (req, res) => {
     const validationSchema = yup.object({
       title: yup.string().trim().min(3).max(100).required(),
       description: yup.string().trim().min(3).max(500).required(),
-      image: yup.mixed().notRequired() // Image validation is handled by multer
+      image: yup.mixed().required() 
     });
 
     const forumData = { title: title.trim(), description: description.trim(), image };
@@ -194,6 +194,13 @@ router.post('/completeChallenge', upload.single('image'), async (req, res) => {
 
     // Create forum post
     const forumPost = await Forum.create({ ...forumData, userId, challengeId });
+
+    await UserChallenges.update({ forum: forumPost.id }, {
+      where: {
+        user: userId,
+        challenge: challengeId
+      }
+    });
 
     res.json({ message: 'Challenge completed and forum post created successfully!', forumPost });
   } catch (error) {
@@ -204,7 +211,7 @@ router.post('/completeChallenge', upload.single('image'), async (req, res) => {
 
 router.get("/getAllCompleted", async (req, res) => {
   let list = await UserChallenges.findAll({
-    order: [['completedAt', 'ASC']] 
+    order: [['completedAt', 'ASC']]
   });
   res.json(list);
 });
@@ -216,7 +223,7 @@ router.get("/checkCompletion", async (req, res) => {
       where: { user: userId, challenge: challengeId }
     });
     res.json({ completed: !!completed });
-    
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "An error occurred while checking challenge completion." });
@@ -230,11 +237,106 @@ router.get("/countToday", async (req, res) => {
       where: { challenge: challengeId }
     });
     res.json({ count: completed.length });
-    
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "An error occurred while checking today's challenge completion." });
   }
 })
+
+router.get("/forumsByDate", async (req, res) => {
+  try {
+    const date = req.query.date;
+
+    if (!date) {
+      return res.status(400).json({ message: "Date parameter is required." });
+    }
+
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // Find the challenge for the given date
+    const challenge = await Challenge.findOne({
+      where: {
+        date: {
+          [Op.between]: [startOfDay, endOfDay]
+        }
+      },
+      include: {
+        model: Forum,
+        include: {
+          model: User,
+          attributes: ['username']
+        }
+      }
+    });
+
+    // Check if a challenge was found
+    if (!challenge) {
+      return res.status(404).json({ message: "No challenge found for the given date." });
+    }
+
+    // Return the forums associated with the found challenge
+    const forums = challenge.Forums;
+
+    res.json(forums);
+  } catch (error) {
+    console.error('Error fetching forums by date:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/forumsByCompletionDate', async (req, res) => {
+  try {
+    const date = req.query.date;
+
+    if (!date) {
+      return res.status(400).json({ message: "Date parameter is required." });
+    }
+
+    // Define start and end of the day for filtering completedAt
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // Fetch all UserChallenges with the completedAt within the specified date
+    const userChallenges = await UserChallenges.findAll({
+      where: {
+        completedAt: {
+          [Op.between]: [startOfDay, endOfDay]
+        }
+      },
+      attributes: ['forum']
+    });
+
+    if (!userChallenges.length) {
+      return res.status(404).json({ message: "No user challenges found for the given date." });
+    }
+
+    // Extract forum IDs
+    const forumIds = userChallenges.map(uc => uc.forum);
+
+    // Fetch forums by IDs
+    const forums = await Forum.findAll({
+      where: {
+        id: forumIds
+      },
+      include: {
+        model: User,
+        attributes: ['username']
+      }
+    });
+
+    res.json(forums);
+  } catch (error) {
+    console.error('Error fetching forums by completion date:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 module.exports = router;
