@@ -100,6 +100,7 @@ module.exports = (sequelize, DataTypes) => {
           onDelete: 'CASCADE',
           onUpdate: 'CASCADE'
       });
+      User.hasMany(models.Forum, {foreignKey: 'userId'});
       User.belongsToMany(models.Challenge, { through: "UserChallenges", foreignKey: 'user' });
       User.belongsToMany(models.Reward, { through: "RewardUser", foreignKey: 'user'});
     };
