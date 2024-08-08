@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { IconButton } from '@mui/material';
+import { IconButton, Typography } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useAuth } from '../../../context/AuthContext';
 
@@ -10,7 +10,13 @@ const Login = () => {
     const [errors, setErrors] = useState([]);
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const { login, isAuthenticated, user } = useAuth();
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate(user.role === 'admin' ? '/account/admin/main' : '/account/user/main');
+        }
+    }, [isAuthenticated, user, navigate]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -26,10 +32,8 @@ const Login = () => {
     
             const idField = role === 'admin' ? 'adminID' : 'userID';
     
-            // Pass the correct ID along with role and pointsEarned
             login(token, { role, [idField]: id, pointsEarned });
             
-            // Optionally store pointsEarned in localStorage if needed
             localStorage.setItem('pointsEarned', pointsEarned);
     
             navigate(role === 'admin' ? '/account/admin/main' : '/account/user/main');
@@ -41,6 +45,10 @@ const Login = () => {
     const handleClickShowPassword = () => {
         setShowPassword(!showPassword);
     };
+    
+    if (isAuthenticated) {
+        return <Typography>You are already logged in. Redirecting...</Typography>;
+    }
 
     return (
         <div style={container}>
