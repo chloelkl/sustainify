@@ -14,6 +14,13 @@ module.exports = (sequelize, DataTypes) => {
         key: 'id'
       }
     },
+    forum: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Forums',
+        key: 'id'
+      }
+    },
     completedAt: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW
