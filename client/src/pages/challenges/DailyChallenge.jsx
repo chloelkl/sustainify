@@ -80,11 +80,9 @@ const Complete = styled(Button)(({ disabled }) => ({
 
 function DailyChallenge() {
   const { user, admin, authToken } = useAuth();
-  const navigate = useNavigate();
   const [daily, setDaily] = useState(null);
   const [completed, setCompleted] = useState(false);
   const [participants, setParticipants] = useState(0);
-  const [userDetails, setUserDetails] = useState({});
   const [imagePreview, setImagePreview] = useState(null);
   const [openModal, setOpenModal] = useState(false);
 
@@ -149,7 +147,6 @@ function DailyChallenge() {
   
     const formData = new FormData();
     formData.append('userId', user.userID);
-    formData.append('name', user.username);
     formData.append('title', values.title.trim());
     formData.append('description', values.description.trim());
     formData.append('image', values.image);
@@ -177,7 +174,6 @@ function DailyChallenge() {
   };
 
   const initialValues = {
-    userName: userDetails.username || '',
     title: "",
     description: "",
     image: null
@@ -192,7 +188,7 @@ function DailyChallenge() {
       .min(3, 'Description must be at least 3 characters')
       .max(500, 'Description must be at most 500 characters')
       .required('Description is required'),
-    image: yup.mixed().notRequired()
+    image: yup.mixed().required('Image is required')
   });
 
   return (
@@ -221,10 +217,6 @@ function DailyChallenge() {
           <SideNav sx={{ background: theme.palette.primary.main }}>
             <AssignmentOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }} />
             <SideLink to="/challenges">Today's Challenge</SideLink>
-          </SideNav>
-          <SideNav>
-            <AssessmentOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }} />
-            <SideLink to="/challenges/mystatistics">My Statistics</SideLink>
           </SideNav>
           <SideNav>
             <HistoryOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }} />
@@ -272,9 +264,6 @@ function DailyChallenge() {
         >
           <Typography variant="h5" sx={{ my: 2, fontWeight: 'bold', textAlign: 'center' }}>
             Complete Challenge
-          </Typography>
-          <Typography variant="h6" component="div" sx={{ mb: 2, color: 'text.secondary' }}>
-            {userDetails.username}
           </Typography>
           <Formik
             initialValues={initialValues}
