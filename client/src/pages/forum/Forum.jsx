@@ -17,6 +17,7 @@ import http from "../../http";
 import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
 
+const dateFormat = ('D MMM YYYY');
 function Forum() {
   const { user, role, authToken } = useAuth();
   const [forumList, setForumList] = useState([]);
@@ -166,7 +167,7 @@ function Forum() {
               width: "80%",
               maxWidth: 900,
               height: "auto",
-              minHeight: "500px", // height of modal
+              minHeight: "300px",
               backgroundColor: "white",
               borderRadius: 2,
               boxShadow: 24,
@@ -207,12 +208,17 @@ function Forum() {
               </Typography>
               <Box
                 sx={{
-                  flex: 1, // Allows the Box to grow and take up remaining space
-
+                  flex: 1,
                   mb: 2,
                 }}
               >
-                <Typography variant="body1" sx={{ whiteSpace: "pre-line" }}>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    whiteSpace: "pre-line",
+                    wordBreak: "break-word", // Ensures long words break and wrap
+                  }}
+                >
                   {selectedItem.description}
                 </Typography>
               </Box>
@@ -222,15 +228,15 @@ function Forum() {
                 sx={{ position: "absolute", bottom: 16, left: 16, right: 16 }}
               >
                 <Link
-                  to={`/forum/by/${selectedItem.userId}`} // Add the link to the username
-                  style={{ textDecoration: "none", color: "inherit" }} // Ensures no underline and maintains text color
+                  to={`/forum/by/${selectedItem.userId}`}
+                  style={{ textDecoration: "none", color: "inherit" }}
                 >
                   <Typography variant="body2" color="textSecondary">
                     {selectedItem.User?.username}
                   </Typography>
                 </Link>
                 <Typography variant="body2" color="textSecondary">
-                  {dayjs(selectedItem.createdAt).format(global.datetimeFormat)}
+                  {dayjs(selectedItem.createdAt).format(dateFormat)}
                 </Typography>
               </Box>
             </Box>
