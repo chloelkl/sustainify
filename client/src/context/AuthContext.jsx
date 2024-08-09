@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Spinner from '../components/Spinner.jsx';
 
 const AuthContext = createContext();
 
@@ -11,7 +12,7 @@ export const AuthProvider = ({ children }) => {
     const [ admin, setAdmin ] = useState(null);
     const [ role, setRole ] = useState(null);
     const [ authToken, setAuthToken ] = useState(localStorage.getItem('token'));
-    const [ loading, setLoading ] = useState(true);
+    const [ isLoading, setIsLoading ] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -33,38 +34,43 @@ export const AuthProvider = ({ children }) => {
                         setUser(response.data);
                         setRole('user');
                     }
-                    setLoading(false);
+                    setIsLoading(false);
                 })
                 .catch(error => {
                     console.error('Error during verification:', error);
                     logout();
-                    setLoading(false);
+                    setIsLoading(false);
                 });
         } else {
             setUser(null);
             setAdmin(null);
             setRole(null);
-            setLoading(false);
+            setIsLoading(false);
         }
     }, [authToken]);
 
-    const login = (token, userData) => {
+    const login = async (token, userData) => {
+        setIsLoading(true); // Show spinner after validation
         localStorage.setItem('token', token);
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         setAuthToken(token);
-
+    
         setUser(null);
         setAdmin(null);
-
-        if (userData.role === 'admin') {
-            setAdmin(userData);
-            setRole('admin');
-            navigate('/account/admin/main');
-        } else {
-            setUser(userData);
-            setRole('user');
-            navigate('/account/user/main');
-        }
+    
+        setTimeout(() => {
+            if (userData.role === 'admin') {
+                setAdmin(userData);
+                setRole('admin');
+                setIsLoading(false); // Hide spinner before redirect
+                navigate('/account/admin/main');
+            } else {
+                setUser(userData);
+                setRole('user');
+                setIsLoading(false); // Hide spinner before redirect
+                navigate('/account/user/main');
+            }
+        }, 1000);
     };
 
     const logout = () => {
@@ -79,8 +85,9 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, admin, role, authToken, loading, login, logout }}>
+        <AuthContext.Provider value={{ user, admin, role, authToken, isLoading, login, logout }}>
             {children}
+            {isLoading && <Spinner />}
         </AuthContext.Provider>
     );
 };

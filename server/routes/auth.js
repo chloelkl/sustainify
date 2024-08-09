@@ -8,6 +8,7 @@ require('dotenv').config();
 const verifyToken = require('../middleware/verifyToken');
 const generateUserID = require('../utils/generateUserID');
 const generateAdminID = require('../utils/generateAdminID');
+const { authenticator } = require('otplib');
 
 // Generate JWT token
 const generateToken = (user) => {
@@ -120,40 +121,62 @@ router.post('/admin-signup', [
 });
 
 // User/Admin login
-router.post('/login', [
-    check('email').isEmail().withMessage('Enter a valid email'),
-    check('password').notEmpty().withMessage('Password is required')
-], async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-
-    const { email, password } = req.body;
-
+router.post('/login', async (req, res) => {
     try {
-        let user = await User.findOne({ where: { email } });
-        let isAdmin = false;
+        const { email, password } = req.body;
+
+        const user = await User.findOne({ where: { email } });
+
+        if (!user || !bcrypt.compareSync(password, user.password)) {
+            return res.status(401).json({ errors: [{ msg: 'Invalid credentials' }] });
+        }
+
+        // Check if the user has 2FA enabled
+        if (user.twoFactorAuthEnabled) {
+            return res.json({
+                twoFactorAuthRequired: true,
+                userID: user.userID,
+            });
+        }
+
+        // Generate JWT token if no 2FA is required
+        const token = generateToken(user.userID, user.role);
+        res.json({
+            token,
+            role: user.role,
+            userID: user.userID,
+            pointsEarned: user.pointsEarned,
+        });
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ errors: [{ msg: 'Server error' }] });
+    }
+});
+
+router.post('/verify-2fa', async (req, res) => {
+    try {
+        const { userID, token } = req.body;
+
+        const user = await User.findOne({ where: { userID } });
 
         if (!user) {
-            user = await Admin.findOne({ where: { email } });
-            if (!user) {
-                return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });
-            }
-            isAdmin = true;
+            return res.status(400).json({ errors: [{ msg: 'User not found' }] });
         }
 
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });
+        const verified = authenticator.verify({ token, secret: user.twoFactorAuthSecret });
+
+        if (verified) {
+            const jwtToken = generateToken(user.userID, user.role);
+            return res.json({
+                token: jwtToken,
+                role: user.role,
+                userID: user.userID,
+            });
+        } else {
+            return res.status(400).json({ errors: [{ msg: 'Invalid 2FA code' }] });
         }
-
-        const token = generateToken(user);
-        const id = isAdmin ? user.adminID : user.userID;
-
-        res.status(200).json({ token, role: user.role, id });
     } catch (error) {
-        console.error(error);
+        console.error('Error verifying 2FA during login:', error);
         res.status(500).json({ errors: [{ msg: 'Server error' }] });
     }
 });

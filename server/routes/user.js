@@ -6,6 +6,8 @@ const bcrypt = require('bcrypt');
 const yup = require("yup");
 const nodemailer = require('nodemailer');
 require('dotenv').config();
+const { authenticator } = require('otplib');
+const QRCode = require('qrcode');
 
 // Validation schema for user updates
 const userSchema = yup.object().shape({
@@ -254,5 +256,80 @@ router.get("/retrieveDetails/:id", async (req, res) => {
   }
   res.json(user);
 })
+
+router.post('/:userID/2fa/enable', async (req, res) => {
+    try {
+      const { userID } = req.params;
+      console.log('Enabling 2FA for user:', userID);
+  
+      const secret = authenticator.generateSecret();
+      console.log('Generated secret:', secret);
+  
+      // Save the secret to the user's record in the database and enable 2FA
+      const [updatedRows] = await User.update(
+        { 
+            twoFactorAuthSecret: secret,
+            twoFactorAuthEnabled: true  // Enable 2FA in the database
+        },
+        { where: { userID: userID } }
+      );
+      console.log('Updated rows:', updatedRows);
+  
+      if (updatedRows === 0) {
+        console.log('User not found');
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
+      const otpauthURL = authenticator.keyuri(userID, 'Sustainify', secret);
+      console.log('OTP Auth URL:', otpauthURL);
+      res.json({ otpauthURL });
+    } catch (error) {
+      console.error('Error enabling two-factor authentication:', error);
+      res.status(500).json({ error: 'Failed to enable two-factor authentication' });
+    }
+});
+  
+// Verify 2FA during setup in user settings
+router.post('/:userID/2fa/verify', async (req, res) => {
+    try {
+        const { userID, token } = req.body;
+
+        // Retrieve the user's 2FA secret from the database
+        const user = await User.findOne({ where: { userID } });
+
+        if (!user.twoFactorAuthSecret) {
+            return res.status(400).json({ error: 'Two-factor authentication secret not found' });
+        }
+
+        const verified = authenticator.verify({ token, secret: user.twoFactorAuthSecret });
+
+        if (verified) {
+            // Update the user's 2FA status in the database
+            await User.update({ twoFactorAuthEnabled: true }, { where: { userID } });
+            res.json({ message: 'Two-factor authentication verified and enabled successfully' });
+        } else {
+            res.status(400).json({ error: 'Invalid two-factor authentication token' });
+        }
+    } catch (error) {
+        console.error('Error verifying two-factor authentication:', error);
+        res.status(500).json({ error: 'Failed to verify two-factor authentication' });
+    }
+});
+
+
+// Disable 2FA
+router.put('/:userID/2fa/disable', async (req, res) => {
+    try {
+        const { userID } = req.params;
+
+        // Update the user's 2FA status and remove the secret from the database
+        await User.update({ twoFactorAuthEnabled: false, twoFactorAuthSecret: null }, { where: { userID } });
+
+        res.json({ message: 'Two-factor authentication disabled successfully' });
+    } catch (error) {
+        console.error('Error disabling two-factor authentication:', error);
+        res.status(500).json({ error: 'Failed to disable two-factor authentication' });
+    }
+});
 
 module.exports = router;

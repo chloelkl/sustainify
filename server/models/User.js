@@ -69,11 +69,6 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: true
         },
-        twoFactorAuth: {
-            type: DataTypes.STRING,
-            defaultValue: 'Not Enabled',
-            allowNull: true
-        },
         bio: {
             type: DataTypes.STRING,
             allowNull: true
@@ -93,7 +88,16 @@ module.exports = (sequelize, DataTypes) => {
         otp: {
             type: DataTypes.STRING,
             allowNull: true,
-        }        
+        },
+        twoFactorAuthSecret: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        twoFactorAuthEnabled: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+            allowNull: false,
+        }
     }, {
       tableName: 'users'
     });
