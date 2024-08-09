@@ -311,16 +311,19 @@ function UserForums() {
               to={`/user/${userId}/forum/addforum`}
               style={{ textDecoration: "none" }}
             >
+              {isCurrentUser && (
               <Button
-                variant="contained"
-                startIcon={<IoIosAddCircleOutline />}
-                aria-label="add"
-                sx={{
-                  marginTop: "0.5rem",
-                }}
-              >
-                Create Post
-              </Button>
+              variant="contained"
+              startIcon={<IoIosAddCircleOutline />}
+              aria-label="add"
+              sx={{
+                marginTop: "0.5rem",
+              }}
+            >
+              Create Post
+            </Button>
+              )}
+              
             </Link>
           </Box>
         </Box>
@@ -352,41 +355,45 @@ function UserForums() {
         </div>
       </div>
 
-      <Modal open={Boolean(selectedForum)} onClose={handleCloseModal}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: { xs: "90%", sm: "80%", md: "70%" },
-            maxWidth: 900,
-            height: "auto",
-            minHeight: "500px", // Height of modal
-            bgcolor: "background.paper",
-            boxShadow: 24,
-            p: 4,
-            display: "flex",
-            flexDirection: "column",
-          }}
+      <Modal
+      open={Boolean(selectedForum)}
+      onClose={handleCloseModal}
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Box
+        sx={{
+          width: { xs: "90%", sm: "80%", md: "70%" },
+          maxWidth: 900,
+          height: "auto",
+          minHeight: "300px",
+          bgcolor: "white",
+          boxShadow: 24,
+          p: 4,
+          display: "flex",
+          flexDirection: "column",
+          position: "relative",
+        }}
+      >
+        <IconButton
+          sx={{ position: "absolute", top: 16, right: 16 }}
+          onClick={handleCloseModal}
         >
-          {selectedForum && (
-            <>
-              <IconButton
-                sx={{ position: "absolute", top: 16, right: 16 }}
-                onClick={handleCloseModal}
-              >
-                <TbEdit />
-              </IconButton>
-              <EditForm
-                forum={selectedForum}
-                onClose={handleCloseModal}
-                onSave={handleSaveForum}
-              />
-            </>
-          )}
-        </Box>
-      </Modal>
+          <TbEdit />
+        </IconButton>
+        {selectedForum && (
+          <EditForm
+            forum={selectedForum}
+            onClose={handleCloseModal}
+            onSave={handleSaveForum}
+          />
+        )}
+      </Box>
+    </Modal>
+
     </>
   );
 }
