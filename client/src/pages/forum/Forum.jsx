@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Masonry from "react-responsive-masonry";
 import SaveIcon from "@mui/icons-material/Save";
-import ForumCard from "./ForumCard"; // Correct path to your ForumCard component
+import ForumCard from "./ForumCard";
 import {
   Box,
   Input,
@@ -17,12 +17,32 @@ import http from "../../http";
 import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
 
-const dateFormat = ('D MMM YYYY');
+const dateFormat = "D MMM YYYY";
 function Forum() {
   const { user, role, authToken } = useAuth();
   const [forumList, setForumList] = useState([]);
   const [search, setSearch] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
+
+  const handleSaveForum = async () => {
+    try {
+      const response = await http.post('/forum/save-forum', {
+        title: selectedItem.title,
+        description: selectedItem.description,
+        image: selectedItem.image,
+        username: selectedItem.User.username,
+        createdDate: selectedItem.createdAt,
+        userId: user.userID,
+      });
+  
+      if (response.status === 200) {
+        alert('Forum saved successfully!');
+      }
+    } catch (error) {
+      console.error('Error saving forum:', error);
+      alert('Failed to save the forum. Please try again.');
+    }
+  };
 
   const handleCardClick = (item) => {
     setSelectedItem(item);
@@ -106,23 +126,21 @@ function Forum() {
         sx={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
           width: "100%",
           mb: 2,
-          backgroundColor: "white",
+          backgroundColor: "#ffffff",
           borderRadius: 2,
-          padding: 1,
-          boxShadow: 1,
+          padding: 2,
+          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <Typography variant="h5" sx={{ my: 2, fontWeight: "bold" }}>
-          "Getting Inspired One Step at a Time."
-        </Typography>
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
-            width: "40%",
+            width: "100%",
+            borderRadius: 1,
+            padding: "2px 10px",
           }}
         >
           <Input
@@ -130,12 +148,26 @@ function Forum() {
             placeholder="Search"
             onChange={onSearchChange}
             onKeyDown={onSearchKeyDown}
-            sx={{ flex: 1 }}
+            disableUnderline
+            sx={{
+              flex: 1,
+              padding: "6px 8px",
+              fontSize: "1rem",
+              borderRadius: 1,
+            }}
           />
-          <IconButton color="primary" onClick={onClickSearch}>
+          <IconButton
+            color="primary"
+            onClick={onClickSearch}
+            sx={{ padding: "8px" }}
+          >
             <Search />
           </IconButton>
-          <IconButton color="primary" onClick={onClickClear}>
+          <IconButton
+            color="primary"
+            onClick={onClickClear}
+            sx={{ padding: "8px" }}
+          >
             <Clear />
           </IconButton>
         </Box>
@@ -200,6 +232,7 @@ function Forum() {
                   top: 16,
                   right: 16,
                 }}
+                onClick={handleSaveForum}
               >
                 <SaveIcon />
               </IconButton>
@@ -229,9 +262,24 @@ function Forum() {
               >
                 <Link
                   to={`/forum/by/${selectedItem.userId}`}
-                  style={{ textDecoration: "none", color: "inherit" }}
+                  style={{
+                    textDecoration: "none", // Remove default underline
+                    color: "inherit", // Inherit color from parent
+                    display: "inline-block", // Make the link inline-block for better styling
+                    position: "relative", // Needed for the pseudo-element
+                    paddingBottom: "2px", // To adjust space for underline effect
+                  }}
                 >
-                  <Typography variant="body2" color="textSecondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "textSecondary",
+                      transition: "color 0.3s, textDecoration 0.3s", // Smooth transition
+                      "&:hover": {
+                        color: "primary.main", // Change text color on hover
+                      },
+                    }}
+                  >
                     {selectedItem.User?.username}
                   </Typography>
                 </Link>
