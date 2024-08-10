@@ -19,6 +19,10 @@ import { TbEdit } from "react-icons/tb";
 import EditForm from "./EditForum";
 import { useAuth } from "../../context/AuthContext";
 import dayjs from "dayjs";
+import SaveIcon from "@mui/icons-material/Save";
+import { Clear } from "@mui/icons-material";
+
+const dateFormat = "D MMM YYYY";
 
 const styles = {
   profileContainer: {
@@ -89,10 +93,27 @@ function UserForums() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedForum, setSelectedForum] = useState(null);
+  const [viewingLikedForums, setViewingLikedForums] = useState(false);
+  const [savedForums, setSavedForums] = useState([]);
 
   const isCurrentUser = user && user.userID === parseInt(userId);
 
-  useEffect(() => {
+  console.log(userProfile.username);
+  console.log(forums.username);
+
+  const handleViewSavedForums = async () => {
+    setViewingLikedForums(true);
+    try {
+      const response = await http.get(`/forum/saved-forums/${user.userID}`);
+      console.log(response.data);
+      setSavedForums(response.data);
+    } catch (error) {
+      console.error("Error fetching saved forums:", error);
+    }
+  };
+
+  const viewMyForums = async () => {
+    setViewingLikedForums(false);
     http
       .get(`/forum/by/${userId}`, {
         headers: {
@@ -121,6 +142,10 @@ function UserForums() {
       })
       .catch((error) => setError(error.message))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    viewMyForums();
   }, [userId, authToken]);
 
   const handleEditClick = (forum) => {
@@ -209,7 +234,95 @@ function UserForums() {
         >
           {dayjs(item.createdAt).format("D MMM YYYY")}
         </Typography>
-        {isCurrentUser && (
+        {isCurrentUser && !viewingLikedForums && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 10,
+              right: 10,
+              fontSize: "25px",
+              color: "white",
+              cursor: "pointer",
+            }}
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent modal from opening when clicking the edit icon
+              handleEditClick(item);
+            }}
+          >
+            <TbEdit />
+          </Box>
+        )}
+      </CardContent>
+    </Card>
+  ));
+
+  const SavedItems = savedForums.map((item) => (
+    <Card
+      key={item.id}
+      sx={{
+        mb: 2,
+        boxShadow: 3,
+        margin: "5px",
+        position: "relative",
+        overflow: "hidden",
+        transition: "transform 0.3s ease",
+        "&:hover": {
+          transform: "scale(1.05)",
+          ".cardContent": {
+            opacity: 1,
+            transform: "translateY(0)",
+          },
+        },
+      }}
+    >
+      <CardMedia
+        component="img"
+        image={
+          item.image
+            ? `${import.meta.env.VITE_API_URL}/${item.image}`
+            : "https://images.pexels.com/photos/355508/pexels-photo-355508.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
+        }
+        alt={item.title}
+        sx={{
+          width: "100%",
+          height: "auto",
+          objectFit: "cover",
+          borderRadius: "4px 4px 0 0",
+        }}
+      />
+      <CardContent
+        className="cardContent"
+        sx={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          padding: 2,
+          backgroundColor: "rgba(0, 0, 0, 0.7)", // Dark overlay for content
+          color: "white",
+          opacity: 0,
+          transform: "translateY(20px)",
+          transition: "opacity 0.3s ease, transform 0.3s ease",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+        }}
+      >
+        <Typography
+          variant="h5"
+          component="div"
+          sx={{ wordWrap: "break-word", mb: 1, fontWeight: "bold" }}
+        >
+          {item.title}
+        </Typography>
+        <Typography
+          variant="body2"
+          component="div"
+          sx={{ wordWrap: "break-word" }}
+        >
+          {dayjs(item.createdAt).format("D MMM YYYY")}
+        </Typography>
+        {isCurrentUser && !viewingLikedForums && (
           <Box
             sx={{
               position: "absolute",
@@ -282,8 +395,21 @@ function UserForums() {
                   </Button>
                 </Link>
               ) : null}
-              <Button variant="outlined" color="primary" style={styles.button}>
+              <Button
+                variant="outlined"
+                color="primary"
+                style={styles.button}
+                onClick={handleViewSavedForums}
+              >
                 Liked Blogs
+              </Button>
+              <Button
+                variant="outlined"
+                color="primary"
+                style={styles.button}
+                onClick={viewMyForums}
+              >
+                My Blogs
               </Button>
             </div>
           )}
@@ -312,18 +438,17 @@ function UserForums() {
               style={{ textDecoration: "none" }}
             >
               {isCurrentUser && (
-              <Button
-              variant="contained"
-              startIcon={<IoIosAddCircleOutline />}
-              aria-label="add"
-              sx={{
-                marginTop: "0.5rem",
-              }}
-            >
-              Create Post
-            </Button>
+                <Button
+                  variant="contained"
+                  startIcon={<IoIosAddCircleOutline />}
+                  aria-label="add"
+                  sx={{
+                    marginTop: "0.5rem",
+                  }}
+                >
+                  Create Post
+                </Button>
               )}
-              
             </Link>
           </Box>
         </Box>
@@ -349,51 +474,142 @@ function UserForums() {
           />
         </Box>
         <div style={{ padding: "20px" }}>
-          <Masonry columnsCount={3} gutter="10px">
-            {ForumItems}
-          </Masonry>
+          {!viewingLikedForums && (
+            <Masonry columnsCount={3} gutter="10px">
+              {ForumItems}
+            </Masonry>
+          )}
+        {isCurrentUser && viewingLikedForums && (
+            <Masonry columnsCount={3} gutter="10px">
+              {SavedItems}
+            </Masonry>
+          )}
         </div>
       </div>
-
-      <Modal
-      open={Boolean(selectedForum)}
-      onClose={handleCloseModal}
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <Box
-        sx={{
-          width: { xs: "90%", sm: "80%", md: "70%" },
-          maxWidth: 900,
-          height: "auto",
-          minHeight: "300px",
-          bgcolor: "white",
-          boxShadow: 24,
-          p: 4,
-          display: "flex",
-          flexDirection: "column",
-          position: "relative",
-        }}
-      >
-        <IconButton
-          sx={{ position: "absolute", top: 16, right: 16 }}
-          onClick={handleCloseModal}
+      {isCurrentUser && !viewingLikedForums && (
+        <Modal
+          open={Boolean(selectedForum)}
+          onClose={handleCloseModal}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
         >
-          <TbEdit />
-        </IconButton>
-        {selectedForum && (
-          <EditForm
-            forum={selectedForum}
-            onClose={handleCloseModal}
-            onSave={handleSaveForum}
-          />
-        )}
-      </Box>
-    </Modal>
-
+          <Box
+            sx={{
+              width: { xs: "90%", sm: "80%", md: "70%" },
+              maxWidth: 900,
+              height: "auto",
+              minHeight: "300px",
+              bgcolor: "white",
+              boxShadow: 24,
+              p: 4,
+              display: "flex",
+              flexDirection: "column",
+              position: "relative",
+            }}
+          >
+            <IconButton
+              sx={{ position: "absolute", top: 16, right: 16 }}
+              onClick={handleCloseModal}
+            >
+              <Clear />
+            </IconButton>
+            {selectedForum && (
+              <EditForm
+                forum={selectedForum}
+                onClose={handleCloseModal}
+                onSave={handleSaveForum}
+              />
+            )}
+          </Box>
+        </Modal>
+      )}
+      {!isCurrentUser && selectedForum && (
+        <Modal
+          open={Boolean(selectedForum)}
+          onClose={handleCloseModal}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Box
+            sx={{
+              width: "80%",
+              maxWidth: 900,
+              height: "auto",
+              minHeight: "300px",
+              backgroundColor: "white",
+              borderRadius: 2,
+              boxShadow: 24,
+              display: "flex",
+              overflow: "hidden",
+              position: "relative",
+            }}
+          >
+            <Box sx={{ width: "40%", height: "auto" }}>
+              <CardMedia
+                component="img"
+                image={
+                  selectedForum.image
+                    ? `${import.meta.env.VITE_API_URL}/${selectedForum.image}`
+                    : "https://images.pexels.com/photos/355508/pexels-photo-355508.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
+                }
+                alt={selectedForum.title}
+                sx={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+            </Box>
+            <Box sx={{ width: "60%", padding: 3, position: "relative" }}>
+              <IconButton
+                aria-label="save"
+                sx={{
+                  position: "absolute",
+                  top: 16,
+                  right: 16,
+                }}
+              >
+                <SaveIcon />
+              </IconButton>
+              <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold" }}>
+                {selectedForum.title}
+              </Typography>
+              <Box
+                sx={{
+                  flex: 1,
+                  mb: 2,
+                }}
+              >
+                <Typography
+                  variant="body1"
+                  sx={{
+                    whiteSpace: "pre-line",
+                    wordBreak: "break-word", // Ensures long words break and wrap
+                  }}
+                >
+                  {selectedForum.description}
+                </Typography>
+              </Box>
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                sx={{ position: "absolute", bottom: 16, left: 16, right: 16 }}
+              >
+                <Typography variant="body2" color="textSecondary"></Typography>
+                <Typography variant="body2" color="textSecondary">
+                  {dayjs(selectedForum.createdAt).format(dateFormat)}
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+        </Modal>
+      )}
     </>
   );
 }
