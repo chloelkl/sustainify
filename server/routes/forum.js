@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Forum, User } = require('../models'); // Call name of DB from models folder to use
+const { Forum, User, SavedForum } = require('../models'); // Call name of DB from models folder to use
 const { Op } = require("sequelize");
 const yup = require("yup");
 const multer = require('multer');
@@ -18,6 +18,40 @@ const storage = multer.diskStorage({
 })
 
 const upload = multer({ storage: storage });
+
+// Router to save forum liked
+router.post('/save-forum', async (req, res) => {
+    try {
+      const { title, description, image, username, createdDate, userId } = req.body;
+  
+      const newForum = await SavedForum.create({
+        title,
+        description,
+        image,
+        username,
+        createdDate,
+        userId,
+      });
+  
+      res.status(200).json(newForum);
+    } catch (error) {
+      console.error('Error saving forum:', error);
+      res.status(500).json({ error: 'Failed to save forum' });
+    }
+  });
+
+// Router to get saved forums
+router.get('/saved-forums/:userId', async (req, res) => {
+try {
+    const { userId } = req.params;
+    const savedForums = await SavedForum.findAll({ where: { userId } });
+
+    res.status(200).json(savedForums);
+} catch (error) {
+    console.error('Error fetching saved forums:', error);
+    res.status(500).json({ error: 'Failed to fetch saved forums' });
+}
+});
 
 // Route to create a new forum
 router.post("/", upload.single('image'), async (req, res) => {
@@ -48,9 +82,8 @@ router.get("/", async (req, res) => {
         let search = req.query.search;
         if (search) {
             condition[Op.or] = [
-                { name: { [Op.like]: `%${search}%` } },
                 { title: { [Op.like]: `%${search}%` } },
-                { description: { [Op.like]: `%${search}%` } } // Adjust to match DB fields
+                { description: { [Op.like]: `%${search}%` } }, // Adjust to match DB fields
             ];
         }
 
@@ -58,7 +91,7 @@ router.get("/", async (req, res) => {
             where: condition,
             include: {
                 model: User,
-                attributes: ['username']
+                attributes: ['username'],
             },
             order: [['createdAt', 'DESC']]
         });
