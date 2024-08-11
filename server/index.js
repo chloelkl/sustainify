@@ -70,6 +70,9 @@ app.use("/chatbot", chatbotRoute);
 const userRewardRoute = require('./routes/userreward');
 app.use("/userreward", userRewardRoute);
 
+const homepageRoute = require('./routes/homepage');
+app.use("/homepage", homepageRoute);
+
 const fileRoute = require('./routes/file');
 app.use("/file", fileRoute);
 // Start server after synchronizing the DB files under models folder
