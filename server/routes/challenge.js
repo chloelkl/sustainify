@@ -249,55 +249,9 @@ router.get("/countToday", async (req, res) => {
   }
 })
 
-router.get("/forumsByDate", async (req, res) => {
-  try {
-    const date = req.query.date;
-
-    if (!date) {
-      return res.status(400).json({ message: "Date parameter is required." });
-    }
-
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
-
-    // Find the challenge for the given date
-    const challenge = await Challenge.findOne({
-      where: {
-        date: {
-          [Op.between]: [startOfDay, endOfDay]
-        }
-      },
-      include: {
-        model: Forum,
-        include: {
-          model: User,
-          attributes: ['username']
-        }
-      }
-    });
-
-    // Check if a challenge was found
-    if (!challenge) {
-      return res.status(404).json({ message: "No challenge found for the given date." });
-    }
-
-    // Return the forums associated with the found challenge
-    const forums = challenge.Forums;
-
-    res.json(forums);
-  } catch (error) {
-    console.error('Error fetching forums by date:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
 router.get('/forumsByCompletionDate', async (req, res) => {
   try {
     const date = req.query.date;
-
     if (!date) {
       return res.status(400).json({ message: "Date parameter is required." });
     }
