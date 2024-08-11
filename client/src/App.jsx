@@ -64,7 +64,7 @@ function App() {
           <div style={{ height: '100px', display: 'flex', flexDirection: 'column' }}>
             <Navbar />
           </div>
-          <Container>
+          <Container style={{padding: 0, maxWidth: '100%'}}>
             <Routes>
               <Route path="/" element={<Homepage />} />
 
