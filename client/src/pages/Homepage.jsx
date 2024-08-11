@@ -272,7 +272,7 @@ function Homepage() {
         <div>
           <Typography variant="h5">LET'S MAKE THE ENVIRONMENT</Typography>
           <Typography variant="h5" style={{ color: theme.palette.primary.main }}>A BETTER PLACE</Typography>
-          <StyledButton component={Link} to="#">Learn More</StyledButton>
+          <StyledButton component={Link} to="/forum">Learn More</StyledButton>
         </div>
         <img src="/treebulb.png" alt="" width="400px" />
       </Banner>
