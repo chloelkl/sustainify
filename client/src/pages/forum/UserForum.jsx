@@ -150,6 +150,7 @@ function UserForums() {
 
   const handleEditClick = (forum) => {
     setSelectedForum(forum);
+    console.log(forum);
   };
 
   const handleCloseModal = () => {
@@ -316,13 +317,22 @@ function UserForums() {
         >
           {item.title}
         </Typography>
-        <Typography
-          variant="body2"
-          component="div"
-          sx={{ wordWrap: "break-word" }}
-        >
-          {dayjs(item.createdAt).format("D MMM YYYY")}
-        </Typography>
+        <Box display="flex" justifyContent="space-between">
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            sx={{ color: "white", opacity: 0.5, fontSize: "0.7rem" }}
+          >
+            {item.username}
+          </Typography>
+          <Typography
+            variant="body2"
+            component="div"
+            sx={{ wordWrap: "break-word" }}
+          >
+            {dayjs(item.createdAt).format("D MMM YYYY")}
+          </Typography>
+        </Box>
         {isCurrentUser && !viewingLikedForums && (
           <Box
             sx={{
@@ -424,28 +434,28 @@ function UserForums() {
             mb: 2, // Margin bottom for spacing
           }}
         >
-        {!viewingLikedForums && (
-          <Typography
-          variant="h4"
-          sx={{
-            marginRight: "10px", // Margin between text and button
-            fontWeight: "bold",
-          }}
-        >
-          My Experiences
-        </Typography>
-        )}
-        {viewingLikedForums && (
-          <Typography
-          variant="h4"
-          sx={{
-            marginRight: "10px", // Margin between text and button
-            fontWeight: "bold",
-          }}
-        >
-          Favourite Forums
-        </Typography>
-        )}
+          {!viewingLikedForums && (
+            <Typography
+              variant="h4"
+              sx={{
+                marginRight: "10px", // Margin between text and button
+                fontWeight: "bold",
+              }}
+            >
+              My Experiences
+            </Typography>
+          )}
+          {viewingLikedForums && (
+            <Typography
+              variant="h4"
+              sx={{
+                marginRight: "10px", // Margin between text and button
+                fontWeight: "bold",
+              }}
+            >
+              Favourite Forums
+            </Typography>
+          )}
           <Box sx={{ marginLeft: "auto" }}>
             <Link
               to={`/user/${userId}/forum/addforum`}
@@ -493,7 +503,7 @@ function UserForums() {
               {ForumItems}
             </Masonry>
           )}
-        {isCurrentUser && viewingLikedForums && (
+          {isCurrentUser && viewingLikedForums && (
             <Masonry columnsCount={3} gutter="10px">
               {SavedItems}
             </Masonry>
@@ -542,88 +552,90 @@ function UserForums() {
       )}
       {isCurrentUser && viewingLikedForums && selectedForum && (
         <Modal
-        open={Boolean(selectedForum)}
-        onClose={handleCloseModal}
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Box
+          open={Boolean(selectedForum)}
+          onClose={handleCloseModal}
           sx={{
-            width: "80%",
-            maxWidth: 900,
-            height: "auto",
-            minHeight: "300px",
-            backgroundColor: "white",
-            borderRadius: 2,
-            boxShadow: 24,
             display: "flex",
-            overflow: "hidden",
-            position: "relative",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          <Box sx={{ width: "40%", height: "auto" }}>
-            <CardMedia
-              component="img"
-              image={
-                selectedForum.image
-                  ? `${import.meta.env.VITE_API_URL}/${selectedForum.image}`
-                  : "https://images.pexels.com/photos/355508/pexels-photo-355508.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
-              }
-              alt={selectedForum.title}
-              sx={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
-            />
-          </Box>
-          <Box sx={{ width: "60%", padding: 3, position: "relative" }}>
-            <IconButton
-              aria-label="save"
-              sx={{
-                position: "absolute",
-                top: 16,
-                right: 16,
-              }}
-              onClick={handleCloseModal}
-            >
-              <Clear />
-            </IconButton>
-            <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold" }}>
-              {selectedForum.title}
-            </Typography>
-            <Box
-              sx={{
-                flex: 1,
-                mb: 2,
-              }}
-            >
-              <Typography
-                variant="body1"
+          <Box
+            sx={{
+              width: "80%",
+              maxWidth: 900,
+              height: "auto",
+              minHeight: "300px",
+              backgroundColor: "white",
+              borderRadius: 2,
+              boxShadow: 24,
+              display: "flex",
+              overflow: "hidden",
+              position: "relative",
+            }}
+          >
+            <Box sx={{ width: "40%", height: "auto" }}>
+              <CardMedia
+                component="img"
+                image={
+                  selectedForum.image
+                    ? `${import.meta.env.VITE_API_URL}/${selectedForum.image}`
+                    : "https://images.pexels.com/photos/355508/pexels-photo-355508.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
+                }
+                alt={selectedForum.title}
                 sx={{
-                  whiteSpace: "pre-line",
-                  wordBreak: "break-word", // Ensures long words break and wrap
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+            </Box>
+            <Box sx={{ width: "60%", padding: 3, position: "relative" }}>
+              <IconButton
+                aria-label="save"
+                sx={{
+                  position: "absolute",
+                  top: 16,
+                  right: 16,
+                }}
+                onClick={handleCloseModal}
+              >
+                <Clear />
+              </IconButton>
+              <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold" }}>
+                {selectedForum.title}
+              </Typography>
+              <Box
+                sx={{
+                  flex: 1,
+                  mb: 2,
                 }}
               >
-                {selectedForum.description}
-              </Typography>
-            </Box>
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              sx={{ position: "absolute", bottom: 16, left: 16, right: 16 }}
-            >
-              <Typography variant="body2" color="textSecondary"></Typography>
-              <Typography variant="body2" color="textSecondary">
-                {dayjs(selectedForum.createdAt).format(dateFormat)}
-              </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    whiteSpace: "pre-line",
+                    wordBreak: "break-word", // Ensures long words break and wrap
+                  }}
+                >
+                  {selectedForum.description}
+                </Typography>
+              </Box>
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                sx={{ position: "absolute", bottom: 16, left: 16, right: 16 }}
+              >
+                <Typography variant="body2" color="textSecondary">
+                {selectedForum.username}
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  {dayjs(selectedForum.createdAt).format(dateFormat)}
+                </Typography>
+              </Box>
             </Box>
           </Box>
-        </Box>
-      </Modal>
+        </Modal>
       )}
       {!isCurrentUser && selectedForum && (
         <Modal
@@ -701,7 +713,9 @@ function UserForums() {
                 justifyContent="space-between"
                 sx={{ position: "absolute", bottom: 16, left: 16, right: 16 }}
               >
-                <Typography variant="body2" color="textSecondary"></Typography>
+                <Typography variant="body2" color="textSecondary">
+
+                </Typography>
                 <Typography variant="body2" color="textSecondary">
                   {dayjs(selectedForum.createdAt).format(dateFormat)}
                 </Typography>
