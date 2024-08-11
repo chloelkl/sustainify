@@ -26,7 +26,7 @@ import Signup from './pages/account/main/Signup';
 import AdminSignup from './pages/account/main/AdminSignup';
 import Login from './pages/account/main/Login';
 
-// Events
+// Events 
 import EventHosting from './pages/events/eventhosting';
 import EventHostingAdmin from './pages/events/eventhostingadmin';
 import PostEvent from './pages/events/postevent';
@@ -40,6 +40,7 @@ import EventStatisticsAdmin from './pages/events/eventstatisticsadmin.jsx';
 import Forum from './pages/forum/Forum';
 import AddForum from './pages/forum/AddForum';
 import UserForum from './pages/forum/UserForum';
+import ForumAdmin from './pages/forum/ForumAdmin.jsx';
 
 // Rewards
 import Rewards from './pages/rewards/Rewards';
@@ -96,7 +97,8 @@ function App() {
 
 
               {/* Forum */}
-              <Route path={"/forum"} element={<ProtectedRoute roles={['user', 'admin']}><Forum /></ProtectedRoute>} />
+              <Route path={"/forum"} element={<ProtectedRoute roles={['user']}><Forum /></ProtectedRoute>} />
+              <Route path={"/forum/admin"} element={<ProtectedRoute roles={['admin']}><ForumAdmin/></ProtectedRoute>} />
               <Route path={"/user/:userId/forum/addforum"} element={<AddForum/>} />
               <Route path={"/forum/by/:userId"} element={<ProtectedRoute roles={['user', 'admin']}><UserForum/></ProtectedRoute>} />
 
