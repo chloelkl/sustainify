@@ -159,6 +159,7 @@ function TaskParticipation() {
                   onChange={(newValue) => {
                     setSelectedDate(newValue);
                   }}
+                  format="DD/MM/YYYY"
                   renderInput={(params) => <TextField {...params} />}
                 />
               </LocalizationProvider>
