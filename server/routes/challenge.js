@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { User, Challenge, UserChallenges, Forum } = require('../models'); // Call name of DB from models folder to use
+const { User, Challenge, UserChallenges, Forum, UserHistory } = require('../models'); // Call name of DB from models folder to use
 const { Op } = require("sequelize");
 const multer = require('multer');
 const yup = require("yup");
@@ -181,6 +181,11 @@ router.post('/completeChallenge', upload.single('image'), async (req, res) => {
 
     // Complete the challenge
     await user.addChallenge(challenge, { through: { completedAt: new Date() } });
+    await UserHistory.create({
+      description: "Completed '" + challenge.challenge +"'",
+      points: 20,
+      userId: userId
+    })
 
     // Validate forum post data
     const validationSchema = yup.object({
