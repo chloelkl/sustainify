@@ -65,7 +65,7 @@ const styles = {
 };
 
 function UserForums() {
-  const { user, authToken } = useAuth();
+  const { user, admin, authToken } = useAuth();
   const { userId } = useParams();
   const [forums, setForums] = useState([]);
   const [userProfile, setUserProfile] = useState({});
@@ -197,9 +197,16 @@ return (
         </div>
         {isCurrentUser && (
           <div style={styles.buttonContainer}>
+            {user ? (
+              <Link to="/account/user/main">
+              <Button variant="contained" color="primary" style={styles.button}>Manage Profile</Button>
+            </Link>
+            ) : admin (
             <Link to="/account/admin/main">
               <Button variant="contained" color="primary" style={styles.button}>Manage Profile</Button>
             </Link>
+            )}
+            
             <Button variant="outlined" color="primary" style={styles.button}>Liked Blogs</Button>
             <IconButton color="primary" aria-label="add">
               <Link to={`/user/${userId}/forum/addforum`}>
