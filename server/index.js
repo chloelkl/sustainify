@@ -150,7 +150,23 @@ app.use("/homepage", homepageRoute);
 
 // Start server after synchronizing the DB files under models folder
 const db = require('./models');
-db.sequelize.sync({ alter: true })
+
+async function syncDatabase() {
+    try {
+        // Sync parent models first (e.g., Events)
+        await db.Event.sync();
+
+        // Sync child models that reference the parent models
+        await db.EventEmail.sync();
+        // Sync other models here...
+
+        console.log('All models were synchronized successfully.');
+    } catch (error) {
+        console.error('Error synchronizing models:', error);
+    }
+}
+
+syncDatabase()
     .then(() => {
         let port = process.env.APP_PORT || 3001;
         server.listen(port, () => {
