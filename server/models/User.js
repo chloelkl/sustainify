@@ -111,6 +111,11 @@ module.exports = (sequelize, DataTypes) => {
       User.hasMany(models.Forum, {foreignKey: 'userId'});
       User.belongsToMany(models.Challenge, { through: "UserChallenges", foreignKey: 'user' });
       User.belongsToMany(models.Reward, { through: "RewardUser", foreignKey: 'user'});  
+      
+      User.hasMany(models.SavedForum, {
+        foreignKey: 'userId',
+        onDelete: 'CASCADE',
+      });
       User.hasMany(models.FriendRequests, { as: "SentRequests", foreignKey: 'requesterID', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
       User.hasMany(models.FriendRequests, { as: "ReceivedRequests", foreignKey: 'recipientID', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
       
