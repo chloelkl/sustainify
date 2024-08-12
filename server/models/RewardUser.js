@@ -1,27 +1,57 @@
-const Reward = require("./Reward");
-
 // models/rewardUser.js
 module.exports = (sequelize, DataTypes) => {
     const RewardUser = sequelize.define('RewardUser', {
-        user: {
+        userId: {
             type: DataTypes.INTEGER,
             references: {
                 model: 'users',
                 key: 'userID'
             }
         },
-        reward: {
+        rewardId: {
             type: DataTypes.INTEGER,
             references: {
                 model: 'reward',
                 key: 'id'
             }
         },
+        redeemedAt: {
+            type: DataTypes.DATE,
+            defaultValue: DataTypes.NOW
+        },
+        
+        redemptionCode: { // New field
+            type: DataTypes.STRING(8), // Adjust length as needed
+            allowNull: true
+        },
+        rewardname: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        points: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        redeemed: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false, // Default to false
+        }
+        
+
         // No need to define createdAt and updatedAt fields manually
     }, {
         tableName: 'RewardUser',
         timestamps: true,
     });
+
+    RewardUser.associate = (models) => {
+        RewardUser.belongsTo(models.User, {
+            foreignKey: 'userId'
+        });
+        RewardUser.belongsTo(models.Reward, {
+            foreignKey: 'rewardId'
+        });
+    };
 
     return RewardUser;
 };
