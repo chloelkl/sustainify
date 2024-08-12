@@ -27,16 +27,29 @@ module.exports = (sequelize, DataTypes) => {
                 key: 'userID'
             }
         },
-    }, {
+        challenge: {
+          type: DataTypes.INTEGER,
+          references: {
+            model: 'challenges',
+            key: 'id'
+          },
+          allowNull: true
+        }
+      }, {
         tableName: 'forums'
-
-    });
+      });
 
     Forum.associate = (models) => {
         Forum.belongsTo(models.User, {
             foreignKey: 'userId',
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE'
+        });
+
+        Forum.belongsTo(models.Challenge, {
+          foreignKey: 'challenge',
+          onDelete: 'SET NULL',
+          onUpdate: 'CASCADE'
         });
     };
     

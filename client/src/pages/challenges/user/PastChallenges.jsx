@@ -118,10 +118,6 @@ function PastChallenges() {
           <AssignmentOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }}/>
           <SideLink to="/challenges">Today's Challenge</SideLink>
         </SideNav>
-        <SideNav>
-          <AssessmentOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }}/>
-          <SideLink to="/challenges/mystatistics">My Statistics</SideLink>
-        </SideNav>
         <SideNav sx={{ background: theme.palette.primary.main }}>
           <HistoryOutlinedIcon sx={{ color: theme.palette.secondary.light, paddingRight: '5%' }}/>
           <SideLink to="/challenges/past">Past Challenges</SideLink>
