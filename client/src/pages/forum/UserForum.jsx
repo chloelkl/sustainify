@@ -528,6 +528,7 @@ function UserForums() {
               minHeight: "300px",
               bgcolor: "white",
               boxShadow: 24,
+              borderRadius: 2,
               p: 4,
               display: "flex",
               flexDirection: "column",
