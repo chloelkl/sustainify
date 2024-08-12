@@ -9,16 +9,25 @@ const db = {};
 require('dotenv').config();
 
 // Create sequelize instance using config 
-let sequelize = new Sequelize(
-  process.env.DB_NAME, process.env.DB_USER, process.env.DB_PWD,
-  {
+let sequelize;
+if (process.env.JAWSDB_URL) {
+  sequelize = new Sequelize(process.env.JAWSDB_URL, {
+    dialect: 'mysql',
+    logging: false,
+    timezone: '+08:00',
+  });
+} else {
+  sequelize = new Sequelize(
+    process.env.DB_NAME, process.env.DB_USER, process.env.DB_PWD,
+    {
       host: process.env.DB_HOST,
       port: process.env.DB_PORT,
       dialect: 'mysql',
       logging: false,
-      timezone: '+08:00'
-  }
-);
+      timezone: '+08:00',
+    }
+  );
+}
 
 fs
   .readdirSync(__dirname)
