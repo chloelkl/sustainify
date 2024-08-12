@@ -239,10 +239,10 @@ function DailyChallenge() {
             <CameraAltOutlinedIcon />
           </Complete>
           {completed && (
-            <Typography sx={{ mt: '5%' }}>You've completed today's challenge!</Typography>
+            <Typography sx={{ mt: '3%' }}>You've completed today's challenge!</Typography>
           )}
           {admin && (
-            <Typography sx={{ mt: '5%' }}>
+            <Typography sx={{ mt: '3%' }}>
               {participants.count > 0 ? `${participants.count} people have participated today!` : "No one has participated yet."}
             </Typography>
           )}
@@ -317,8 +317,7 @@ function DailyChallenge() {
                 {imagePreview && (
                   <Box mt={2}>
                     <Typography variant="body2">Selected file:</Typography>
-                    <Typography variant="body2" color="textSecondary">{imagePreview}</Typography>
-                    <img src={imagePreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px', marginTop: '10px' }} />
+                    <img src={imagePreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: '120px', marginTop: '10px' }} />
                   </Box>
                 )}
                 <Box sx={{ mt: 3, textAlign: 'center' }}>
