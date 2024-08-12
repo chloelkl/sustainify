@@ -86,7 +86,7 @@ function TaskParticipation() {
   const ForumItems = forumList.map((item) => {
     return (
       <Card key={item.id} sx={{ mb: 2, boxShadow: 3 }}>
-        <Link to={`/forum/by/${item.userId}`} style={{ textDecoration: 'none' }}>
+        <Link to={`/forum/by/${item.userId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
           <CardMedia
             component="img"
             image={item.image ? `${import.meta.env.VITE_API_URL}/${item.image}` : 'https://images.pexels.com/photos/355508/pexels-photo-355508.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'}
@@ -95,14 +95,14 @@ function TaskParticipation() {
           />
           <CardContent sx={{ padding: 2 }}>
             <Typography
-              variant="h5"
+              variant="body1"
               component="div"
               sx={{ wordWrap: 'break-word', mb: 1, fontWeight: 'bold' }}
             >
               {item.title}
             </Typography>
             <Typography
-              variant="body1"
+              variant="body2"
               component="div"
               sx={{ wordWrap: 'break-word', mb: 2 }}
             >
