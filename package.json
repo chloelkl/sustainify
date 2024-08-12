@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "scripts": {
     "start": "node server/index.js",
-    "heroku-postbuild": "cd client && npm ci && npm run build",
-    "build": "vite build"
+    "heroku-postbuild": "cd client && npm ci && npm run build"
   },
   "dependencies": {
     "express": "^4.17.1"
+  },
+  "engines": {
+    "node": "20.x",
+    "npm": "10.x"
   }
 }
