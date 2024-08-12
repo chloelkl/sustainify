@@ -8,13 +8,21 @@ import dayjs from "dayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { Button, Box, TextField, Typography, Modal, CardMedia, IconButton } from "@mui/material";
+import {
+  Button,
+  Box,
+  TextField,
+  Typography,
+  Modal,
+  CardMedia,
+  IconButton,
+} from "@mui/material";
 import http from "../../http";
 import { useAuth } from "../../context/AuthContext";
 import { Clear } from "@mui/icons-material";
 import ForumCard from "./ForumCard";
 import { Link } from "react-router-dom";
-import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
+import SentimentVeryDissatisfiedIcon from "@mui/icons-material/SentimentVeryDissatisfied";
 
 const dateFormat = "D MMM YYYY";
 
@@ -169,184 +177,202 @@ const ForumAdmin = () => {
 
   return (
     <>
-      <Box sx={{ marginTop: "3rem" }}>
-        <Line data={data} options={options} />
-        <Box
-          display="flex"
-          justifyContent="space-around"
-          alignItems="center"
-          mb={2}
-          width="60%"
-          margin="auto"
-        >
+      <Box sx={{ mx: "10rem", paddingBottom: "5rem",}}>
+        <Box sx={{ marginTop: "3rem" }}>
+          <Line data={data} options={options} />
+          <Box
+            display="flex"
+            justifyContent="space-around"
+            alignItems="center"
+            mb={2}
+            width="60%"
+            margin="auto"
+          >
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <SelectDate
+                label="Start Date"
+                value={startDate}
+                onChange={(newValue) => setStartDate(newValue)}
+                renderInput={(params) => <TextField {...params} />}
+                maxDate={dayjs()}
+              />
+              <SelectDate
+                label="End Date"
+                value={endDate}
+                onChange={(newValue) => setEndDate(newValue)}
+                renderInput={(params) => <TextField {...params} />}
+                maxDate={dayjs()}
+              />
+            </LocalizationProvider>
+            <Button variant="contained" onClick={handleGenerate}>
+              Generate
+            </Button>
+          </Box>
+          {<Response type={responseType}>{responseMessage}</Response>}
+        </Box>
+        <Box sx={{ marginTop: "2rem", marginBottom: "2rem" }}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <SelectDate
-              label="Start Date"
-              value={startDate}
-              onChange={(newValue) => setStartDate(newValue)}
-              renderInput={(params) => <TextField {...params} />}
-              maxDate={dayjs()}
-            />
-            <SelectDate
-              label="End Date"
-              value={endDate}
-              onChange={(newValue) => setEndDate(newValue)}
+              label="Select Date"
+              value={selectedDate}
+              onChange={(newValue) => {
+                setSelectedDate(newValue);
+                filterForumsByDate(newValue);
+                setTaint(true);
+              }}
               renderInput={(params) => <TextField {...params} />}
               maxDate={dayjs()}
             />
           </LocalizationProvider>
-          <Button variant="contained" onClick={handleGenerate}>
-            Generate
-          </Button>
         </Box>
-        {<Response type={responseType}>{responseMessage}</Response>}
-      </Box>
-      <Box sx={{ marginTop: "2rem", marginBottom: "2rem" }}>
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <SelectDate
-            label="Select Date"
-            value={selectedDate}
-            onChange={(newValue) => {
-              setSelectedDate(newValue);
-              filterForumsByDate(newValue);
-              setTaint(true);
-            }}
-            renderInput={(params) => <TextField {...params} />}
-            maxDate={dayjs()}
-          />
-        </LocalizationProvider>
-      </Box>
-      {filteredForums.length > 0 && taint && (
-      <Box sx={{ marginBottom: "3rem" }}>
-        <Masonry columnsCount={4} gutter="10px">
-          {filteredForums.map((item) => (
-            <ForumCard 
-            key={item.id} 
-            item={item} 
-            onCardClick={() => handleCardClick(item)}/>
-          ))}
-        </Masonry>
-      </Box>
-    )}
-    {selectedItem && (
-        <Modal
-          open={Boolean(selectedItem)}
-          onClose={handleClose}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Box
+        {filteredForums.length > 0 && taint && (
+          <Box sx={{ marginBottom: "3rem" }}>
+            <Masonry columnsCount={4} gutter="10px">
+              {filteredForums.map((item) => (
+                <ForumCard
+                  key={item.id}
+                  item={item}
+                  onCardClick={() => handleCardClick(item)}
+                />
+              ))}
+            </Masonry>
+          </Box>
+        )}
+        {selectedItem && (
+          <Modal
+            open={Boolean(selectedItem)}
+            onClose={handleClose}
             sx={{
-              width: "80%",
-              maxWidth: 900,
-              height: "auto",
-              minHeight: "300px",
-              backgroundColor: "white",
-              borderRadius: 2,
-              boxShadow: 24,
               display: "flex",
-              overflow: "hidden",
-              position: "relative",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            <Box sx={{ width: "40%", height: "auto" }}>
-              <CardMedia
-                component="img"
-                image={
-                  selectedItem.image
-                    ? `${import.meta.env.VITE_API_URL}/${selectedItem.image}`
-                    : "https://images.pexels.com/photos/355508/pexels-photo-355508.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
-                }
-                alt={selectedItem.title}
-                sx={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                }}
-              />
-            </Box>
-            <Box sx={{ width: "60%", padding: 3, position: "relative" }}>
-              <IconButton
-                aria-label="save"
-                sx={{
-                  position: "absolute",
-                  top: 16,
-                  right: 16,
-                }}
-                onClick={handleCloseModal}
-              >
-                <Clear />
-              </IconButton>
-              <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold" }}>
-                {selectedItem.title}
-              </Typography>
-              <Box
-                sx={{
-                  flex: 1,
-                  mb: 2,
-                }}
-              >
-                <Typography
-                  variant="body1"
+            <Box
+              sx={{
+                width: "80%",
+                maxWidth: 900,
+                height: "auto",
+                minHeight: "300px",
+                backgroundColor: "white",
+                borderRadius: 2,
+                boxShadow: 24,
+                display: "flex",
+                overflow: "hidden",
+                position: "relative",
+              }}
+            >
+              <Box sx={{ width: "40%", height: "auto" }}>
+                <CardMedia
+                  component="img"
+                  image={
+                    selectedItem.image
+                      ? `${import.meta.env.VITE_API_URL}/${selectedItem.image}`
+                      : "https://images.pexels.com/photos/355508/pexels-photo-355508.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
+                  }
+                  alt={selectedItem.title}
                   sx={{
-                    whiteSpace: "pre-line",
-                    wordBreak: "break-word", // Ensures long words break and wrap
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
                   }}
-                >
-                  {selectedItem.description}
-                </Typography>
+                />
               </Box>
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                sx={{ position: "absolute", bottom: 16, left: 16, right: 16 }}
-              >
-                <Link
-                  to={`/forum/by/${selectedItem.userId}`}
-                  style={{
-                    textDecoration: "none", // Remove default underline
-                    color: "inherit", // Inherit color from parent
-                    display: "inline-block", // Make the link inline-block for better styling
-                    position: "relative", // Needed for the pseudo-element
-                    paddingBottom: "2px", // To adjust space for underline effect
+              <Box sx={{ width: "60%", padding: 3, position: "relative" }}>
+                <IconButton
+                  aria-label="save"
+                  sx={{
+                    position: "absolute",
+                    top: 16,
+                    right: 16,
+                  }}
+                  onClick={handleCloseModal}
+                >
+                  <Clear />
+                </IconButton>
+                <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold" }}>
+                  {selectedItem.title}
+                </Typography>
+                <Box
+                  sx={{
+                    flex: 1,
+                    mb: 2,
                   }}
                 >
                   <Typography
-                    variant="body2"
+                    variant="body1"
                     sx={{
-                      color: "textSecondary",
-                      transition: "color 0.3s, textDecoration 0.3s", // Smooth transition
-                      "&:hover": {
-                        color: "primary.main", // Change text color on hover
-                      },
+                      whiteSpace: "pre-line",
+                      wordBreak: "break-word", // Ensures long words break and wrap
                     }}
                   >
-                    {selectedItem.User?.username}
+                    {selectedItem.description}
                   </Typography>
-                </Link>
-                <Typography variant="body2" color="textSecondary">
-                  {dayjs(selectedItem.createdAt).format(dateFormat)}
-                </Typography>
+                </Box>
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  sx={{ position: "absolute", bottom: 16, left: 16, right: 16 }}
+                >
+                  <Link
+                    to={`/forum/by/${selectedItem.userId}`}
+                    style={{
+                      textDecoration: "none", // Remove default underline
+                      color: "inherit", // Inherit color from parent
+                      display: "inline-block", // Make the link inline-block for better styling
+                      position: "relative", // Needed for the pseudo-element
+                      paddingBottom: "2px", // To adjust space for underline effect
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "textSecondary",
+                        transition: "color 0.3s, textDecoration 0.3s", // Smooth transition
+                        "&:hover": {
+                          color: "primary.main", // Change text color on hover
+                        },
+                      }}
+                    >
+                      {selectedItem.User?.username}
+                    </Typography>
+                  </Link>
+                  <Typography variant="body2" color="textSecondary">
+                    {dayjs(selectedItem.createdAt).format(dateFormat)}
+                  </Typography>
+                </Box>
               </Box>
             </Box>
+          </Modal>
+        )}
+        {!filteredForums.length && taint && (
+          <Box sx={{ marginBottom: "3rem" }}>
+            <Box>
+              <SentimentVeryDissatisfiedIcon />
+            </Box>
+            <Typography>No Forums Created.</Typography>
           </Box>
-        </Modal>
-      )}
-    {!filteredForums.length && taint && (
-      <Box sx={{ marginBottom: "3rem" }}>
-      <Box><SentimentVeryDissatisfiedIcon/></Box>
-        <Typography>No Forums Created.</Typography>
+        )}
+        {!taint && (
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+            }}
+          >
+            <Box>
+              <SentimentVeryDissatisfiedIcon
+                sx={{ fontSize: "4rem", marginBottom: "1rem" }} // Makes the icon big and adds space below it
+              />
+            </Box>
+            <Typography variant="h6">Generate the Forums</Typography>{" "}
+            {/* Adjust the text size if needed */}
+          </Box>
+        )}
       </Box>
-    )}
-    {!taint && (
-      <Box sx={{ marginBottom: "3rem" }}>
-      <Box><SentimentVeryDissatisfiedIcon/></Box>
-        <Typography>Generate the Forums</Typography>
-      </Box>
-    )}
     </>
   );
 };

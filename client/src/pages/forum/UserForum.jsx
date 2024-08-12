@@ -82,6 +82,8 @@ const styles = {
   },
   forumContainer: {
     marginTop: "3rem",
+    marginRight: "7rem",
+    marginLeft: "7rem",
   },
 };
 
@@ -388,7 +390,7 @@ function UserForums() {
               {user ? (
                 <Link to="/account/user/main">
                   <Button
-                    variant="outlined"
+                    variant="contained"
                     color="primary"
                     style={styles.button}
                   >
