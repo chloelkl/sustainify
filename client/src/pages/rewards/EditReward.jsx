@@ -5,6 +5,19 @@ import { Box, Typography, TextField, Button, Grid } from "@mui/material";
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 
+const styles = {
+    NavigateButton: {
+        color: 'black',
+        backgroundColor: 'white', // Example background color
+        border: 'none',
+        borderRadius: '4px',
+        padding: '8px 16px',
+        fontWeight: 'bold',
+        fontSize: '40px',
+        cursor: 'pointer',
+    },
+}
+
 function EditReward({ onSave }) {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -75,8 +88,8 @@ function EditReward({ onSave }) {
         console.log("Reward saved:", updatedReward);
     };
 
-    if (loading) {
-        return <Typography>Loading...</Typography>;
+    const handleBack = () => {
+        navigate(`/rewards/Rewards`);
     }
 
     return (
@@ -85,14 +98,22 @@ function EditReward({ onSave }) {
                 bgcolor: 'white',
                 p: 2,
                 borderRadius: 8,
-                marginTop: '50px',
+                maxWidth: '800px',
+                margin: '50px auto', // Space at the top and bottom, centered horizontally
                 paddingLeft: '120px',
                 paddingRight: '120px',
                 paddingTop: '50px',
                 paddingBottom: '50px',
-                marginBoton: '50px'
+                boxSizing: 'border-box',
             }}
         >
+            <button
+                onClick={handleBack}
+                variant="contained"
+                style={styles.NavigateButton}
+            >
+                &lt;
+            </button>
             <Typography variant="h5" sx={{ mb: 2, fontSize: '40px', fontWeight: 'bold', textAlign: 'center' }}>
                 Edit Reward
             </Typography>
@@ -190,7 +211,7 @@ function EditReward({ onSave }) {
                     </Box>
 
                     <Box sx={{ mt: 2, fontWeight: 'bold', textAlign: 'center' }}>
-                        <Button variant="contained" color="secondary" type="submit">
+                        <Button variant="contained" type="submit">
                             Edit
                         </Button>
                     </Box>

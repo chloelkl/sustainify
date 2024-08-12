@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Button, Box, Typography, Card, CardContent, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import dayjs from 'dayjs';
 import { Link } from 'react-router-dom';
 import http from '../../http'; // Make sure this import is correct
 import RedeemedChart from './RewardChart';
@@ -13,30 +12,22 @@ const styles = {
     flexWrap: 'wrap',
     gap: '16px',
     paddingBottom: '50px',
+    justifyContent: 'flex-start',
+    margin: '0 auto',
+    maxWidth: '1300px', // Optional: set a max-width for the container
   },
   item: {
     flex: '0 1 calc(20% - 16px)',
     maxWidth: 'calc(20% - 16px)',
     boxSizing: 'border-box',
+    borderRadius: '12px', // Adjust the border radius as needed
+    overflow: 'hidden',
+    maxWidth: '80%',
   },
 };
 
 function ManageReward() {
   const [rewardList, setRewardList] = useState([]);
-  const expiryTime = dayjs().add(72, 'hour');
-  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
-
-  function calculateTimeLeft() {
-    const now = dayjs();
-    const diffSeconds = expiryTime.diff(now, 'second');
-    if (diffSeconds <= 0) {
-      return { hours: 0, minutes: 0, seconds: 0 };
-    }
-    const hours = Math.floor(diffSeconds / (60 * 60));
-    const minutes = Math.floor((diffSeconds % (60 * 60)) / 60);
-    const seconds = diffSeconds % 60;
-    return { hours, minutes, seconds };
-  }
 
   const getRewards = () => {
     http.get('/reward').then((res) => {
@@ -53,14 +44,6 @@ function ManageReward() {
   };
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
     getRewards();
   }, []);
 
@@ -69,8 +52,19 @@ function ManageReward() {
       <Box sx={{ textAlign: 'center', paddingTop: '100px' }}>
         <Typography variant="h4" sx={{ fontWeight: 'bold' }}>Management</Typography>
       </Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingLeft: '60px', paddingRight: '90px', paddingTop: '50px', paddingBottom: '20px' }}>
-        <Typography variant="h5">Voucher Reset: {timeLeft.hours}:{timeLeft.minutes}:{timeLeft.seconds}</Typography>
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingLeft: '100px',
+        paddingRight: '120px', // Ensure paddingRight is correctly set 
+        paddingTop: '50px',
+        paddingBottom: '20px',
+        maxWidth: '100%', // Ensure the Box doesn't exceed the viewport width
+        boxSizing: 'border-box', // Include padding in the element's width
+        overflow: 'hidden'
+      }}>
+        <Typography variant="">Voucher Reset Every Sunday 12:00Am</Typography>
         <Link to="/rewards/AddReward" style={{ textDecoration: 'none' }}>
           <Button variant='contained'>Add</Button>
         </Link>
@@ -110,7 +104,7 @@ function ManageReward() {
           </div>
         ))}
       </div>
-      <RedeemedChart/>
+      <RedeemedChart />
     </>
   );
 }
