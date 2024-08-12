@@ -160,19 +160,23 @@ const UserSettings = () => {
 
                 <div style={sectionStyle}>
                     <h3>Two-factor Authentication</h3>
-                    <button
-                    style={settings.twoFactorAuth ? disableButtonStyle : enableButtonStyle}
-                    onClick={handleTwoFactorAuth}
-                    >
-                    {settings.twoFactorAuth ? 'Disable' : 'Enable'}
-                    </button>
-                    {twoFactorAuthURL && (
-                    <div>
-                        <QRCode value={twoFactorAuthURL} />
-                        <button style={confirmButtonStyle} onClick={handleTwoFactorAuthConfirm}>
-                        Confirm
-                        </button>
+                    <div style={checkboxContainerStyle}>
+                        <label style={checkboxLabelStyle}>
+                            <input
+                                type="checkbox"
+                                name="twoFactorAuth"
+                                checked={settings.twoFactorAuth}
+                                onChange={handleTwoFactorAuth}
+                            /> {settings.twoFactorAuth ? 'Enabled' : 'Disabled'}
+                        </label>
                     </div>
+                    {twoFactorAuthURL && (
+                        <div style={checkboxContainerStyle}>
+                            <QRCode value={twoFactorAuthURL} />
+                            <button style={confirmButtonStyle} onClick={handleTwoFactorAuthConfirm}>
+                                Confirm
+                            </button>
+                        </div>
                     )}
                 </div>
 
@@ -248,24 +252,6 @@ const saveButtonStyle = {
     cursor: 'pointer',
 };
 
-const enableButtonStyle = {
-    padding: '10px',
-    borderRadius: '5px',
-    border: 'none',
-    backgroundColor: '#4CAF50',
-    color: 'white',
-    cursor: 'pointer',
-};
-  
-const disableButtonStyle = {
-    padding: '10px',
-    borderRadius: '5px',
-    border: 'none',
-    backgroundColor: '#e74c3c',
-    color: 'white',
-    cursor: 'pointer',
-};
-  
 const confirmButtonStyle = {
     padding: '10px',
     borderRadius: '5px',

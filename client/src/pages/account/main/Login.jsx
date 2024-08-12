@@ -37,8 +37,8 @@ const Login = () => {
                 setUserID(userID);
                 setTwoFactorRequired(true);
             } else {
-                const { token, role, id, pointsEarned } = response.data;
-                login(token, { role, userID: id, pointsEarned });
+                const { token, role, userID, pointsEarned } = response.data;
+                login(token, { role, userID: userID, pointsEarned });
                 navigate(role === 'admin' ? '/account/admin/main' : '/account/user/main');
             }
         } catch (error) {

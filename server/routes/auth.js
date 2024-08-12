@@ -121,34 +121,49 @@ router.post('/admin-signup', [
 });
 
 // User/Admin login
-router.post('/login', async (req, res) => {
+router.post('/login', [
+    check('email').isEmail().withMessage('Enter a valid email'),
+    check('password').notEmpty().withMessage('Password is required')
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { email, password } = req.body;
+
     try {
-        const { email, password } = req.body;
+        let user = await User.findOne({ where: { email } });
+        let isAdmin = false;
 
-        const user = await User.findOne({ where: { email } });
-
-        if (!user || !bcrypt.compareSync(password, user.password)) {
-            return res.status(401).json({ errors: [{ msg: 'Invalid credentials' }] });
+        if (!user) {
+            user = await Admin.findOne({ where: { email } });
+            if (!user) {
+                return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });
+            }
+            isAdmin = true;
         }
 
-        // Check if the user has 2FA enabled
-        if (user.twoFactorAuthEnabled) {
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });
+        }
+
+        // Check if 2FA is enabled for users only
+        if (!isAdmin && user.twoFactorAuthEnabled) {
             return res.json({
                 twoFactorAuthRequired: true,
                 userID: user.userID,
+                role: 'user',
             });
         }
 
-        // Generate JWT token if no 2FA is required
-        const token = generateToken(user.userID, user.role);
-        res.json({
-            token,
-            role: user.role,
-            userID: user.userID,
-            pointsEarned: user.pointsEarned,
-        });
+        const token = generateToken(user);
+        const id = isAdmin ? user.adminID : user.userID;
+
+        res.status(200).json({ token, role: user.role, id });
     } catch (error) {
-        console.error('Login error:', error);
+        console.error(error);
         res.status(500).json({ errors: [{ msg: 'Server error' }] });
     }
 });

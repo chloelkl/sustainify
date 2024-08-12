@@ -17,11 +17,9 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        console.log('Retrieved token from local storage:', token);
 
         if (token) {
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            console.log('Authorization header set:', axios.defaults.headers.common['Authorization']);
 
             axios.get(`${import.meta.env.VITE_API_URL}/auth/verify`)
                 .then(response => {
@@ -49,7 +47,7 @@ export const AuthProvider = ({ children }) => {
         }
     }, [authToken]);
 
-    const login = async (token, userData) => {
+    const login = async (token, user) => {
         setIsLoading(true); // Show spinner after validation
         localStorage.setItem('token', token);
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -59,18 +57,19 @@ export const AuthProvider = ({ children }) => {
         setAdmin(null);
     
         setTimeout(() => {
-            if (userData.role === 'admin') {
-                setAdmin(userData);
+            if (user.role === 'admin') {
+                setAdmin(user);
                 setRole('admin');
                 setIsLoading(false); // Hide spinner before redirect
                 navigate('/account/admin/main');
             } else {
-                setUser(userData);
+                setUser(user);
                 setRole('user');
                 setIsLoading(false); // Hide spinner before redirect
                 navigate('/account/user/main');
             }
         }, 1000);
+
     };
 
     const logout = () => {

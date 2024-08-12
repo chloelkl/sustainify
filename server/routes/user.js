@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { User } = require('../models');
+const { User, FriendRequests, Message, Friends } = require('../models');
 const verifyToken = require('../middleware/verifyToken');
 const bcrypt = require('bcrypt');
 const yup = require("yup");
@@ -8,6 +8,7 @@ const nodemailer = require('nodemailer');
 require('dotenv').config();
 const { authenticator } = require('otplib');
 const QRCode = require('qrcode');
+const { Op } = require('sequelize');
 
 // Validation schema for user updates
 const userSchema = yup.object().shape({
@@ -80,7 +81,7 @@ router.post('/validate-otp', async (req, res) => {
 // Update user settings
 router.put("/:userID/settings", verifyToken, async (req, res) => {
     try {
-        let userID = req.params.userID;
+        let userID = req.params.id;
         let { language, twoFactorAuth } = req.body;
 
         const user = await User.findByPk(userID);
@@ -129,49 +130,152 @@ router.get("/:id/analytics", verifyToken, async (req, res) => {
     }
 });
 
-// Get user friends
-router.get("/:id/friends", verifyToken, async (req, res) => {
+// Send a friend request
+router.post('/friend-request', verifyToken, async (req, res) => {
     try {
-        let id = req.params.id;
-        let user = await User.findByPk(id);
-        if (!user) return res.sendStatus(404);
+        const { requesterID, recipientID } = req.body;
 
-        // Assuming friends are stored in user model
-        const friends = user.friends || [];
-        res.json(friends);
+        const existingRequest = await FriendRequests.findOne({ where: { requesterID, recipientID } });
+
+        if (existingRequest) {
+            return res.status(400).json({ error: 'Friend request already sent.' });
+        }
+
+        const newRequest = await FriendRequests.create({ requesterID, recipientID });
+        res.json(newRequest);
     } catch (error) {
+        console.error('Error sending friend request:', error); // Log the detailed error
+        res.status(500).json({ error: 'Failed to send friend request.' });
+    }
+});
+
+router.get('/:userID/friend-requests', verifyToken, async (req, res) => {
+    try {
+        const requests = await FriendRequests.findAll({
+            where: { recipientID: req.params.userID, status: 'Pending' },
+            include: [{ model: User, as: 'Requester', attributes: ['userID', 'username', 'fullName'] }],
+        });
+        res.json(requests);
+    } catch (error) {
+        console.error('Error fetching friend requests:', error);
+        res.status(500).json({ error: 'Failed to fetch friend requests.' });
+    }
+});
+
+// Accept a friend request
+router.put('/friend-request/accept', verifyToken, async (req, res) => {
+    try {
+        const { id } = req.body;
+        console.log('Friend request ID to accept:', id);
+
+        const request = await FriendRequests.findByPk(id);
+        if (!request) {
+            console.error('Friend request not found with ID:', id);
+            return res.status(404).json({ error: 'Friend request not found.' });
+        }
+
+        await request.update({ status: 'Accepted' });
+
+        // Create a bidirectional friendship
+        await Friends.create({
+            userID: request.requesterID,
+            friendID: request.recipientID,
+        });
+        await Friends.create({
+            userID: request.recipientID,
+            friendID: request.requesterID,
+        });
+
+        res.json({ message: 'Friend request accepted and friendship created.' });
+    } catch (error) {
+        console.error('Error accepting friend request:', error.message);
+        console.error('Stack Trace:', error.stack);
+        res.status(500).json({ error: 'Failed to accept friend request.' });
+    }
+});
+
+router.get('/search', verifyToken, async (req, res) => {
+    const { username } = req.query;
+    if (!username) {
+        return res.status(400).json({ error: 'Username query parameter is required' });
+    }
+
+    try {
+        const users = await User.findAll({
+            where: {
+                username: {
+                    [Op.like]: `%${username}%`
+                }
+            }
+        });
+
+        res.json(users);
+    } catch (error) {
+        console.error('Error searching for users:', error);
+        res.status(500).json({ error: 'Failed to search for users' });
+    }
+});
+
+router.get('/:userID/friends', verifyToken, async (req, res) => {
+    try {
+        const userID = req.params.userID;
+        const user = await User.findByPk(userID, {
+            include: [{
+                model: User,
+                as: 'UserFriends', // Match this alias to your model's alias
+                attributes: ['userID', 'username', 'fullName']
+            }]
+        });
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json(user.UserFriends); // Sending back the user's friends
+    } catch (error) {
+        console.error('Error fetching friends:', error);
         res.status(500).json({ error: 'Failed to fetch friends.' });
     }
 });
 
-// Get messages between user and a friend
-router.get("/:id/messages/:friendId", verifyToken, async (req, res) => {
+router.get('/:userID/messages/:friendID', verifyToken, async (req, res) => {
     try {
-        let { id, friendId } = req.params;
-        // Assuming messages are stored in a Message model
+        const { userID, friendID } = req.params;
+
         const messages = await Message.findAll({
             where: {
                 [Op.or]: [
-                    { from: id, to: friendId },
-                    { from: friendId, to: id }
-                ]
-            }
+                    { senderID: userID, recipientID: friendID },
+                    { senderID: friendID, recipientID: userID },
+                ],
+            },
+            order: [['createdAt', 'ASC']],
         });
+
         res.json(messages);
     } catch (error) {
+        console.error('Error fetching messages:', error);
         res.status(500).json({ error: 'Failed to fetch messages.' });
     }
 });
 
 // Send a message to a friend
-router.post("/:id/messages", verifyToken, async (req, res) => {
+router.post("/:userID/messages", verifyToken, async (req, res) => {
     try {
-        let { id } = req.params;
-        let { to, content } = req.body;
-        // Assuming Message is a model in your database
-        const newMessage = await Message.create({ from: id, to, content });
+        const { userID } = req.params; // Extract userID from the route parameters
+        const { to, content } = req.body; // Extract the recipient and content from the request body
+
+        // Create a new message in the database
+        const newMessage = await Message.create({
+            from: userID,  // Sender's ID from the route
+            to,            // Recipient's ID from the request body
+            content        // Message content from the request body
+        });
+
+        // Send the newly created message as the response
         res.json(newMessage);
     } catch (error) {
+        console.error('Error sending message:', error);
         res.status(500).json({ error: 'Failed to send message.' });
     }
 });
@@ -269,7 +373,7 @@ router.post('/:userID/2fa/enable', async (req, res) => {
       const [updatedRows] = await User.update(
         { 
             twoFactorAuthSecret: secret,
-            twoFactorAuthEnabled: true  // Enable 2FA in the database
+            twoFactorAuthEnabled: true
         },
         { where: { userID: userID } }
       );
@@ -289,25 +393,45 @@ router.post('/:userID/2fa/enable', async (req, res) => {
     }
 });
   
-// Verify 2FA during setup in user settings
 router.post('/:userID/2fa/verify', async (req, res) => {
     try {
-        const { userID, token } = req.body;
+        const { token } = req.body;
+        const userID = req.params.userID;
+
+        // Log userID and token for debugging
+        console.log('Verifying 2FA for userID:', userID);
+        console.log('Received token:', token);
+
+        // Ensure userID is correctly passed and defined
+        if (!userID) {
+            console.error('Missing userID');
+            return res.status(400).json({ error: 'Missing userID' });
+        }
 
         // Retrieve the user's 2FA secret from the database
         const user = await User.findOne({ where: { userID } });
 
+        if (!user) {
+            console.error('User not found:', userID);
+            return res.status(404).json({ error: 'User not found' });
+        }
+
         if (!user.twoFactorAuthSecret) {
+            console.error('Two-factor authentication secret not found for user:', userID);
             return res.status(400).json({ error: 'Two-factor authentication secret not found' });
         }
 
+        // Verify the token with the user's secret
         const verified = authenticator.verify({ token, secret: user.twoFactorAuthSecret });
 
         if (verified) {
             // Update the user's 2FA status in the database
-            await User.update({ twoFactorAuthEnabled: true }, { where: { userID } });
+            const updatedRows = await User.update({ twoFactorAuthEnabled: true }, { where: { userID } });
+            console.log('2FA status updated for user:', userID, 'Rows affected:', updatedRows);
+
             res.json({ message: 'Two-factor authentication verified and enabled successfully' });
         } else {
+            console.error('Invalid two-factor authentication token for user:', userID);
             res.status(400).json({ error: 'Invalid two-factor authentication token' });
         }
     } catch (error) {
