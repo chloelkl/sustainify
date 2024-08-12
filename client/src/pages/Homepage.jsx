@@ -248,7 +248,7 @@ const CreatorSection = () => (
           <CreatorCard>
             <Avatar src={creator.image} alt={creator.name} style={{ marginRight: '20px', width: '80px', height: '80px' }} />
             <CardContent>
-              <Typography variant="h6">{creator.name}</Typography>
+              <Typography variant="h6" marginBottom={-1}>{creator.name}</Typography>
               <Typography variant="subtitle1" color="textSecondary">
                 {creator.title}
               </Typography>
