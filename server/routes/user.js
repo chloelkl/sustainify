@@ -45,10 +45,22 @@ router.post('/send-otp', async (req, res) => {
         });
 
         await transporter.sendMail({
-            from: process.env.SMTP_USER,
+            from: `"Sustainify" <${process.env.SMTP_USER}>`,
             to: email,
-            subject: 'Your OTP Code',
-            text: `Your OTP code is ${otp}`,
+            subject: 'Your One-Time Password (OTP) Code',
+            html: `
+                <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+                    <h2 style="color: #333;">Hello ${user.username},</h2>
+                    <p>We received a request to authorize a transaction or log in to your account using this email address. To complete this request, please use the One-Time Password (OTP) provided below:</p>
+                    <p style="font-size: 24px; font-weight: bold; color: #2C3E50;">${otp}</p>
+                    <p>This OTP is valid for the next 10 minutes. Please do not share this code with anyone.</p>
+                    <p>If you did not request this, you can safely ignore this email.</p>
+                    <br />
+                    <p>Thank you,</p>
+                    <p>Sustainify</p>
+                    <p style="font-size: 12px; color: #888;">This is an automated message, please do not reply directly to this email.</p>
+                </div>
+            `,
         });
 
         res.json({ message: 'OTP sent successfully.' });
@@ -383,35 +395,42 @@ router.get("/retrieveDetails/:id", async (req, res) => {
 
 router.post('/:userID/2fa/enable', async (req, res) => {
     try {
-      const { userID } = req.params;
-      console.log('Enabling 2FA for user:', userID);
-  
-      const secret = authenticator.generateSecret();
-      console.log('Generated secret:', secret);
-  
-      // Save the secret to the user's record in the database and enable 2FA
-      const [updatedRows] = await User.update(
-        { 
-            twoFactorAuthSecret: secret,
-            twoFactorAuthEnabled: true
-        },
-        { where: { userID: userID } }
-      );
-      console.log('Updated rows:', updatedRows);
-  
-      if (updatedRows === 0) {
-        console.log('User not found');
-        return res.status(404).json({ error: 'User not found' });
-      }
-  
-      const otpauthURL = authenticator.keyuri(userID, 'Sustainify', secret);
-      console.log('OTP Auth URL:', otpauthURL);
-      res.json({ otpauthURL });
+        const { userID } = req.params;
+        console.log('Enabling 2FA for user:', userID);
+
+        const user = await User.findByPk(userID);
+        if (!user) {
+            console.log('User not found');
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const secret = authenticator.generateSecret();
+        console.log('Generated secret:', secret);
+
+        // Save the secret to the user's record in the database and enable 2FA
+        const [updatedRows] = await User.update(
+            { 
+                twoFactorAuthSecret: secret,
+                twoFactorAuthEnabled: true
+            },
+            { where: { userID: userID } }
+        );
+        console.log('Updated rows:', updatedRows);
+
+        if (updatedRows === 0) {
+            console.log('User not found');
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const otpauthURL = authenticator.keyuri(user.email, 'Sustainify', secret);
+        console.log('OTP Auth URL:', otpauthURL);
+        res.json({ otpauthURL });
     } catch (error) {
-      console.error('Error enabling two-factor authentication:', error);
-      res.status(500).json({ error: 'Failed to enable two-factor authentication' });
+        console.error('Error enabling two-factor authentication:', error);
+        res.status(500).json({ error: 'Failed to enable two-factor authentication' });
     }
 });
+
   
 router.post('/:userID/2fa/verify', async (req, res) => {
     try {
