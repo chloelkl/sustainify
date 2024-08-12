@@ -51,7 +51,7 @@ function AddForum() {
       .min(3, "Description must be at least 3 characters")
       .max(500, "Description must be at most 500 characters")
       .required("Description is required"),
-    image: yup.mixed().notRequired(),
+    image: yup.mixed().required("Image is required"),
   });
 
   const onSubmit = (values) => {
