@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { Forum, User, SavedForum } = require('../models'); // Call name of DB from models folder to use
+const { Forum, User, SavedForum, UserHistory } = require('../models'); // Call name of DB from models folder to use
 const { Op } = require("sequelize");
 const yup = require("yup");
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
+const { userInfo } = require('os');
 
 // Multer setup for file uploads
 const storage = multer.diskStorage({
@@ -59,7 +60,8 @@ router.post("/", upload.single('image'), async (req, res) => {
     // Validate request body -> Update Details of request body to match fields defined in DB
     let validationSchema = yup.object({
         title: yup.string().trim().min(3).max(100).required(),
-        description: yup.string().trim().min(3).max(500).required()
+        description: yup.string().trim().min(3).max(500).required(),
+        userId: yup.number().integer().required()
         // No need to validate 'image' field here as it is handled by Multer
     });
 
@@ -69,7 +71,19 @@ router.post("/", upload.single('image'), async (req, res) => {
             data.image = req.file.path; // Save the image path in the database
         }
         let result = await Forum.create(data); // .create() used to insert data into DB table
+        
+        // Create the UserHistory record
+        await UserHistory.create({
+            description: "Posted a Forum",
+            points: 10,
+            userId: data.userId // Use the userId from the validated data
+        });
+        
+        const user = await User.findByPk(data.userId);
+        await User.update({pointsEarned: user.pointsEarned + 10}, {where: {userID: data.userId}});
+
         res.json(result);
+        
     } catch (err) {
         res.status(400).json({ errors: err.errors });
     }
