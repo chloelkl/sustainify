@@ -163,7 +163,7 @@ async function syncDatabase() {
         if (db.Forum) await db.Forum.sync();
 
         // Sync the Events model before EventEmails
-        if (db.Event) await db.Event.sync();
+        if (db.Events) await db.Events.sync();
 
         // Sync the EventEmails model next
         if (db.EventEmail) await db.EventEmail.sync();
