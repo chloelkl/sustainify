@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "start": "node server/index.js",
-    "heroku-postbuild": "cd client && npm ci && npm run build"
+    "heroku-postbuild": "cd client && npm ci && npm run build",
+    "build": "vite build"
   },
   "dependencies": {
     "express": "^4.17.1"
