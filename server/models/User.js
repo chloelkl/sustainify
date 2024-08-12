@@ -102,7 +102,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       User.hasMany(models.Forum, {foreignKey: 'userId'});
       User.belongsToMany(models.Challenge, { through: "UserChallenges", foreignKey: 'user' });
-      User.belongsToMany(models.Reward, { through: "RewardUser", foreignKey: 'user'});
+      User.hasMany(models.UserHistory, {foreignKey: 'userId'});
     };
     return User;
 };
