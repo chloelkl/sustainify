@@ -72,7 +72,7 @@ function App() {
               <Route path="/account/signup" element={<Signup />} />
               <Route path="/account/login" element={<Login />} />
               <Route path="/account/admin-signup" element={<AdminSignup />} />
-              <Route path="/account/user/main" element={<ProtectedRoute><UserMain /></ProtectedRoute>} />
+              <Route path="/account/user/main" element={<ProtectedRoute roles={['user']}><UserMain /></ProtectedRoute>} />
               <Route path="/account/user/profile" element={<ProtectedRoute roles={['user', 'admin']}><UserProfile /></ProtectedRoute>} />
               <Route path="/account/user/settings" element={<ProtectedRoute roles={['user', 'admin']}><UserSettings /></ProtectedRoute>} />
               <Route path="/account/user/analytics" element={<ProtectedRoute roles={['user', 'admin']}><UserAnalytics /></ProtectedRoute>} />
