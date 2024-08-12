@@ -95,7 +95,7 @@ const Login = () => {
     return (
         <div style={container}>
             <div style={leftContainer}>
-                <img src="/src/assets/DBrand_Wallpaper.jpg" alt="Login" style={imageStyle} />
+                <img src="/src/assets/Login.jpg" alt="Login" style={imageStyle} />
             </div>
             <div style={rightContainer}>
                 <h2 style={titleStyle}>Login</h2>
