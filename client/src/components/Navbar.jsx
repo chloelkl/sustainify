@@ -8,7 +8,7 @@ import theme from '../themes/MyTheme.js';
 import { useAuth } from '../context/AuthContext';
 
 function Navbar() {
-  const { user, admin, role, isAuthenticated } = useAuth();
+  const { user, admin, role } = useAuth();
   const navigate = useNavigate();
 
   const handleProfileClick = () => {
@@ -24,6 +24,15 @@ function Navbar() {
       navigate('/posteventadmin');
     } else if (user) {
       navigate('/eventoverview');
+    } else {
+      navigate('/account/login');
+    }
+  };
+  const handleForumsClick = () => {
+    if (role === 'admin') {
+      navigate('/forum/admin');
+    } else if (user) {
+      navigate('/forum');
     } else {
       navigate('/account/login');
     }
@@ -58,12 +67,23 @@ function Navbar() {
             </AuthLinks>
 
           )}
+          
           <StyledLink to="/">
             <Logo src="/Logo.png" alt="sustainify" />
           </StyledLink>
-          <StyledLink to="/forum">
-            <Typography>FORUM</Typography>
-          </StyledLink>
+          {(role === 'admin' || user) ? (
+            <IconButton color="inherit" onClick={handleForumsClick}>
+            <StyledLink >
+              <Typography>FORUM</Typography>
+            </StyledLink>
+            </IconButton>
+          ): (
+            <AuthLinks>
+              <StyledLink to="/account/signup">
+                <Typography variant='body2'>FORUM</Typography>
+              </StyledLink>
+            </AuthLinks>
+          )}
           {user || admin ? (
             <IconButton color="inherit" onClick={handleRewardsClick}>
               <StyledLink>

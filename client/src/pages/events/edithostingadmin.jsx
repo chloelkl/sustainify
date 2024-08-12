@@ -37,6 +37,8 @@ const EditHostingAdmin = () => {
         eventtime: Yup.string().trim().matches(/^([01]\d|2[0-3]):?([0-5]\d)$/, 'Time must be in 24-hour format (HH:MM)').required('Required'),
         venue: Yup.string().trim().min(3, 'Venue must be at least 3 characters').max(100, 'Venue cannot exceed 100 characters').required('Required'),
         eventdescription: Yup.string().trim().min(3, 'Description must be at least 3 characters').max(500, 'Description cannot exceed 500 characters').required('Required'),
+        image: Yup.mixed().required('Image is required')
+
     });
 
     const handleSubmit = (values) => {

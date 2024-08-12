@@ -26,7 +26,7 @@ import Signup from './pages/account/main/Signup';
 import AdminSignup from './pages/account/main/AdminSignup';
 import Login from './pages/account/main/Login';
 
-// Events
+// Events 
 import EventHosting from './pages/events/eventhosting';
 import EventHostingAdmin from './pages/events/eventhostingadmin';
 import PostEvent from './pages/events/postevent';
@@ -40,6 +40,7 @@ import EventStatisticsAdmin from './pages/events/eventstatisticsadmin.jsx';
 import Forum from './pages/forum/Forum';
 import AddForum from './pages/forum/AddForum';
 import UserForum from './pages/forum/UserForum';
+import ForumAdmin from './pages/forum/ForumAdmin.jsx';
 
 // Rewards
 import Rewards from './pages/rewards/Rewards';
@@ -66,7 +67,7 @@ function App() {
           <div style={{ height: '100px', display: 'flex', flexDirection: 'column' }}>
             <Navbar />
           </div>
-          <Container>
+          <Container style={{padding: 0, maxWidth: '100%'}}>
             <Routes>
               <Route path="/" element={<Homepage />} />
 
@@ -74,7 +75,7 @@ function App() {
               <Route path="/account/signup" element={<Signup />} />
               <Route path="/account/login" element={<Login />} />
               <Route path="/account/admin-signup" element={<AdminSignup />} />
-              <Route path="/account/user/main" element={<ProtectedRoute><UserMain /></ProtectedRoute>} />
+              <Route path="/account/user/main" element={<ProtectedRoute roles={['user']}><UserMain /></ProtectedRoute>} />
               <Route path="/account/user/profile" element={<ProtectedRoute roles={['user', 'admin']}><UserProfile /></ProtectedRoute>} />
               <Route path="/account/user/settings" element={<ProtectedRoute roles={['user', 'admin']}><UserSettings /></ProtectedRoute>} />
               <Route path="/account/user/analytics" element={<ProtectedRoute roles={['user', 'admin']}><UserAnalytics /></ProtectedRoute>} />
@@ -98,7 +99,8 @@ function App() {
 
 
               {/* Forum */}
-              <Route path={"/forum"} element={<ProtectedRoute roles={['user', 'admin']}><Forum /></ProtectedRoute>} />
+              <Route path={"/forum"} element={<ProtectedRoute roles={['user']}><Forum /></ProtectedRoute>} />
+              <Route path={"/forum/admin"} element={<ProtectedRoute roles={['admin']}><ForumAdmin/></ProtectedRoute>} />
               <Route path={"/user/:userId/forum/addforum"} element={<AddForum/>} />
               <Route path={"/forum/by/:userId"} element={<ProtectedRoute roles={['user', 'admin']}><UserForum/></ProtectedRoute>} />
 

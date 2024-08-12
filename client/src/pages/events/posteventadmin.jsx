@@ -85,7 +85,12 @@ const PostEventAdmin = () => {
                             <Typography color="textSecondary">
                                 Venue: {event.venue}
                             </Typography>
-                            <Typography variant="body2" component="p">
+                            <Typography
+                                className="event-description"
+                                variant="body2"
+                                component="p"
+                                style={{ textAlign: 'center', marginLeft: 'auto', marginRight: 'auto' }} // Center the description text
+                            >
                                 Event Description: {event.eventdescription}
                             </Typography>
                         </CardContent>

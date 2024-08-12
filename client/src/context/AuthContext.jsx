@@ -1,5 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import Spinner from '../components/Spinner.jsx';
 
 const AuthContext = createContext();
 
@@ -9,49 +11,65 @@ export const AuthProvider = ({ children }) => {
     const [ user, setUser ] = useState(null);
     const [ admin, setAdmin ] = useState(null);
     const [ role, setRole ] = useState(null);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
+    const [ authToken, setAuthToken ] = useState(localStorage.getItem('token'));
+    const [ isLoading, setIsLoading ] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        const verifyToken = async () => {
-            const token = localStorage.getItem('token');
-            if (token) {
-                try {
-                    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-                    const response = await axios.get(`${import.meta.env.VITE_API_URL}/auth/verify`);
+        const token = localStorage.getItem('token');
+
+        if (token) {
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+            axios.get(`${import.meta.env.VITE_API_URL}/auth/verify`)
+                .then(response => {
                     console.log('Verification response:', response.data);
 
                     if (response.data.role === 'admin') {
                         setAdmin(response.data);
+                        setRole('admin');
                     } else {
                         setUser(response.data);
+                        setRole('user');
                     }
-                    setRole(response.data.role);
-                    setIsAuthenticated(true);
-                } catch (error) {
-                    console.error('Error during verification:', error.response || error.message);
+                    setIsLoading(false);
+                })
+                .catch(error => {
+                    console.error('Error during verification:', error);
                     logout();
-                }
-            }
+                    setIsLoading(false);
+                });
+        } else {
+            setUser(null);
+            setAdmin(null);
+            setRole(null);
             setIsLoading(false);
-        };
+        }
+    }, [authToken]);
 
-        verifyToken();
-    }, []);    
-
-    const login = (token, userData) => {
+    const login = async (token, user) => {
+        setIsLoading(true); // Show spinner after validation
         localStorage.setItem('token', token);
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        setAuthToken(token);
+    
+        setUser(null);
+        setAdmin(null);
+    
+        setTimeout(() => {
+            if (user.role === 'admin') {
+                setAdmin(user);
+                setRole('admin');
+                setIsLoading(false); // Hide spinner before redirect
+                navigate('/account/admin/main');
+            } else {
+                setUser(user);
+                setRole('user');
+                setIsLoading(false); // Hide spinner before redirect
+                navigate('/account/user/main');
+            }
+        }, 1000);
 
-        if (userData.role === 'admin') {
-            setAdmin(userData);
-            setUser(null);
-        } else {
-            setUser(userData);
-            setAdmin(null);
-        }
-        setRole(userData.role);
-        setIsAuthenticated(true);
     };
 
     const logout = () => {
@@ -61,12 +79,14 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
         setAdmin(null);
         setRole(null);
-        setIsAuthenticated(false);
+        setAuthToken(null);
+        navigate('/account/login');
     };
 
     return (
-        <AuthContext.Provider value={{ user, admin, role, isAuthenticated, isLoading, login, logout }}>
+        <AuthContext.Provider value={{ user, admin, role, authToken, isLoading, login, logout }}>
             {children}
+            {isLoading && <Spinner />}
         </AuthContext.Provider>
     );
 };

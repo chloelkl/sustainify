@@ -69,11 +69,6 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: true
         },
-        twoFactorAuth: {
-            type: DataTypes.STRING,
-            defaultValue: 'Not Enabled',
-            allowNull: true
-        },
         bio: {
             type: DataTypes.STRING,
             allowNull: true
@@ -89,6 +84,19 @@ module.exports = (sequelize, DataTypes) => {
         notifications: {
             type: DataTypes.TEXT,
             allowNull: true
+        },
+        otp: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        twoFactorAuthSecret: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        twoFactorAuthEnabled: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+            allowNull: false,
         }
     }, {
       tableName: 'users'
@@ -100,9 +108,24 @@ module.exports = (sequelize, DataTypes) => {
           onDelete: 'CASCADE',
           onUpdate: 'CASCADE'
       });
-      User.hasMany(models.Forum, {foreignKey: 'userId'});
       User.belongsToMany(models.Challenge, { through: "UserChallenges", foreignKey: 'user' });
-      User.hasMany(models.UserHistory, {foreignKey: 'userId'});
+      User.hasMany(models.UserHistory, {foreignKey: 'userId'});  
+      
+      User.hasMany(models.SavedForum, {
+        foreignKey: 'userId',
+        onDelete: 'CASCADE',
+      });
+      User.hasMany(models.FriendRequests, { as: "SentRequests", foreignKey: 'requesterID', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+      User.hasMany(models.FriendRequests, { as: "ReceivedRequests", foreignKey: 'recipientID', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+      
+      User.belongsToMany(models.User, {
+        as: 'UserFriends',
+        through: models.Friends,
+        foreignKey: 'userID',
+        otherKey: 'friendID'
+      });
+    
     };
+
     return User;
 };
