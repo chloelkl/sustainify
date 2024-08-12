@@ -5,6 +5,7 @@ import http from '../../http';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import coinImage from '../../assets/coin.png';
+import pointImage from '../../assets/reward.png';
 
 const styles = {
     container: {
@@ -196,28 +197,28 @@ function UserReward() {
 
             <Box
                 sx={{
-                    display: 'flex', // Arrange child boxes side by side
-                    justifyContent: 'space-between', // Space between the child boxes
-                    width: '100%', // Full width of the parent container
-                    margin: '0 auto', // Center the container horizontally
-                    padding: '0 16px', // Add padding for spacing around the container
-                    boxSizing: 'border-box' // Include padding in the width calculation
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    margin: '0 auto',
+                    padding: '0 16px', 
+                    boxSizing: 'border-box' 
                 }}
             >
                 {/* Transaction History Box */}
                 <Box
                     sx={{
                         textAlign: 'center',
-                        flex: 1, // Take up equal space with the Points History Box
-                        maxWidth: 'calc(50% - 16px)', // Max width for responsiveness with space for margin
-                        height: '100px', // Set the height of the box
-                        bgcolor: 'white', // Optional: Set background color for visibility
-                        borderRadius: '8px', // Optional: Add rounded corners
-                        display: 'flex', // Use flexbox for layout
-                        alignItems: 'center', /* Center content vertically */
-                        justifyContent: 'space-between', // Distribute space between image and button
-                        padding: '0 16px', // Add padding inside the box
-                        marginRight: '16px' // Add space between the two boxes
+                        flex: 1, 
+                        maxWidth: 'calc(50% - 16px)', 
+                        height: '100px', 
+                        bgcolor: 'white', 
+                        borderRadius: '8px', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'space-between',
+                        padding: '0 16px', 
+                        marginRight: '16px' 
                     }}
                 >
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -239,19 +240,19 @@ function UserReward() {
                 <Box
                     sx={{
                         textAlign: 'center',
-                        flex: 1, // Take up equal space with the Transaction History Box
-                        maxWidth: 'calc(50% - 16px)', // Max width for responsiveness with space for margin
-                        height: '100px', // Set the height of the box
-                        bgcolor: 'white', // Optional: Set background color for visibility
-                        borderRadius: '8px', // Optional: Add rounded corners
-                        display: 'flex', // Use flexbox for layout
-                        alignItems: 'center', /* Center content vertically */
-                        justifyContent: 'space-between', // Distribute space between image and button
-                        padding: '0 16px', // Add padding inside the box
+                        flex: 1, 
+                        maxWidth: 'calc(50% - 16px)', 
+                        height: '100px', 
+                        bgcolor: 'white',
+                        borderRadius: '8px', 
+                        display: 'flex',
+                        alignItems: 'center', 
+                        justifyContent: 'space-between', 
+                        padding: '0 16px',
                     }}
                 >
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <img src={coinImage} alt="Coin" style={{ height: '60px', width: 'auto', marginRight: '16px' }} />
+                        <img src={pointImage} alt="Coin" style={{ height: '60px', width: 'auto', marginRight: '16px' }} />
                         <Typography variant="h4" color='black' sx={{ fontWeight: 'bold', fontSize: '25px' }}>
                             Points History
                         </Typography>
