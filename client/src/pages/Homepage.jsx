@@ -90,7 +90,11 @@ const CreatorCard = styled(Card)({
   marginBottom: '20px',
   boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
   width: '90%',
-  minHeight: '20vh'
+  minHeight: '20vh',
+  transition: 'all .3s linear',
+  '&:hover': {
+    backgroundColor: 'lightgrey'
+  }
 });
 
 // Awareness & Exposure Section Component
