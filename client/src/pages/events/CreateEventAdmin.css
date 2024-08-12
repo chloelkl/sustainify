@@ -18,16 +18,16 @@
     padding: 40px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-left: auto;
+    margin-left: 10px;
 }
 
 .form-title {
-    font-weight: 600; /* Make the title bold */
-    margin-bottom: 10px; /* Reduce the bottom margin */
+    font-weight: 600; 
+    margin-bottom: 10px; 
 }
 
 .form-subtitle {
-    margin-bottom: 20px; /* Reduce the bottom margin */
+    margin-bottom: 20px; 
 }
 
 .event-form .MuiTextField-root {
@@ -35,19 +35,19 @@
 }
 
 .submit-button {
-    background-color: #000000; /* Change to black */
+    background-color: #000000; 
     color: #ffffff;
-    margin-top: 20px; /* Add top margin for separation */
+    margin-top: 20px; 
 }
 
 .submit-button {
-    background-color: #000000; /* Change to black */
+    background-color: #000000; 
     color: #ffffff;
-    margin-top: 20px; /* Add top margin for separation */
+    margin-top: 20px; 
 }
 
 .submit-button {
-    background-color: #000000; /* Change to black */
+    background-color: #000000; 
     color: #ffffff;
-    margin-top: 20px; /* Add top margin for separation */
+    margin-top: 20px; 
 }
