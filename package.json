@@ -1,8 +1,11 @@
 {
-    "name": "sustainify",
-    "version": "1.0.0",
-    "scripts": {
+  "name": "sustainify",
+  "version": "1.0.0",
+  "scripts": {
     "start": "node server/index.js",
     "heroku-postbuild": "cd client && npm install && npm run build"
-    }
+  },
+  "dependencies": {
+    "express": "^4.17.1"
   }
+}
