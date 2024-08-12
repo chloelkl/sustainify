@@ -179,38 +179,40 @@ router.post('/completeChallenge', upload.single('image'), async (req, res) => {
       return res.status(400).json({ message: 'User has already completed this challenge!' });
     }
 
-    // Complete the challenge
-    await user.addChallenge(challenge, { through: { completedAt: new Date() } });
-    await UserHistory.create({
-      description: "Completed '" + challenge.challenge +"'",
-      points: 20,
-      userId: userId
-    })
-    await User.update({ pointsEarned: user.pointsEarned + 20 }, {
-      where: {
-        userID: userId
-      }
-    });
-
-    // Validate forum post data
+        // Validate forum post data
     const validationSchema = yup.object({
       title: yup.string().trim().min(3).max(100).required(),
       description: yup.string().trim().min(3).max(500).required(),
       image: yup.mixed().required() 
     });
 
-    const forumData = { title: title.trim(), description: description.trim(), image };
+    const forumData = { title: title.trim(), description: description.trim(), image, challenge: challengeId };
     await validationSchema.validate(forumData, { abortEarly: false });
 
     // Create forum post
     const forumPost = await Forum.create({ ...forumData, userId, challengeId });
-
-    await UserChallenges.update({ forum: forumPost.id }, {
-      where: {
-        user: userId,
-        challenge: challengeId
+    // Complete the challenge
+    await user.addChallenge(challenge, { 
+      through: { 
+        completedAt: new Date(),
+        forum: forumPost.id // Adding the forumPost ID in the same step
       }
     });
+
+    await UserHistory.create({
+      description: "Completed '" + challenge.challenge +"'",
+      points: 20,
+      userId: userId
+    })
+
+    await User.update({ pointsEarned: user.pointsEarned + 20 }, {
+      where: {
+        userID: userId
+      }
+    });
+
+
+
 
     res.json({ message: 'Challenge completed and forum post created successfully!', forumPost });
   } catch (error) {
