@@ -207,35 +207,35 @@ const creators = [
     name: 'Andrew Kang',
     title: 'Forum Management',
     image: '/creators/andrew.png',
-    bio: 'Andrew connects with our community and drives engagement, ensuring that every voice is heard and valued.',
+    bio: "Andrew fosters a vibrant community within Sustainify, driving engagement and ensuring that every member's voice is heard. His efforts create a supportive environment where sustainable ideas and connections thrive.",
     link: 'https://www.linkedin.com/in/jmy-andrew/'
   },
   {
     name: 'Charlotte Poon',
     title: 'Event Management',
     image: '/creators/charlotte.png',
-    bio: 'Charlotte brings creativity and innovation to every project, ensuring that the user experience is both beautiful and intuitive.',
+    bio: "Charlotte is the creative force behind Sustainify's events, crafting experiences that are both impactful and seamless. Her dedication ensures every event not only engages but also inspires action towards sustainability.",
     link: 'https://www.linkedin.com/in/charlotte-poon-a380a72b4/'
   },
   {
     name: 'Chloe Low',
     title: 'Challenge Management',
     image: '/creators/chloe.png',
-    bio: 'Chloe is a tech enthusiast passionate about leveraging modern technology to make the world more fun and interesting.',
+    bio: "Chloe designs engaging challenges on Sustainify that motivate users to achieve their sustainability goals. Her innovative approach turns these challenges into fun, rewarding experiences that drive positive change.",
     link: 'https://www.linkedin.com/in/chloelkl/'
   },
   {
     name: 'Ji Wei',
     title: 'Reward Management',
     image: '/creators/jiwei.png',
-    bio: 'Ji Wei is the brain behind our marketing strategies, driving growth and brand recognition with innovative campaigns.',
+    bio: "Ji Wei drives Sustainify's reward systems, strategically boosting user motivation and brand loyalty. His innovative campaigns ensure that every achievement on Sustainify is recognized and celebrated.",
     link: 'https://www.linkedin.com/in/foo-ji-wei-9401b72b4/'
   },
   {
     name: 'Rone Peh',
-    title: 'User Management',
+    title: 'Account Management',
     image: '/creators/rone.jpg',
-    bio: 'Rone crafts compelling content that resonates with our audience, ensuring our message is clear and impactful.',
+    bio: "Rone crafts clear and compelling content that resonates with Sustainify's users. With a deep understanding of user needs, Rone ensures our messaging inspires and engages the community towards a sustainable future.",
     link: 'https://www.linkedin.com/in/ronepeh/'
   },
 ];
@@ -286,6 +286,6 @@ function Homepage() {
       <CreatorSection />
     </Container>
   );
-};
+}
 
 export default Homepage;
