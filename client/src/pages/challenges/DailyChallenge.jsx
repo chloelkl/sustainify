@@ -49,13 +49,15 @@ const ManageParent = styled('div')({
 const DailyContainer = styled('div')({
   width: '80%',
   height: '80%',
+  minHeight: '35vw',
   background: theme.palette.secondary.light,
-  margin: '5% auto',
+  margin: '2% auto',
   textAlign: 'center'
 });
 
 const ChallengeIcon = styled('img')({
   width: '20%',
+  maxWidth: '15vh',
   margin: '10% auto 0'
 });
 
