@@ -49,8 +49,9 @@ const ManageParent = styled('div')({
 const ManageContainer = styled('div')({
   width: '80%',
   height: '80%',
+  minHeight: '35vw',
   background: theme.palette.secondary.light,
-  margin: '5% auto',
+  margin: '2% auto',
   overflow: 'auto',
   boxShadow: '',
 })
