@@ -8,6 +8,7 @@ require('dotenv').config();
 const verifyToken = require('../middleware/verifyToken');
 const generateUserID = require('../utils/generateUserID');
 const generateAdminID = require('../utils/generateAdminID');
+const { authenticator } = require('otplib');
 
 // Generate JWT token
 const generateToken = (user) => {
@@ -148,12 +149,49 @@ router.post('/login', [
             return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });
         }
 
+        // Check if 2FA is enabled for users only
+        if (!isAdmin && user.twoFactorAuthEnabled) {
+            return res.json({
+                twoFactorAuthRequired: true,
+                userID: user.userID,
+                role: 'user',
+            });
+        }
+
         const token = generateToken(user);
         const id = isAdmin ? user.adminID : user.userID;
 
         res.status(200).json({ token, role: user.role, id });
     } catch (error) {
         console.error(error);
+        res.status(500).json({ errors: [{ msg: 'Server error' }] });
+    }
+});
+
+router.post('/verify-2fa', async (req, res) => {
+    try {
+        const { userID, token } = req.body;
+
+        const user = await User.findOne({ where: { userID } });
+
+        if (!user) {
+            return res.status(400).json({ errors: [{ msg: 'User not found' }] });
+        }
+
+        const verified = authenticator.verify({ token, secret: user.twoFactorAuthSecret });
+
+        if (verified) {
+            const jwtToken = generateToken(user.userID, user.role);
+            return res.json({
+                token: jwtToken,
+                role: user.role,
+                userID: user.userID,
+            });
+        } else {
+            return res.status(400).json({ errors: [{ msg: 'Invalid 2FA code' }] });
+        }
+    } catch (error) {
+        console.error('Error verifying 2FA during login:', error);
         res.status(500).json({ errors: [{ msg: 'Server error' }] });
     }
 });

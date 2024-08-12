@@ -1,0 +1,143 @@
+/* Tree Spinner and Overlay */
+.tree-spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+.tree-spinner {
+  position: relative;
+  width: 400px;
+  height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.tree {
+  position: absolute;
+  width: 200px;
+  height: 250px;
+  animation: tree-grow 2s infinite ease-in-out;
+  z-index: 1; /* Ensure trees (and trunks) are below foliage */
+}
+.trunk {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 30px;
+  height: 100px;
+  background-color: #A0522D;
+  border-radius: 15px 15px 0 0;
+  transform: translateX(-50%);
+  animation: trunk-grow 1s ease-out forwards;
+  z-index: 1; /* Ensure all trunks are below foliage */
+}
+.foliage {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  width: 150px;
+  height: 150px;
+  transform: translateX(-50%);
+  background-color: #32CD32;
+  border-radius: 50%;
+  opacity: 0;
+  animation: foliage-grow 1s 1s ease-out forwards;
+  z-index: 2; /* Ensure foliage is above trunks */
+}
+.foliage::before {
+  content: "";
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  width: 120px;
+  height: 120px;
+  transform: translateX(-50%);
+  background-color: #00FF00;
+  border-radius: 50%;
+  opacity: 0;
+  animation: foliage-grow 1s 1.2s ease-out forwards;
+  z-index: 2; /* Ensure foliage is above trunks */
+}
+.foliage::after {
+  content: "";
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  width: 90px;
+  height: 90px;
+  transform: translateX(-50%);
+  background-color: #7FFF00;
+  border-radius: 50%;
+  opacity: 0;
+  animation: foliage-grow 1s 1.4s ease-out forwards;
+  z-index: 2; /* Ensure foliage is above trunks */
+}
+.tree:nth-child(1) {
+  transform: scale(1);
+}
+.tree:nth-child(2) {
+  transform: scale(0.8) translate(-100px, -50px);
+}
+.tree:nth-child(3) {
+  transform: scale(0.7) translate(120px, 60px);
+}
+.tree:nth-child(4) {
+  transform: scale(0.9) translate(80px, -80px);
+}
+.tree:nth-child(5) {
+  transform: scale(0.75) translate(-120px, 70px);
+}
+
+/* Ensure all foliage is above the trunks */
+.tree:nth-child(1) .trunk,
+.tree:nth-child(2) .trunk,
+.tree:nth-child(3) .trunk,
+.tree:nth-child(4) .trunk,
+.tree:nth-child(5) .trunk {
+  z-index: 1; /* Trunks below foliage */
+}
+
+.tree:nth-child(1) .foliage,
+.tree:nth-child(2) .foliage,
+.tree:nth-child(3) .foliage,
+.tree:nth-child(4) .foliage,
+.tree:nth-child(5) .foliage,
+.tree:nth-child(1) .foliage::before,
+.tree:nth-child(2) .foliage::before,
+.tree:nth-child(3) .foliage::before,
+.tree:nth-child(4) .foliage::before,
+.tree:nth-child(5) .foliage::before,
+.tree:nth-child(1) .foliage::after,
+.tree:nth-child(2) .foliage::after,
+.tree:nth-child(3) .foliage::after,
+.tree:nth-child(4) .foliage::after,
+.tree:nth-child(5) .foliage::after {
+  z-index: 2; /* Foliage above trunks */
+}
+
+@keyframes trunk-grow {
+  from {
+    height: 0;
+  }
+  to {
+    height: 100px;
+  }
+}
+
+@keyframes foliage-grow {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
