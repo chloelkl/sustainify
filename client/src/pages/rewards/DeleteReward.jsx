@@ -11,15 +11,12 @@ function DeleteReward() {
     rewardname: "",
     points: ""
   });
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     http.get(`/reward/${id}`).then((res) => {
       setReward(res.data);
-      setLoading(false);
     }).catch((error) => {
       console.error("Error fetching reward data: ", error);
-      setLoading(false);
     });
   }, [id]);
 
@@ -33,14 +30,12 @@ function DeleteReward() {
   };
 
   return (
-    <Box sx={{ bgcolor: 'white', p: 2, borderRadius: 8, marginTop: '100px', paddingLeft: '120px', paddingRight: '120px', paddingTop: '50px', paddingBottom: '50px', }}>
+    <Box sx={{ bgcolor: 'white', p: 2, borderRadius: 8, marginTop: '50px', paddingLeft: '120px', paddingRight: '120px', paddingTop: '50px', paddingBottom: '50px'}}>
       <Typography variant="h5" sx={{ mb: 2, fontSize: '40px', fontWeight: 'bold', textAlign: 'center' }}>
         Delete Reward
       </Typography>
-      {
-        !loading && (
           <Box>
-            <Grid container spacing={6} alignItems="center">
+            <Grid container spacing={4} alignItems="center">
               <Grid item xs={8}>
                 <TextField
                   fullWidth
@@ -74,7 +69,7 @@ function DeleteReward() {
                        borderRadius: '8px', overflow: 'hidden' }}>
               <img
                 alt="reward"
-                src={`${import.meta.env.VITE_FILE_BASE_URL}${reward.rewardImage}`}
+                src={`${import.meta.env.VITE_API_URL}/${reward.rewardImage}`}
                 style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
               />
             </Box>
@@ -86,8 +81,6 @@ function DeleteReward() {
               </Button>
             </Box>
           </Box>
-        )
-      }
     </Box>
   );
 }
