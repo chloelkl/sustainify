@@ -22,9 +22,12 @@ function Forum() {
   const { user, role, authToken } = useAuth();
   const [forumList, setForumList] = useState([]);
   const [search, setSearch] = useState("");
+  const [saveStatus, setSaveStatus] = useState({});
   const [selectedItem, setSelectedItem] = useState(null);
 
   const handleSaveForum = async () => {
+    if (!selectedItem) return;
+
     try {
       const response = await http.post('/forum/save-forum', {
         title: selectedItem.title,
@@ -36,12 +39,27 @@ function Forum() {
       });
   
       if (response.status === 200) {
-        alert('Forum saved successfully!');
+        setSaveStatus(prevStatus => ({
+          ...prevStatus,
+          [selectedItem.id]: 'success'
+        }));
       }
     } catch (error) {
       console.error('Error saving forum:', error);
+      setSaveStatus(prevStatus => ({
+        ...prevStatus,
+        [selectedItem.id]: 'error'
+      }));
       alert('Failed to save the forum. Please try again.');
     }
+  };
+
+  const getIconColor = (itemId) => {
+    return saveStatus[itemId] === 'success'
+      ? 'green'
+      : saveStatus[itemId] === 'error'
+      ? 'red'
+      : 'default';
   };
 
   const handleCardClick = (item) => {
@@ -225,12 +243,13 @@ function Forum() {
               />
             </Box>
             <Box sx={{ width: "60%", padding: 3, position: "relative" }}>
-              <IconButton
+            <IconButton
                 aria-label="save"
                 sx={{
                   position: "absolute",
                   top: 16,
                   right: 16,
+                  color: getIconColor(selectedItem.id), // Apply color based on save status
                 }}
                 onClick={handleSaveForum}
               >
