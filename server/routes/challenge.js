@@ -186,6 +186,11 @@ router.post('/completeChallenge', upload.single('image'), async (req, res) => {
       points: 20,
       userId: userId
     })
+    await User.update({ pointsEarned: user.pointsEarned + 20 }, {
+      where: {
+        userID: userId
+      }
+    });
 
     // Validate forum post data
     const validationSchema = yup.object({
