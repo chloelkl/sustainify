@@ -74,7 +74,7 @@ const userRewardRoute = require('./routes/userreward');
 app.use("/userreward", userRewardRoute);
 
 const fileRoute = require('./routes/file');
-app.use("/file", fileRoute);
+app.use("/file", fileRoute);    
 // Start server after synchronizing the DB files under models folder
 const db = require('./models');
 db.sequelize.sync({ alter: true })
