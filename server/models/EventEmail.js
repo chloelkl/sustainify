@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'Events', 
+                model: 'Event', 
                 key: 'id'
             }
         },
@@ -27,6 +27,13 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: DataTypes.NOW
         }
     });
+
+    EventEmail.associate = function(models) {
+        EventEmail.belongsTo(models.Event, {
+            foreignKey: 'eventId',
+            as: 'event'
+        });
+    };
 
     return EventEmail;
 };
