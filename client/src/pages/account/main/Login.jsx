@@ -28,29 +28,34 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors([]);
-        
+        setLoading(true); // Start spinner
+
         try {
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, formData);
             const { userID, twoFactorAuthRequired } = response.data;
-    
+
             if (twoFactorAuthRequired) {
                 setUserID(userID);
                 setTwoFactorRequired(true);
             } else {
                 const { token, role, userID, pointsEarned } = response.data;
-                login(token, { role, userID: userID, pointsEarned });
+                login(token, { role, userID, pointsEarned });
                 navigate(role === 'admin' ? '/account/admin/main' : '/account/user/main');
             }
         } catch (error) {
             setErrors(error.response ? error.response.data.errors : [{ msg: 'Invalid credentials' }]);
+        } finally {
+            setTimeout(() => {
+                setLoading(false); // Stop spinner after a delay
+            }, 500); // Adding a delay of 500ms
         }
     };
 
     const handle2FASubmit = async (e) => {
         e.preventDefault();
         setErrors([]);
-        setLoading(true);
-        
+        setLoading(true); // Start spinner
+
         try {
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/verify-2fa`, {
                 userID,
@@ -62,7 +67,10 @@ const Login = () => {
         } catch (error) {
             const errorMessages = error.response?.data?.errors || [{ msg: 'Invalid 2FA code' }];
             setErrors(errorMessages);
-            setLoading(false);
+        } finally {
+            setTimeout(() => {
+                setLoading(false); // Stop spinner after a delay
+            }, 500); // Adding a delay of 500ms
         }
     };
 
