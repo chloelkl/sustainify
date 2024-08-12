@@ -16,3 +16,11 @@
 .admin-table-container {
   margin-top: 20px;
 }
+
+.eventhostingadmin .event-description {
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 150px; /* Ensure it doesn’t exceed the container size */
+}
+

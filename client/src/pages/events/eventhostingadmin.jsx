@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
     Typography, IconButton, Dialog, DialogActions, DialogContent, DialogContentText,
-    DialogTitle, Button} from '@mui/material';
-import { Delete as DeleteIcon } from '@mui/icons-material';
+    DialogTitle, Button } from '@mui/material';
+import { Delete as DeleteIcon, Email as EmailIcon } from '@mui/icons-material';
 import EventHostingAdminSidebar from '../../components/EventHostingAdminSidebar';
 import { useNavigate } from 'react-router-dom';
 import './EventHostingAdmin.css';
 
 const EventHostingAdmin = () => {
     const [events, setEvents] = useState([]);
-    const [open, setOpen] = useState(false);
+    const [openDelete, setOpenDelete] = useState(false);
+    const [openEmail, setOpenEmail] = useState(false);
+    const [openConfirmation, setOpenConfirmation] = useState(false);  // New state for booking confirmation modal
     const [selectedEventId, setSelectedEventId] = useState(null);
     const navigate = useNavigate();
 
@@ -28,13 +30,13 @@ const EventHostingAdmin = () => {
             });
     };
 
-    const handleClickOpen = (id) => {
+    const handleClickOpenDelete = (id) => {
         setSelectedEventId(id);
-        setOpen(true);
+        setOpenDelete(true);
     };
 
-    const handleClose = () => {
-        setOpen(false);
+    const handleCloseDelete = () => {
+        setOpenDelete(false);
         setSelectedEventId(null);
     };
 
@@ -42,12 +44,38 @@ const EventHostingAdmin = () => {
         axios.delete(`${import.meta.env.VITE_API_URL}/event/${selectedEventId}`)
             .then(() => {
                 fetchEvents();
-                handleClose();
+                handleCloseDelete();
             })
             .catch(error => {
                 console.error('There was an error deleting the event!', error);
-                handleClose();
+                handleCloseDelete();
             });
+    };
+
+    const handleClickOpenEmail = (id) => {
+        setSelectedEventId(id);
+        setOpenEmail(true);
+    };
+
+    const handleCloseEmail = () => {
+        setOpenEmail(false);
+        setSelectedEventId(null);
+    };
+
+    const handleSendEmail = () => {
+        axios.post(`${import.meta.env.VITE_API_URL}/eventemail/send`, { eventId: selectedEventId })
+            .then(() => {
+                handleCloseEmail();
+                setOpenConfirmation(true);  // Show the confirmation modal after sending the email
+            })
+            .catch(error => {
+                console.error('There was an error sending the email!', error);
+                handleCloseEmail();
+            });
+    };
+
+    const handleCloseConfirmation = () => {
+        setOpenConfirmation(false);
     };
 
     return (
@@ -84,10 +112,13 @@ const EventHostingAdmin = () => {
                                     <TableCell>{event.eventdate}</TableCell>
                                     <TableCell>{event.eventtime}</TableCell>
                                     <TableCell>{event.venue}</TableCell>
-                                    <TableCell>{event.eventdescription}</TableCell>
+                                    <TableCell className='event-description' >{event.eventdescription}</TableCell>
                                     <TableCell>
-                                        <IconButton onClick={() => handleClickOpen(event.id)}>
+                                        <IconButton onClick={() => handleClickOpenDelete(event.id)}>
                                             <DeleteIcon />
+                                        </IconButton>
+                                        <IconButton onClick={() => handleClickOpenEmail(event.id)}>
+                                            <EmailIcon />
                                         </IconButton>
                                     </TableCell>
                                 </TableRow>
@@ -96,9 +127,10 @@ const EventHostingAdmin = () => {
                     </Table>
                 </TableContainer>
             </div>
+            {/* Delete Confirmation Modal */}
             <Dialog
-                open={open}
-                onClose={handleClose}
+                open={openDelete}
+                onClose={handleCloseDelete}
             >
                 <DialogTitle>Confirm Delete</DialogTitle>
                 <DialogContent sx={{ padding: '24px' }}>
@@ -106,12 +138,49 @@ const EventHostingAdmin = () => {
                         Are you sure you want to delete this proposal?
                     </DialogContentText>
                 </DialogContent >
-                <DialogActions sx={{ padding: '16px 24px' }}>                 
+                <DialogActions sx={{ padding: '16px 24px' }}>                
                     <Button onClick={handleConfirmDelete} sx={{ color: 'black', background: "#87AEA6" }}>
                         Delete
                     </Button>
-                    <Button onClick={handleClose} color="primary">
+                    <Button onClick={handleCloseDelete} color="primary">
                         Cancel
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            {/* Email Confirmation Modal */}
+            <Dialog
+                open={openEmail}
+                onClose={handleCloseEmail}
+            >
+                <DialogTitle>Send Approval Email</DialogTitle>
+                <DialogContent sx={{ padding: '24px' }}>
+                    <DialogContentText>
+                        Are you sure you want to send an approval email for this event proposal?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions sx={{ padding: '16px 24px' }}>
+                    <Button onClick={handleSendEmail} sx={{ color: 'black', background: "#87AEA6" }}>
+                        Send Email
+                    </Button>
+                    <Button onClick={handleCloseEmail} color="primary">
+                        Cancel
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            {/* Booking Confirmation Modal */}
+            <Dialog
+                open={openConfirmation}
+                onClose={handleCloseConfirmation}
+            >
+                <DialogTitle>Booking Confirmation</DialogTitle>
+                <DialogContent sx={{ padding: '24px' }}>
+                    <DialogContentText>
+                        Booking confirmation email sent successfully!
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions sx={{ padding: '16px 24px' }}>
+                    <Button onClick={handleCloseConfirmation} sx={{ color: 'black', background: "#87AEA6" }}>
+                        Close
                     </Button>
                 </DialogActions>
             </Dialog>

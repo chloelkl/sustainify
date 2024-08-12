@@ -122,6 +122,9 @@ app.use('/communication', communicationRoutes);
 const eventRoute = require('./routes/event');
 app.use("/event", eventRoute);
 
+const eventEmailRoute = require('./routes/eventemail');
+app.use("/eventemail", eventEmailRoute);
+
 const eventpostRoute = require('./routes/eventpost');
 app.use("/eventpost", eventpostRoute);
 
