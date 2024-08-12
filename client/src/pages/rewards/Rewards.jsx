@@ -5,12 +5,14 @@ import EditIcon from '@mui/icons-material/Edit';
 import dayjs from 'dayjs';
 import { Link } from 'react-router-dom';
 import http from '../../http'; // Make sure this import is correct
+import RedeemedChart from './RewardChart';
 
 const styles = {
   container: {
     display: 'flex',
     flexWrap: 'wrap',
     gap: '16px',
+    paddingBottom: '50px',
   },
   item: {
     flex: '0 1 calc(20% - 16px)',
@@ -82,7 +84,7 @@ function ManageReward() {
                   <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100px', marginBottom: '40px', marginTop: '20px' }}>
                     <img
                       alt="reward"
-                      src={`${import.meta.env.VITE_FILE_BASE_URL}${reward.rewardImage}`}
+                      src={`${import.meta.env.VITE_API_URL}/${reward.rewardImage}`}
                       style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                     />
                   </Box>
@@ -108,6 +110,7 @@ function ManageReward() {
           </div>
         ))}
       </div>
+      <RedeemedChart/>
     </>
   );
 }

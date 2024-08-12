@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { Forum, User } = require('../models'); // Call name of DB from models folder to use
+const { Forum, User, SavedForum, UserHistory } = require('../models'); // Call name of DB from models folder to use
 const { Op } = require("sequelize");
 const yup = require("yup");
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
+const { userInfo } = require('os');
 
 // Multer setup for file uploads
 const storage = multer.diskStorage({
@@ -19,13 +20,48 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+// Router to save forum liked
+router.post('/save-forum', async (req, res) => {
+    try {
+      const { title, description, image, username, createdDate, userId } = req.body;
+  
+      const newForum = await SavedForum.create({
+        title,
+        description,
+        image,
+        username,
+        createdDate,
+        userId,
+      });
+  
+      res.status(200).json(newForum);
+    } catch (error) {
+      console.error('Error saving forum:', error);
+      res.status(500).json({ error: 'Failed to save forum' });
+    }
+  });
+
+// Router to get saved forums
+router.get('/saved-forums/:userId', async (req, res) => {
+try {
+    const { userId } = req.params;
+    const savedForums = await SavedForum.findAll({ where: { userId } });
+
+    res.status(200).json(savedForums);
+} catch (error) {
+    console.error('Error fetching saved forums:', error);
+    res.status(500).json({ error: 'Failed to fetch saved forums' });
+}
+});
+
 // Route to create a new forum
 router.post("/", upload.single('image'), async (req, res) => {
     let data = req.body;
     // Validate request body -> Update Details of request body to match fields defined in DB
     let validationSchema = yup.object({
         title: yup.string().trim().min(3).max(100).required(),
-        description: yup.string().trim().min(3).max(500).required()
+        description: yup.string().trim().min(3).max(500).required(),
+        userId: yup.number().integer().required()
         // No need to validate 'image' field here as it is handled by Multer
     });
 
@@ -35,7 +71,19 @@ router.post("/", upload.single('image'), async (req, res) => {
             data.image = req.file.path; // Save the image path in the database
         }
         let result = await Forum.create(data); // .create() used to insert data into DB table
+        
+        // Create the UserHistory record
+        await UserHistory.create({
+            description: "Posted a Forum",
+            points: 10,
+            userId: data.userId // Use the userId from the validated data
+        });
+        
+        const user = await User.findByPk(data.userId);
+        await User.update({pointsEarned: user.pointsEarned + 10}, {where: {userID: data.userId}});
+
         res.json(result);
+        
     } catch (err) {
         res.status(400).json({ errors: err.errors });
     }
@@ -48,9 +96,8 @@ router.get("/", async (req, res) => {
         let search = req.query.search;
         if (search) {
             condition[Op.or] = [
-                { name: { [Op.like]: `%${search}%` } },
                 { title: { [Op.like]: `%${search}%` } },
-                { description: { [Op.like]: `%${search}%` } } // Adjust to match DB fields
+                { description: { [Op.like]: `%${search}%` } }, // Adjust to match DB fields
             ];
         }
 
@@ -58,7 +105,7 @@ router.get("/", async (req, res) => {
             where: condition,
             include: {
                 model: User,
-                attributes: ['username']
+                attributes: ['username'],
             },
             order: [['createdAt', 'DESC']]
         });
