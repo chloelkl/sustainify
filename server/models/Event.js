@@ -49,14 +49,6 @@ module.exports = (sequelize, DataTypes) => {
         tableName: 'events'  // DB table name
         // Data model: Event mapped --> to DB table events
     });
-
-    Event.associate = function(models) {
-        Event.hasMany(models.EventEmail, {
-            foreignKey: 'eventId',
-            as: 'emails'
-        });
-    };
-
     return Event;
     // Return Data model Event to allow index.js to sequelize and execute the DB
 }

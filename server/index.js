@@ -37,7 +37,7 @@ if (process.env.NODE_ENV === 'production') {
     app.get('*', (req, res) => {
       res.sendFile(path.join(__dirname, '..', 'client', 'build', 'index.html'));
     });
-  }
+}
 
 // Simple Route - Define the route here
 app.get("/", (req, res) => {
@@ -153,12 +153,31 @@ const db = require('./models');
 
 async function syncDatabase() {
     try {
-        // Sync parent models first (e.g., Events)
-        await db.Event.sync();
+        // Sync the Users model first
+        if (db.User) await db.User.sync();
 
-        // Sync child models that reference the parent models
-        await db.EventEmail.sync();
-        // Sync other models here...
+        // Sync the Challenges model next as it is referenced in forums
+        if (db.Challenge) await db.Challenge.sync();
+
+        // Sync the Forums model after Users and Challenges
+        if (db.Forum) await db.Forum.sync();
+
+        // Sync the Events model before EventEmails
+        if (db.Event) await db.Event.sync();
+
+        // Sync the EventEmails model next
+        if (db.EventEmail) await db.EventEmail.sync();
+
+        // Sync the rest of the models
+        const modelsToSync = Object.keys(db).filter(modelName => 
+            !['User', 'Challenge', 'Forum', 'Event', 'EventEmail'].includes(modelName)
+        );
+
+        for (const modelName of modelsToSync) {
+            if (db[modelName].sync) {
+                await db[modelName].sync();
+            }
+        }
 
         console.log('All models were synchronized successfully.');
     } catch (error) {
