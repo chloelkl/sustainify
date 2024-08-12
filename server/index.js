@@ -31,8 +31,13 @@ if (!fs.existsSync(uploadDir)) {
 
 app.use(cors(corsOptions));
 
-// Serve static files from the client folder
-app.use(express.static(path.join(__dirname, '..', 'client')));
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, '..', 'client', 'build')));
+  
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(__dirname, '..', 'client', 'build', 'index.html'));
+    });
+  }
 
 // Simple Route - Define the route here
 app.get("/", (req, res) => {
