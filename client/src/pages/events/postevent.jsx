@@ -28,7 +28,10 @@ const PostEvent = () => {
                 </Typography>
                 {events.map(event => (
                     <Card className="event-card" key={event.id}>
-                        <CardContent>
+                        <CardContent
+                            style={{
+                                textAlign: 'center', // Center all text inside CardContent
+                            }}>
                             {event.image && (
                                 <img
                                     src={`${import.meta.env.VITE_API_URL}/${event.image}`}
@@ -48,7 +51,12 @@ const PostEvent = () => {
                             <Typography color="textSecondary">
                                 Venue: {event.venue}
                             </Typography>
-                            <Typography variant="body2" component="p">
+                            <Typography
+                                className="event-description"
+                                variant="body2"
+                                component="p"
+                                style={{ textAlign: 'center', marginLeft: 'auto', marginRight: 'auto' }} // Center the description text
+                            >
                                 Event Description: {event.eventdescription}
                             </Typography>
                         </CardContent>

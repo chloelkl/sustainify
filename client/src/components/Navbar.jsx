@@ -8,7 +8,7 @@ import theme from '../themes/MyTheme.js';
 import { useAuth } from '../context/AuthContext';
 
 function Navbar() {
-  const { user, admin, role, isAuthenticated } = useAuth();
+  const { user, admin, role } = useAuth();
   const navigate = useNavigate();
 
   const handleProfileClick = () => {

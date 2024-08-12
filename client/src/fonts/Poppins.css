@@ -9,7 +9,7 @@
 /* when bolded */
 @font-face {
   font-family: 'Poppins';
-  src: url('./Poppins-Regular.ttf') format('truetype');
+  src: url('./Poppins-SemiBold.ttf') format('truetype');
   font-weight: bold;
   font-style: normal;
 }

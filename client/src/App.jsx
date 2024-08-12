@@ -65,7 +65,7 @@ function App() {
           <div style={{ height: '100px', display: 'flex', flexDirection: 'column' }}>
             <Navbar />
           </div>
-          <Container>
+          <Container style={{padding: 0, maxWidth: '100%'}}>
             <Routes>
               <Route path="/" element={<Homepage />} />
 
@@ -73,7 +73,7 @@ function App() {
               <Route path="/account/signup" element={<Signup />} />
               <Route path="/account/login" element={<Login />} />
               <Route path="/account/admin-signup" element={<AdminSignup />} />
-              <Route path="/account/user/main" element={<ProtectedRoute><UserMain /></ProtectedRoute>} />
+              <Route path="/account/user/main" element={<ProtectedRoute roles={['user']}><UserMain /></ProtectedRoute>} />
               <Route path="/account/user/profile" element={<ProtectedRoute roles={['user', 'admin']}><UserProfile /></ProtectedRoute>} />
               <Route path="/account/user/settings" element={<ProtectedRoute roles={['user', 'admin']}><UserSettings /></ProtectedRoute>} />
               <Route path="/account/user/analytics" element={<ProtectedRoute roles={['user', 'admin']}><UserAnalytics /></ProtectedRoute>} />

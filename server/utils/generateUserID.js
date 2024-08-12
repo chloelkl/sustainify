@@ -1,4 +1,4 @@
-const { User, Admin } = require('../models');
+const { User } = require('../models');
 
 const generateUserID = async () => {
     const userID = await User.max('userID') || 0;
