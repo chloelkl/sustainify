@@ -47,6 +47,8 @@ import EditReward from './pages/rewards/EditReward';
 import AddReward from './pages/rewards/AddReward';
 import DeleteReward from './pages/rewards/DeleteReward';
 import UserReward from './pages/rewards/UserReward';
+import RewardHistory from './pages/rewards/RewardHistory';
+import PointHistory from './pages/rewards/PointHistory';
 
 // Challenges
 import DailyChallenge from './pages/challenges/DailyChallenge';
@@ -106,6 +108,8 @@ function App() {
               <Route path={"/rewards/EditReward/:id"} element={<ProtectedRoute roles={['admin']}><EditReward /></ProtectedRoute>} />
               <Route path={"/rewards/DeleteReward/:id"} element={<ProtectedRoute roles={['admin']}><DeleteReward /></ProtectedRoute>} />
               <Route path={"/userreward/:id"} element={<UserReward />}/>
+              <Route path={"/userreward/reward-history/:userId"} element={<RewardHistory />}/>
+              <Route path={"/userreward/points-history/:userId"} element={<PointHistory />}/>
 
 
               {/* challenges */}
