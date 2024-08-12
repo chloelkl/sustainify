@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
+import QRCode from 'qrcode.react';
 
 const UserSettings = () => {
     const { user } = useAuth();
@@ -9,6 +10,7 @@ const UserSettings = () => {
         language: '',
         twoFactorAuth: false,
     });
+    const [twoFactorAuthURL, setTwoFactorAuthURL] = useState('');
 
     const navigate = useNavigate(); 
 
@@ -72,6 +74,48 @@ const UserSettings = () => {
         }
     };
 
+    const handleTwoFactorAuth = async () => {
+        if (settings.twoFactorAuth) {
+          try {
+            await axios.put(`${import.meta.env.VITE_API_URL}/user/${user.userID}/2fa/disable`);
+            setSettings(prevSettings => ({
+              ...prevSettings,
+              twoFactorAuth: false,
+            }));
+            alert('Two-factor authentication disabled successfully!');
+          } catch (error) {
+            console.error('Error disabling two-factor authentication:', error);
+            alert('Failed to disable two-factor authentication.');
+          }
+        } else {
+          try {
+            const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/user/${user.userID}/2fa/enable`);
+            setTwoFactorAuthURL(data.otpauthURL);
+          } catch (error) {
+            console.error('Error enabling two-factor authentication:', error);
+            alert('Failed to enable two-factor authentication.');
+          }
+        }
+    };
+    
+    const handleTwoFactorAuthConfirm = async () => {
+        const token = prompt('Enter the 2FA token from your authenticator app:');
+        if (token) {
+            try {
+            await axios.post(`${import.meta.env.VITE_API_URL}/user/${user.userID}/2fa/verify`, { token });
+            setSettings(prevSettings => ({
+                ...prevSettings,
+                twoFactorAuth: true,
+            }));
+            setTwoFactorAuthURL('');
+            alert('Two-factor authentication enabled successfully!');
+            } catch (error) {
+            console.error('Error verifying two-factor authentication:', error);
+            alert('Failed to verify two-factor authentication.');
+            }
+        }
+    };
+
     return (
         <div style={containerStyle}>
             <h2 style={headingStyle}>User Settings</h2>
@@ -116,14 +160,24 @@ const UserSettings = () => {
 
                 <div style={sectionStyle}>
                     <h3>Two-factor Authentication</h3>
-                    <label style={checkboxLabelStyle}>
-                        <input
-                            type="checkbox"
-                            name="twoFactorAuth"
-                            checked={settings.twoFactorAuth}
-                            onChange={handleChange}
-                        /> Enabled
-                    </label>
+                    <div style={checkboxContainerStyle}>
+                        <label style={checkboxLabelStyle}>
+                            <input
+                                type="checkbox"
+                                name="twoFactorAuth"
+                                checked={settings.twoFactorAuth}
+                                onChange={handleTwoFactorAuth}
+                            /> {settings.twoFactorAuth ? 'Enabled' : 'Disabled'}
+                        </label>
+                    </div>
+                    {twoFactorAuthURL && (
+                        <div style={checkboxContainerStyle}>
+                            <QRCode value={twoFactorAuthURL} />
+                            <button style={confirmButtonStyle} onClick={handleTwoFactorAuthConfirm}>
+                                Confirm
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 <div style={sectionStyle}>
@@ -196,6 +250,16 @@ const saveButtonStyle = {
     backgroundColor: '#4CAF50',
     color: 'white',
     cursor: 'pointer',
+};
+
+const confirmButtonStyle = {
+    padding: '10px',
+    borderRadius: '5px',
+    border: 'none',
+    backgroundColor: '#3498db',
+    color: 'white',
+    cursor: 'pointer',
+    marginTop: '10px',
 };
 
 export default UserSettings;
