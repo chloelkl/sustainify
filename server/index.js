@@ -122,6 +122,9 @@ app.use('/communication', communicationRoutes);
 const eventRoute = require('./routes/event');
 app.use("/event", eventRoute);
 
+const eventEmailRoute = require('./routes/eventemail');
+app.use("/eventemail", eventEmailRoute);
+
 const eventpostRoute = require('./routes/eventpost');
 app.use("/eventpost", eventpostRoute);
 
@@ -137,8 +140,8 @@ app.use("/chatbot", chatbotRoute);
 const userRewardRoute = require('./routes/userreward');
 app.use("/userreward", userRewardRoute);
 
-const fileRoute = require('./routes/file');
-app.use("/file", fileRoute);
+const homepageRoute = require('./routes/homepage');
+app.use("/homepage", homepageRoute);
 
 // Start server after synchronizing the DB files under models folder
 const db = require('./models');

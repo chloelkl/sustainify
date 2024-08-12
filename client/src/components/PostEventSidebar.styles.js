@@ -3,10 +3,12 @@ import theme from '../themes/MyTheme'; // Adjust the path to where your theme is
 import {Link} from 'react-router-dom';
 
 export const Sidebar = styled('div')({
-  width: '22vw',
+  width: '20vw',
   height: '75vh',
   background: theme.palette.primary.light,
-  marginTop: '20px',
+  marginTop: '1.25rem',
+  marginLeft: '1.25rem',
+
 });
 
 export const SideNav = styled('div')({

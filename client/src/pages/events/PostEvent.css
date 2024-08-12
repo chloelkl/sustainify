@@ -4,9 +4,13 @@
 
 .postevent-content {
     flex: 2;
+    /* margin-left: 22vw; */
     /* margin-left: 260px;  */
     /* Adjust this value based on the sidebar width */
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    
 }
 
 .event-card {
@@ -42,3 +46,13 @@
     background-color: #000 !important; /* Change button color to black */
     color: #fff !important;
 }
+
+.event-description {
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 9.375rem; /* Adjust as needed */
+    
+  }
+
+

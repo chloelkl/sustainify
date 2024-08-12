@@ -14,14 +14,15 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
         },
         rewardImage: {
-            type: DataTypes.STRING(20)
+            type: DataTypes.STRING,
+            allowNull: true
         }
     }, {
         tableName: 'reward' 
     });
 
     Reward.associate = (models) => {
-        Reward.belongsToMany(models.User, { through: "RewardUser", foreignKey: 'reward'})
+        Reward.belongsTo(models.User, { through: "UserHistory", foreignKey: 'rewardId'})
     }
 
     return Reward;

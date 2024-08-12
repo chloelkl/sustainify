@@ -26,7 +26,7 @@ import Signup from './pages/account/main/Signup';
 import AdminSignup from './pages/account/main/AdminSignup';
 import Login from './pages/account/main/Login';
 
-// Events
+// Events 
 import EventHosting from './pages/events/eventhosting';
 import EventHostingAdmin from './pages/events/eventhostingadmin';
 import PostEvent from './pages/events/postevent';
@@ -40,6 +40,7 @@ import EventStatisticsAdmin from './pages/events/eventstatisticsadmin.jsx';
 import Forum from './pages/forum/Forum';
 import AddForum from './pages/forum/AddForum';
 import UserForum from './pages/forum/UserForum';
+import ForumAdmin from './pages/forum/ForumAdmin.jsx';
 
 // Rewards
 import Rewards from './pages/rewards/Rewards';
@@ -47,6 +48,8 @@ import EditReward from './pages/rewards/EditReward';
 import AddReward from './pages/rewards/AddReward';
 import DeleteReward from './pages/rewards/DeleteReward';
 import UserReward from './pages/rewards/UserReward';
+import RewardHistory from './pages/rewards/RewardHistory';
+import PointHistory from './pages/rewards/PointHistory';
 
 // Challenges
 import DailyChallenge from './pages/challenges/DailyChallenge';
@@ -64,7 +67,7 @@ function App() {
           <div style={{ height: '100px', display: 'flex', flexDirection: 'column' }}>
             <Navbar />
           </div>
-          <Container>
+          <Container style={{padding: 0, maxWidth: '100%'}}>
             <Routes>
               <Route path="/" element={<Homepage />} />
 
@@ -96,7 +99,8 @@ function App() {
 
 
               {/* Forum */}
-              <Route path={"/forum"} element={<ProtectedRoute roles={['user', 'admin']}><Forum /></ProtectedRoute>} />
+              <Route path={"/forum"} element={<ProtectedRoute roles={['user']}><Forum /></ProtectedRoute>} />
+              <Route path={"/forum/admin"} element={<ProtectedRoute roles={['admin']}><ForumAdmin/></ProtectedRoute>} />
               <Route path={"/user/:userId/forum/addforum"} element={<AddForum/>} />
               <Route path={"/forum/by/:userId"} element={<ProtectedRoute roles={['user', 'admin']}><UserForum/></ProtectedRoute>} />
 
@@ -106,6 +110,8 @@ function App() {
               <Route path={"/rewards/EditReward/:id"} element={<ProtectedRoute roles={['admin']}><EditReward /></ProtectedRoute>} />
               <Route path={"/rewards/DeleteReward/:id"} element={<ProtectedRoute roles={['admin']}><DeleteReward /></ProtectedRoute>} />
               <Route path={"/userreward/:id"} element={<UserReward />}/>
+              <Route path={"/userreward/reward-history/:userId"} element={<RewardHistory />}/>
+              <Route path={"/userreward/points-history/:userId"} element={<PointHistory />}/>
 
 
               {/* challenges */}
