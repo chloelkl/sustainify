@@ -78,10 +78,27 @@ router.post('/validate-otp', async (req, res) => {
     }
 });
 
-// Update user settings
+router.get("/:userID/settings", verifyToken, async (req, res) => {
+    try {
+        const userID = req.params.userID;
+        const user = await User.findByPk(userID);
+        
+        if (!user) return res.status(404).json({ error: 'User not found.' });
+        
+        res.json({
+            language: user.language,
+            twoFactorAuth: user.twoFactorAuthEnabled ? 'Enabled' : 'Not Enabled'
+        });
+    } catch (error) {
+        console.error('Error fetching user settings:', error);
+        res.status(500).json({ error: 'Failed to fetch user settings.' });
+    }
+});
+
+
 router.put("/:userID/settings", verifyToken, async (req, res) => {
     try {
-        let userID = req.params.id;
+        let userID = req.params.userID;
         let { language, twoFactorAuth } = req.body;
 
         const user = await User.findByPk(userID);
@@ -286,13 +303,10 @@ router.put("/:userID", verifyToken, async (req, res) => {
         let userID = req.params.userID;
         const { username, email, password, phoneNumber, countryCode, location, fullName, bio } = req.body;
 
-        // Validate incoming data
-        await userSchema.validate(req.body, { abortEarly: false });
-
         const user = await User.findByPk(userID);
         if (!user) return res.status(404).json({ error: 'User not found.' });
 
-        // Update only fields that are present in the request body
+        // Update only fields that are provided
         user.username = username || user.username;
         user.email = email || user.email;
         user.phoneNumber = phoneNumber || user.phoneNumber;
@@ -301,8 +315,11 @@ router.put("/:userID", verifyToken, async (req, res) => {
         user.fullName = fullName || user.fullName;
         user.bio = bio || user.bio;
 
+        // Only update the password if it's provided and different
         if (password) {
-            user.password = await bcrypt.hash(password, 10);
+            const hashedPassword = await bcrypt.hash(password, 10);
+            user.password = hashedPassword;
+            user.passwordLength = password.length; // Update the password length
         }
 
         await user.save();
@@ -332,7 +349,10 @@ router.get("/:userID", verifyToken, async (req, res) => {
         let user = await User.findByPk(userID);
         if (!user) return res.sendStatus(404);
 
-        res.json(user);
+        res.json({
+            ...user.toJSON(),
+            passwordLength: user.passwordLength, // Return the length of the original password
+        });
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch user details.' });
     }
