@@ -62,7 +62,7 @@ const Signup = () => {
     return (
         <div style={container}>
             <div style={leftContainer}>
-                <img src="/src/assets/DBrand_Wallpaper.jpg" alt="Signup" style={imageStyle} />
+                <img src="/src/assets/Login.jpg" alt="Signup" style={imageStyle} />
             </div>
             <div style={rightContainer}>
                 <h2 style={titleStyle}>Sign Up</h2>

@@ -10,6 +10,9 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Homepage from './pages/Homepage';
 import Navbar from './components/Navbar';
 
+import AccountLayout from './AccountLayout.jsx';
+import MainLayout from './MainLayout.jsx';
+
 // Account 
 import UserProfile from './pages/account/user/UserProfile';
 import UserManagement from './pages/account/admin/UserManagement';
@@ -69,57 +72,61 @@ function App() {
           </div>
           <Container style={{padding: 0, maxWidth: '100%'}}>
             <Routes>
-              <Route path="/" element={<Homepage />} />
+              <Route element={<AccountLayout />}>
+                {/* Account */}
+                <Route path="/account/signup" element={<Signup />} />
+                <Route path="/account/login" element={<Login />} />
+                <Route path="/account/admin-signup" element={<AdminSignup />} />
+                <Route path="/account/user/main" element={<ProtectedRoute roles={['user']}><UserMain /></ProtectedRoute>} />
+                <Route path="/account/user/profile" element={<ProtectedRoute roles={['user', 'admin']}><UserProfile /></ProtectedRoute>} />
+                <Route path="/account/user/settings" element={<ProtectedRoute roles={['user', 'admin']}><UserSettings /></ProtectedRoute>} />
+                <Route path="/account/user/analytics" element={<ProtectedRoute roles={['user', 'admin']}><UserAnalytics /></ProtectedRoute>} />
+                <Route path="/account/user/chat" element={<ProtectedRoute roles={['user', 'admin']}><ChatWithFriends /></ProtectedRoute>} />
+                <Route path="/account/admin/main" element={<ProtectedRoute roles={['admin']}><AdminMain /></ProtectedRoute>} />
+                <Route path="/account/admin/user-management" element={<ProtectedRoute roles={['admin']}><UserManagement /></ProtectedRoute>} />
+                <Route path="/account/admin/communication-tools" element={<ProtectedRoute roles={['admin']}><CommunicationTools /></ProtectedRoute>} />
+                <Route path="/account/admin/system-overview" element={<SystemOverview />} />
+                <Route path="/account/admin/dashboard" element={<ProtectedRoute roles={['admin']}><Dashboard /></ProtectedRoute>} />
+              </Route>
 
-              {/* Account */}
-              <Route path="/account/signup" element={<Signup />} />
-              <Route path="/account/login" element={<Login />} />
-              <Route path="/account/admin-signup" element={<AdminSignup />} />
-              <Route path="/account/user/main" element={<ProtectedRoute roles={['user']}><UserMain /></ProtectedRoute>} />
-              <Route path="/account/user/profile" element={<ProtectedRoute roles={['user', 'admin']}><UserProfile /></ProtectedRoute>} />
-              <Route path="/account/user/settings" element={<ProtectedRoute roles={['user', 'admin']}><UserSettings /></ProtectedRoute>} />
-              <Route path="/account/user/analytics" element={<ProtectedRoute roles={['user', 'admin']}><UserAnalytics /></ProtectedRoute>} />
-              <Route path="/account/user/chat" element={<ProtectedRoute roles={['user', 'admin']}><ChatWithFriends /></ProtectedRoute>} />
-              <Route path="/account/admin/main" element={<ProtectedRoute roles={['admin']}><AdminMain /></ProtectedRoute>} />
-              <Route path="/account/admin/user-management" element={<ProtectedRoute roles={['admin']}><UserManagement /></ProtectedRoute>} />
-              <Route path="/account/admin/communication-tools" element={<ProtectedRoute roles={['admin']}><CommunicationTools /></ProtectedRoute>} />
-              <Route path="/account/admin/system-overview" element={<SystemOverview />} />
-              <Route path="/account/admin/dashboard" element={<ProtectedRoute roles={['admin']}><Dashboard /></ProtectedRoute>} />
+              <Route element={<MainLayout />}>
+                <Route path="/" element={<Homepage />} />
 
-              {/* Event */}
-              
-              <Route path="/eventhosting" element={<ProtectedRoute roles= {['user']}><EventHosting /></ProtectedRoute> } />
-              <Route path="/eventhostingadmin" element={<ProtectedRoute roles= {['admin']}><EventHostingAdmin /></ProtectedRoute>} />
-              <Route path="/postevent" element={<ProtectedRoute roles= {['user']}><PostEvent /></ProtectedRoute> } />
-              <Route path="/posteventadmin" element={<ProtectedRoute roles= {['admin']}><PostEventAdmin /></ProtectedRoute>} />
-              <Route path={"/edithostingadmin/:id"} element={<ProtectedRoute roles= {['admin']}><EditHostingAdmin /></ProtectedRoute>} />
-              <Route path="/createeventadmin" element={<ProtectedRoute roles= {['admin']}><CreateEventAdmin /></ProtectedRoute>} />
-              <Route path="/eventoverview" element={<ProtectedRoute roles= {['user']}><EventOverview /></ProtectedRoute>} />
-              <Route path="/eventstatisticsadmin" element={<ProtectedRoute roles= {['admin']}><EventStatisticsAdmin /></ProtectedRoute>} />
-
-
-              {/* Forum */}
-              <Route path={"/forum"} element={<ProtectedRoute roles={['user']}><Forum /></ProtectedRoute>} />
-              <Route path={"/forum/admin"} element={<ProtectedRoute roles={['admin']}><ForumAdmin/></ProtectedRoute>} />
-              <Route path={"/user/:userId/forum/addforum"} element={<AddForum/>} />
-              <Route path={"/forum/by/:userId"} element={<ProtectedRoute roles={['user', 'admin']}><UserForum/></ProtectedRoute>} />
-
-              {/* Rewards Page */}
-              <Route path={"/rewards/Rewards"} element={<ProtectedRoute roles={['admin']}><Rewards /></ProtectedRoute>} />
-              <Route path={"/rewards/AddReward"} element={<ProtectedRoute roles={['admin']}><AddReward /></ProtectedRoute>} />
-              <Route path={"/rewards/EditReward/:id"} element={<ProtectedRoute roles={['admin']}><EditReward /></ProtectedRoute>} />
-              <Route path={"/rewards/DeleteReward/:id"} element={<ProtectedRoute roles={['admin']}><DeleteReward /></ProtectedRoute>} />
-              <Route path={"/userreward/:id"} element={<UserReward />}/>
-              <Route path={"/userreward/reward-history/:userId"} element={<RewardHistory />}/>
-              <Route path={"/userreward/points-history/:userId"} element={<PointHistory />}/>
+                {/* Event */}
+                
+                <Route path="/eventhosting" element={<ProtectedRoute roles= {['user']}><EventHosting /></ProtectedRoute> } />
+                <Route path="/eventhostingadmin" element={<ProtectedRoute roles= {['admin']}><EventHostingAdmin /></ProtectedRoute>} />
+                <Route path="/postevent" element={<ProtectedRoute roles= {['user']}><PostEvent /></ProtectedRoute> } />
+                <Route path="/posteventadmin" element={<ProtectedRoute roles= {['admin']}><PostEventAdmin /></ProtectedRoute>} />
+                <Route path={"/edithostingadmin/:id"} element={<ProtectedRoute roles= {['admin']}><EditHostingAdmin /></ProtectedRoute>} />
+                <Route path="/createeventadmin" element={<ProtectedRoute roles= {['admin']}><CreateEventAdmin /></ProtectedRoute>} />
+                <Route path="/eventoverview" element={<ProtectedRoute roles= {['user']}><EventOverview /></ProtectedRoute>} />
+                <Route path="/eventstatisticsadmin" element={<ProtectedRoute roles= {['admin']}><EventStatisticsAdmin /></ProtectedRoute>} />
 
 
-              {/* challenges */}
-              <Route path={"/challenges"} element={<ProtectedRoute roles={['user', 'admin']}><DailyChallenge /></ProtectedRoute>} />
-              <Route path={"/challenges/manage"} element={<ProtectedRoute roles={['admin']}><ManageTask /></ProtectedRoute>} />
-              <Route path={"/challenges/statistics"} element={<ProtectedRoute roles={['admin']}><TasksStats /></ProtectedRoute>} />
-              <Route path={"/challenges/participation"} element={<ProtectedRoute roles={['admin']}><TaskParticipation /></ProtectedRoute>} />
-              <Route path={"/challenges/past"} element={<ProtectedRoute roles={['user']}><PastChallenges /></ProtectedRoute>} />
+                {/* Forum */}
+                <Route path={"/forum"} element={<ProtectedRoute roles={['user']}><Forum /></ProtectedRoute>} />
+                <Route path={"/forum/admin"} element={<ProtectedRoute roles={['admin']}><ForumAdmin/></ProtectedRoute>} />
+                <Route path={"/user/:userId/forum/addforum"} element={<AddForum/>} />
+                <Route path={"/forum/by/:userId"} element={<ProtectedRoute roles={['user', 'admin']}><UserForum/></ProtectedRoute>} />
+
+                {/* Rewards Page */}
+                <Route path={"/rewards/Rewards"} element={<ProtectedRoute roles={['admin']}><Rewards /></ProtectedRoute>} />
+                <Route path={"/rewards/AddReward"} element={<ProtectedRoute roles={['admin']}><AddReward /></ProtectedRoute>} />
+                <Route path={"/rewards/EditReward/:id"} element={<ProtectedRoute roles={['admin']}><EditReward /></ProtectedRoute>} />
+                <Route path={"/rewards/DeleteReward/:id"} element={<ProtectedRoute roles={['admin']}><DeleteReward /></ProtectedRoute>} />
+                <Route path={"/userreward/:id"} element={<UserReward />}/>
+                <Route path={"/userreward/reward-history/:userId"} element={<RewardHistory />}/>
+                <Route path={"/userreward/points-history/:userId"} element={<PointHistory />}/>
+
+
+                {/* challenges */}
+                <Route path={"/challenges"} element={<ProtectedRoute roles={['user', 'admin']}><DailyChallenge /></ProtectedRoute>} />
+                <Route path={"/challenges/manage"} element={<ProtectedRoute roles={['admin']}><ManageTask /></ProtectedRoute>} />
+                <Route path={"/challenges/statistics"} element={<ProtectedRoute roles={['admin']}><TasksStats /></ProtectedRoute>} />
+                <Route path={"/challenges/participation"} element={<ProtectedRoute roles={['admin']}><TaskParticipation /></ProtectedRoute>} />
+                <Route path={"/challenges/past"} element={<ProtectedRoute roles={['user']}><PastChallenges /></ProtectedRoute>} />
+              </Route>
             </Routes>
           </Container>
           <Chatbot />
