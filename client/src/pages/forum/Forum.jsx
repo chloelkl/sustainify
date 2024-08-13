@@ -138,7 +138,11 @@ function Forum() {
   }
 
   return (
-    <Box>
+    <Box
+    sx={{
+      mx: "7rem",
+      mt: "2rem"
+    }}>
       <Typography variant="h5" sx={{ my: 2 }}></Typography>
       <Box
         sx={{
@@ -146,7 +150,7 @@ function Forum() {
           alignItems: "center",
           width: "100%",
           mb: 2,
-          backgroundColor: "#ffffff",
+          backgroundColor: "white",
           borderRadius: 2,
           padding: 2,
           boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
@@ -159,6 +163,7 @@ function Forum() {
             width: "100%",
             borderRadius: 1,
             padding: "2px 10px",
+            
           }}
         >
           <Input

@@ -76,7 +76,7 @@ const AdminSignup = () => {
     return (
         <div style={container}>
             <div style={leftContainer}>
-                <img src="/src/assets/DBrand_Wallpaper.jpg" alt="Admin Signup" style={imageStyle} />
+                <img src="/src/assets/Login.jpg" alt="Admin Signup" style={imageStyle} />
             </div>
             <div style={rightContainer}>
                 <h2 style={titleStyle}>Admin Sign Up</h2>

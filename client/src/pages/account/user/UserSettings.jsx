@@ -171,7 +171,7 @@ const UserSettings = () => {
                         </label>
                     </div>
                     {twoFactorAuthURL && (
-                        <div style={checkboxContainerStyle}>
+                        <div style={qrContainerStyle}>
                             <QRCode value={twoFactorAuthURL} />
                             <button style={confirmButtonStyle} onClick={handleTwoFactorAuthConfirm}>
                                 Confirm
@@ -220,6 +220,13 @@ const checkboxContainerStyle = {
     flexDirection: 'column',
 };
 
+const qrContainerStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginTop: '10px',
+};
+
 const checkboxLabelStyle = {
     marginBottom: '10px',
 };
@@ -260,6 +267,7 @@ const confirmButtonStyle = {
     color: 'white',
     cursor: 'pointer',
     marginTop: '10px',
+    width: '100%',
 };
 
 export default UserSettings;

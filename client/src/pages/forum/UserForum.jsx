@@ -19,8 +19,8 @@ import { TbEdit } from "react-icons/tb";
 import EditForm from "./EditForum";
 import { useAuth } from "../../context/AuthContext";
 import dayjs from "dayjs";
-import SaveIcon from "@mui/icons-material/Save";
 import { Clear } from "@mui/icons-material";
+import theme from "../../themes/MyTheme";
 
 const dateFormat = "D MMM YYYY";
 
@@ -82,6 +82,8 @@ const styles = {
   },
   forumContainer: {
     marginTop: "3rem",
+    marginRight: "7rem",
+    marginLeft: "7rem",
   },
 };
 
@@ -199,6 +201,7 @@ function UserForums() {
         sx={{
           width: "100%",
           height: "auto",
+          minHeight: "12rem",
           objectFit: "cover",
           borderRadius: "4px 4px 0 0",
         }}
@@ -222,9 +225,9 @@ function UserForums() {
         }}
       >
         <Typography
-          variant="h5"
+          // variant="h6"
           component="div"
-          sx={{ wordWrap: "break-word", mb: 1, fontWeight: "bold" }}
+          sx={{ wordWrap: "break-word", mb: 1, fontWeight: "bold", size: "1rem" }}
         >
           {item.title}
         </Typography>
@@ -288,6 +291,7 @@ function UserForums() {
         sx={{
           width: "100%",
           height: "auto",
+          minHeight: "12rem",
           objectFit: "cover",
           borderRadius: "4px 4px 0 0",
         }}
@@ -388,7 +392,7 @@ function UserForums() {
               {user ? (
                 <Link to="/account/user/main">
                   <Button
-                    variant="outlined"
+                    variant="contained"
                     color="primary"
                     style={styles.button}
                   >
@@ -463,15 +467,22 @@ function UserForums() {
             >
               {isCurrentUser && (
                 <Button
-                  variant="contained"
-                  startIcon={<IoIosAddCircleOutline />}
-                  aria-label="add"
-                  sx={{
-                    marginTop: "0.5rem",
-                  }}
-                >
-                  Create Post
-                </Button>
+                startIcon={<IoIosAddCircleOutline />}
+                aria-label="add"
+                sx={{
+                  px: "0.7rem",
+                  marginTop: "0.5rem",
+                  backgroundColor: theme.palette.primary.main, // Default background color
+                  color: "white", // Default text color
+                  "&:hover": {
+                    backgroundColor: "white", // Background color on hover
+                    color: theme.palette.primary.main, // Text color on hover
+                  },
+                  transition: "background-color 0.3s, color 0.3s", // Smooth transition
+                }}
+              >
+                Create Post
+              </Button>
               )}
             </Link>
           </Box>

@@ -97,6 +97,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
             allowNull: false,
+        },
+        passwordLength: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
         }
     }, {
       tableName: 'users'
