@@ -46,10 +46,14 @@ module.exports = (sequelize, DataTypes) => {
 
     RewardUser.associate = (models) => {
         RewardUser.belongsTo(models.User, {
-            foreignKey: 'userId'
+            foreignKey: 'userId',
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE'
         });
         RewardUser.belongsTo(models.Reward, {
-            foreignKey: 'rewardId'
+            foreignKey: 'rewardId',
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE'
         });
     };
 

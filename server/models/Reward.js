@@ -18,11 +18,11 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true
         }
     }, {
-        tableName: 'reward' 
+        tableName: 'reward'
     });
 
     Reward.associate = (models) => {
-        Reward.belongsTo(models.User, { through: "UserHistory", foreignKey: 'rewardId'})
+        Reward.belongsTo(models.User, { through: "UserHistory", foreignKey: 'rewardId', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
     }
 
     return Reward;

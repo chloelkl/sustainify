@@ -12,7 +12,10 @@ const styles = {
         display: 'flex',
         flexWrap: 'wrap',
         gap: '16px',
-        paddingBottom: '50px'
+        paddingBottom: '50px',
+        justifyContent: 'flex-start',
+        margin: '0 auto',
+        maxWidth: '1300px', // Optional: set a max-width for the container
     },
     item: {
         flex: '0 1 calc(20% - 16px)',
@@ -20,6 +23,7 @@ const styles = {
         boxSizing: 'border-box',
         borderRadius: '12px', // Adjust the border radius as needed
         overflow: 'hidden',
+        maxWidth: '80%',
     },
     redeemedCard: {
         backgroundColor: '#87AEA6', // Set background to green
@@ -199,7 +203,7 @@ function UserReward() {
                 sx={{
                     display: 'flex',
                     justifyContent: 'space-between',
-                    width: '100%',
+                    maxWidth: '1200px',
                     margin: '0 auto',
                     padding: '0 16px', 
                     boxSizing: 'border-box' 
@@ -272,7 +276,7 @@ function UserReward() {
                     Rewards
                 </Typography>
             </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingRight: '90px', paddingTop: '20px', paddingBottom: '20px', color: 'grey' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingTop: '20px', paddingBottom: '20px', color: 'grey'}}>
                 <Typography variant="h6">Voucher Reset Every 7 Days </Typography>
             </Box>
             <Box>
@@ -285,7 +289,7 @@ function UserReward() {
                                 <Card style={isRedeemed ? styles.redeemedCard : {}}> {/* Apply style conditionally */}
                                     {isRedeemed ? (
                                         <Typography style={styles.redeemedText}>
-                                            <div>
+                                            <div style = {{ margin: 'auto', textAlign: 'center'}}>
                                                 CLAIMED
                                             </div>
                                             <div style={{ textAlign: 'center', fontSize: '20px', paddingTop: '20px' }}> {/* Center text */}
