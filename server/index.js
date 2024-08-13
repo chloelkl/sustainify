@@ -150,50 +150,9 @@ app.use("/homepage", homepageRoute);
 
 // Start server after synchronizing the DB files under models folder
 const db = require('./models');
-
-async function syncDatabase() {
-    try {
-        // Start by synchronizing all models with no dependencies
-        console.log('Synchronizing Users model...');
-        if (db.User) await db.User.sync();
-
-        console.log('Synchronizing Challenges model...');
-        if (db.Challenge) await db.Challenge.sync();
-
-        console.log('Synchronizing Events model...');
-        if (db.Event) await db.Event.sync();
-
-        // Synchronize models that depend on other models
-        console.log('Synchronizing EventEmails model...');
-        if (db.EventEmail) await db.EventEmail.sync();
-
-        console.log('Synchronizing Forums model...');
-        if (db.Forum) await db.Forum.sync();
-
-        console.log('Synchronizing FriendRequests model...');
-        if (db.FriendRequests) await db.FriendRequests.sync();
-
-        // Synchronize the rest of the models
-        const modelsToSync = Object.keys(db).filter(modelName => 
-            !['User', 'Challenge', 'Event', 'EventEmail', 'Forum', 'FriendRequests'].includes(modelName)
-        );
-
-        for (const modelName of modelsToSync) {
-            console.log(`Synchronizing ${modelName} model...`);
-            if (db[modelName].sync) {
-                await db[modelName].sync();
-            }
-        }
-
-        console.log('All models were synchronized successfully.');
-    } catch (error) {
-        console.error('Error synchronizing models:', error);
-    }
-}
-
-syncDatabase()
+db.sequelize.sync({ alter: true })
     .then(() => {
-        let port = process.env.PORT || 3001;
+        let port = process.env.APP_PORT || 3001;
         server.listen(port, () => {
             console.log(`⚡ Server running on http://localhost:${port}`);
         });
