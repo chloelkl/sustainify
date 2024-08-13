@@ -160,16 +160,12 @@ const UserSettings = () => {
 
                 <div style={sectionStyle}>
                     <h3>Two-factor Authentication</h3>
-                    <div style={checkboxContainerStyle}>
-                        <label style={checkboxLabelStyle}>
-                            <input
-                                type="checkbox"
-                                name="twoFactorAuth"
-                                checked={settings.twoFactorAuth}
-                                onChange={handleTwoFactorAuth}
-                            /> {settings.twoFactorAuth ? 'Enabled' : 'Disabled'}
-                        </label>
-                    </div>
+                    <button
+                        style={settings.twoFactorAuth ? toggleButtonStyleEnabled : toggleButtonStyleDisabled}
+                        onClick={handleTwoFactorAuth}
+                    >
+                        {settings.twoFactorAuth ? 'Disable 2FA' : 'Enable 2FA'}
+                    </button>
                     {twoFactorAuthURL && (
                         <div style={qrContainerStyle}>
                             <QRCode value={twoFactorAuthURL} />
@@ -267,6 +263,26 @@ const confirmButtonStyle = {
     color: 'white',
     cursor: 'pointer',
     marginTop: '10px',
+    width: '100%',
+};
+
+const toggleButtonStyleEnabled = {
+    padding: '10px',
+    borderRadius: '5px',
+    border: 'none',
+    backgroundColor: '#e74c3c', // Red for disabling
+    color: 'white',
+    cursor: 'pointer',
+    width: '100%',
+};
+
+const toggleButtonStyleDisabled = {
+    padding: '10px',
+    borderRadius: '5px',
+    border: 'none',
+    backgroundColor: '#4CAF50', // Green for enabling
+    color: 'white',
+    cursor: 'pointer',
     width: '100%',
 };
 
