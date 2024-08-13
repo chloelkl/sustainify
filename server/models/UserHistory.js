@@ -42,10 +42,14 @@ module.exports = (sequelize, DataTypes) => {
 
     UserHistory.associate = (models) => {
         UserHistory.belongsTo(models.User, {
-            foreignKey: 'userId'
+            foreignKey: 'userId',
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE'
         });
         UserHistory.belongsTo(models.Reward, {
-            foreignKey: 'rewardId'
+            foreignKey: 'rewardId',
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE'
         });
     };
 

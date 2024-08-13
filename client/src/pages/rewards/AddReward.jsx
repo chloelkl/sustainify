@@ -6,6 +6,18 @@ import http from '../../http';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
+const styles = {
+  NavigateButton: {
+    color: 'black',
+    backgroundColor: 'white', // Example background color
+    border: 'none',
+    borderRadius: '4px',
+    padding: '8px 16px',
+    fontWeight: 'bold',
+    fontSize: '40px',
+    cursor: 'pointer',
+  },
+}
 
 const allowedPoints = [100, 300, 400, 500, 600]
 
@@ -56,20 +68,33 @@ function AddReward() {
       });
   };
 
+  const handleBack = () => {
+    navigate(`/rewards/Rewards`);
+  }
+
   return (
+    <>
     <Box
       sx={{
         bgcolor: 'white',
         p: 2,
         borderRadius: 8,
-        marginTop: '50px',
+        maxWidth: '800px',
+        margin: '50px auto', // Space at the top and bottom, centered horizontally
         paddingLeft: '120px',
         paddingRight: '120px',
         paddingTop: '50px',
         paddingBottom: '50px',
-        marginBoton: '50px'
+        boxSizing: 'border-box',
       }}
     >
+      <button
+        onClick={handleBack}
+        variant="contained"
+        style={styles.NavigateButton}
+      >
+        &lt;
+      </button>
       <Typography variant="h5" sx={{ mb: 2, fontSize: '40px', fontWeight: 'bold', textAlign: 'center' }}>
         Add Reward
       </Typography>
@@ -183,6 +208,13 @@ function AddReward() {
         )}
       </Formik>
     </Box>
+
+    <Box sx = {{ height: '1rem'
+    }}>
+      <Typography>
+      </Typography>
+    </Box>
+    </>
 
   );
 }
