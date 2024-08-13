@@ -43,6 +43,7 @@ const ForumCard = ({ item, onCardClick }) => (
       sx={{
         width: "100%",
         height: "auto",
+        minHeight: "12rem",
         objectFit: "cover",
         display: "block",
       }}
@@ -64,7 +65,6 @@ const ForumCard = ({ item, onCardClick }) => (
       }}
     >
       <Typography
-        variant="h5"
         component="div"
         sx={{ wordWrap: "break-word", mb: 1, fontWeight: "bold" }}
       >
