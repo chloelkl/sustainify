@@ -228,7 +228,7 @@ const UserProfile = () => {
                             Points earned:
                         </Typography>
                         <Typography variant="h4" sx={{ marginBottom: 4 }}>
-                            {userDetails.points} Pts
+                            {userDetails.pointsEarned} Pts
                         </Typography>
                         <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
                             <Button
