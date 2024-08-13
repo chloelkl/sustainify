@@ -153,24 +153,29 @@ const db = require('./models');
 
 async function syncDatabase() {
     try {
+        // Start by synchronizing all models with no dependencies
         console.log('Synchronizing Users model...');
         if (db.User) await db.User.sync();
-        
+
         console.log('Synchronizing Challenges model...');
         if (db.Challenge) await db.Challenge.sync();
 
         console.log('Synchronizing Events model...');
         if (db.Event) await db.Event.sync();
 
+        // Synchronize models that depend on other models
         console.log('Synchronizing EventEmails model...');
         if (db.EventEmail) await db.EventEmail.sync();
 
         console.log('Synchronizing Forums model...');
         if (db.Forum) await db.Forum.sync();
 
-        // Sync the rest of the models
+        console.log('Synchronizing FriendRequests model...');
+        if (db.FriendRequests) await db.FriendRequests.sync();
+
+        // Synchronize the rest of the models
         const modelsToSync = Object.keys(db).filter(modelName => 
-            !['User', 'Challenge', 'Event', 'EventEmail', 'Forum'].includes(modelName)
+            !['User', 'Challenge', 'Event', 'EventEmail', 'Forum', 'FriendRequests'].includes(modelName)
         );
 
         for (const modelName of modelsToSync) {
@@ -188,7 +193,7 @@ async function syncDatabase() {
 
 syncDatabase()
     .then(() => {
-        let port = process.env.APP_PORT || 3001;
+        let port = process.env.PORT || 3001;
         server.listen(port, () => {
             console.log(`⚡ Server running on http://localhost:${port}`);
         });
