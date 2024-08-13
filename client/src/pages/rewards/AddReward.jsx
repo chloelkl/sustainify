@@ -73,6 +73,7 @@ function AddReward() {
   }
 
   return (
+    <>
     <Box
       sx={{
         bgcolor: 'white',
@@ -207,6 +208,13 @@ function AddReward() {
         )}
       </Formik>
     </Box>
+
+    <Box sx = {{ height: '1rem'
+    }}>
+      <Typography>
+      </Typography>
+    </Box>
+    </>
 
   );
 }

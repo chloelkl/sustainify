@@ -93,131 +93,139 @@ function EditReward({ onSave }) {
     }
 
     return (
-        <Box
-            sx={{
-                bgcolor: 'white',
-                p: 2,
-                borderRadius: 8,
-                maxWidth: '800px',
-                margin: '50px auto', // Space at the top and bottom, centered horizontally
-                paddingLeft: '120px',
-                paddingRight: '120px',
-                paddingTop: '50px',
-                paddingBottom: '50px',
-                boxSizing: 'border-box',
-            }}
-        >
-            <button
-                onClick={handleBack}
-                variant="contained"
-                style={styles.NavigateButton}
+        <>
+            <Box
+                sx={{
+                    bgcolor: 'white',
+                    p: 2,
+                    borderRadius: 8,
+                    maxWidth: '800px',
+                    margin: '50px auto', // Space at the top and bottom, centered horizontally
+                    paddingLeft: '120px',
+                    paddingRight: '120px',
+                    paddingTop: '50px',
+                    paddingBottom: '50px',
+                    boxSizing: 'border-box',
+                }}
             >
-                &lt;
-            </button>
-            <Typography variant="h5" sx={{ mb: 2, fontSize: '40px', fontWeight: 'bold', textAlign: 'center' }}>
-                Edit Reward
-            </Typography>
-            <Box>
-                <form onSubmit={formik.handleSubmit}>
-                    <Grid container spacing={4} alignItems="center">
-                        <Grid item xs={8}>
-                            <TextField
-                                fullWidth
-                                margin="normal"
-                                autoComplete="off"
-                                label="Reward Name"
-                                name="rewardname"
-                                value={formik.values.rewardname}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.rewardname && Boolean(formik.errors.rewardname)}
-                                helperText={formik.touched.rewardname && formik.errors.rewardname}
-                                sx={{
-                                    maxWidth: '100%' // Ensure the TextField does not exceed the container
-                                }}
-                            />
+                <button
+                    onClick={handleBack}
+                    variant="contained"
+                    style={styles.NavigateButton}
+                >
+                    &lt;
+                </button>
+                <Typography variant="h5" sx={{ mb: 2, fontSize: '40px', fontWeight: 'bold', textAlign: 'center' }}>
+                    Edit Reward
+                </Typography>
+                <Box>
+                    <form onSubmit={formik.handleSubmit}>
+                        <Grid container spacing={4} alignItems="center">
+                            <Grid item xs={8}>
+                                <TextField
+                                    fullWidth
+                                    margin="normal"
+                                    autoComplete="off"
+                                    label="Reward Name"
+                                    name="rewardname"
+                                    value={formik.values.rewardname}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                    error={formik.touched.rewardname && Boolean(formik.errors.rewardname)}
+                                    helperText={formik.touched.rewardname && formik.errors.rewardname}
+                                    sx={{
+                                        maxWidth: '100%' // Ensure the TextField does not exceed the container
+                                    }}
+                                />
+                            </Grid>
+                            <Grid item xs={4}>
+                                <TextField
+                                    fullWidth
+                                    margin="normal"
+                                    autoComplete="off"
+                                    label="Points"
+                                    name="points"
+                                    value={formik.values.points}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                    error={formik.touched.points && Boolean(formik.errors.points)}
+                                    helperText={formik.touched.points && formik.errors.points}
+                                    sx={{
+                                        maxWidth: '100%' // Ensure the TextField does not exceed the container
+                                    }}
+                                />
+                            </Grid>
                         </Grid>
-                        <Grid item xs={4}>
-                            <TextField
-                                fullWidth
-                                margin="normal"
-                                autoComplete="off"
-                                label="Points"
-                                name="points"
-                                value={formik.values.points}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.points && Boolean(formik.errors.points)}
-                                helperText={formik.touched.points && formik.errors.points}
+                        <Box sx={{ textAlign: 'center' }}>
+                            <Button
+                                variant="contained"
+                                component="label"
                                 sx={{
-                                    maxWidth: '100%' // Ensure the TextField does not exceed the container
+                                    mt: 2,
+                                    textAlign: 'center'
                                 }}
-                            />
-                        </Grid>
-                    </Grid>
-                    <Box sx={{ textAlign: 'center' }}>
-                        <Button
-                            variant="contained"
-                            component="label"
+                            >
+                                Upload Image
+                                <input
+                                    type="file"
+                                    hidden
+                                    onChange={(event) => {
+                                        const file = event.currentTarget.files[0];
+                                        formik.setFieldValue('rewardImage', file);
+                                        if (file) {
+                                            setImagePreview(URL.createObjectURL(file));
+                                        }
+                                    }}
+                                />
+                            </Button>
+                        </Box>
+                        <Box
                             sx={{
-                                mt: 2,
-                                textAlign: 'center'
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                flexDirection: 'column',
+                                height: '300px',
+                                marginBottom: '20px',
+                                marginTop: '20px',
+                                paddingTop: '25px',
+                                paddingBottom: '25px',
+                                border: '2px solid lightgrey',
+                                borderRadius: '8px',
+                                overflow: 'hidden'
                             }}
                         >
-                            Upload Image
-                            <input
-                                type="file"
-                                hidden
-                                onChange={(event) => {
-                                    const file = event.currentTarget.files[0];
-                                    formik.setFieldValue('rewardImage', file);
-                                    if (file) {
-                                        setImagePreview(URL.createObjectURL(file));
-                                    }
-                                }}
-                            />
-                        </Button>
-                    </Box>
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            flexDirection: 'column',
-                            height: '300px',
-                            marginBottom: '20px',
-                            marginTop: '20px',
-                            paddingTop: '25px',
-                            paddingBottom: '25px',
-                            border: '2px solid lightgrey',
-                            borderRadius: '8px',
-                            overflow: 'hidden'
-                        }}
-                    >
-                        {imagePreview ? (
-                            <>
-                                <Typography variant="body2">Selected file:</Typography>
-                                <img
-                                    src={imagePreview}
-                                    alt="Preview"
-                                    style={{ maxWidth: '100%', maxHeight: '300px', marginTop: '5px' }}
-                                />
-                            </>
-                        ) : (
-                            <Typography variant="body2" color="textSecondary">
-                                No image selected
-                            </Typography>
-                        )}
-                    </Box>
+                            {imagePreview ? (
+                                <>
+                                    <Typography variant="body2">Selected file:</Typography>
+                                    <img
+                                        src={imagePreview}
+                                        alt="Preview"
+                                        style={{ maxWidth: '100%', maxHeight: '300px', marginTop: '5px' }}
+                                    />
+                                </>
+                            ) : (
+                                <Typography variant="body2" color="textSecondary">
+                                    No image selected
+                                </Typography>
+                            )}
+                        </Box>
 
-                    <Box sx={{ mt: 2, fontWeight: 'bold', textAlign: 'center' }}>
-                        <Button variant="contained" type="submit">
-                            Edit
-                        </Button>
-                    </Box>
-                </form>
+                        <Box sx={{ mt: 2, fontWeight: 'bold', textAlign: 'center' }}>
+                            <Button variant="contained" type="submit">
+                                Edit
+                            </Button>
+                        </Box>
+                    </form>
+                </Box>
             </Box>
-        </Box>
+            <Box sx={{
+                height: '1rem'
+            }}>
+                <Typography>
+                </Typography>
+            </Box>
+        </>
     );
 }
 

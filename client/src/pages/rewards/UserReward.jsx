@@ -289,7 +289,7 @@ function UserReward() {
                                 <Card style={isRedeemed ? styles.redeemedCard : {}}> {/* Apply style conditionally */}
                                     {isRedeemed ? (
                                         <Typography style={styles.redeemedText}>
-                                            <div>
+                                            <div style = {{ margin: 'auto', textAlign: 'center'}}>
                                                 CLAIMED
                                             </div>
                                             <div style={{ textAlign: 'center', fontSize: '20px', paddingTop: '20px' }}> {/* Center text */}
