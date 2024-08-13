@@ -15,7 +15,8 @@ import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 const StyledContainer = styled('div')({
   margin: '5vh 2vw',
   display: 'flex',
-  justifyContent: 'space-around'
+  justifyContent: 'space-around',
+  padding: '0 3rem'
 });
 
 const Sidebar = styled('div')({
@@ -46,8 +47,9 @@ const ManageParent = styled('div')({
 const ManageContainer = styled('div')({
   width: '80%',
   height: '80%',
+  minHeight: '35vw',
   background: theme.palette.secondary.light,
-  margin: '5% auto',
+  margin: '2% auto',
   overflow: 'auto',
   boxShadow: '',
 })
