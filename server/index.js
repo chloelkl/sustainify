@@ -152,12 +152,7 @@ const db = require('./models');
 
 async function syncDatabase() {
     try {
-        console.log('Synchronizing Users model...');
-        if (db.User) await db.User.sync();
-        
-        console.log('Synchronizing Challenges model...');
-        if (db.Challenge) await db.Challenge.sync();
-
+        // Sync only the Events model first
         console.log('Synchronizing Events model...');
         if (db.Event) {
             try {
@@ -169,6 +164,7 @@ async function syncDatabase() {
             }
         }
 
+        // Sync EventEmails after Events
         console.log('Synchronizing EventEmails model...');
         if (db.EventEmail) {
             try {
@@ -180,27 +176,9 @@ async function syncDatabase() {
             }
         }
 
-        // Sync the rest of the models
-        const modelsToSync = Object.keys(db).filter(modelName => 
-            !['User', 'Challenge', 'Event', 'EventEmail', 'Forum'].includes(modelName)
-        );
-
-        for (const modelName of modelsToSync) {
-            console.log(`Synchronizing ${modelName} model...`);
-            if (db[modelName].sync) {
-                try {
-                    await db[modelName].sync();
-                    console.log(`${modelName} model synchronized successfully.`);
-                } catch (err) {
-                    console.error(`Error synchronizing ${modelName} model:`, err);
-                    throw err;
-                }
-            }
-        }
-
-        console.log('All models were synchronized successfully.');
+        console.log('Event and EventEmail models synchronized successfully.');
     } catch (error) {
-        console.error('Error synchronizing models:', error);
+        console.error('Error during model synchronization:', error);
     }
 }
 
@@ -214,4 +192,3 @@ syncDatabase()
     .catch((err) => {
         console.log('Error during server startup:', err);
     });
-
