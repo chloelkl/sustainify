@@ -148,47 +148,15 @@ app.use("/userreward", userRewardRoute);
 const homepageRoute = require('./routes/homepage');
 app.use("/homepage", homepageRoute);
 
+// Start server after synchronizing the DB files under models folder
 const db = require('./models');
-
-async function syncDatabase() {
-    try {
-        // Sync only the Events model first
-        console.log('Synchronizing Events model...');
-        if (db.Event) {
-            try {
-                await db.Event.sync();
-                console.log('Event model synchronized successfully.');
-            } catch (err) {
-                console.error('Error synchronizing Event model:', err);
-                throw err;
-            }
-        }
-
-        // Sync EventEmails after Events
-        console.log('Synchronizing EventEmails model...');
-        if (db.EventEmail) {
-            try {
-                await db.EventEmail.sync();
-                console.log('EventEmail model synchronized successfully.');
-            } catch (err) {
-                console.error('Error synchronizing EventEmail model:', err);
-                throw err;
-            }
-        }
-
-        console.log('Event and EventEmail models synchronized successfully.');
-    } catch (error) {
-        console.error('Error during model synchronization:', error);
-    }
-}
-
-syncDatabase()
+db.sequelize.sync({ alter: true })
     .then(() => {
-        let port = process.env.PORT || 3001;
+        let port = process.env.APP_PORT || 3001;
         server.listen(port, () => {
             console.log(`⚡ Server running on http://localhost:${port}`);
         });
     })
     .catch((err) => {
-        console.log('Error during server startup:', err);
+        console.log(err);
     });
