@@ -52,6 +52,19 @@ const SystemOverview = () => {
         fetchAdmins();
     }, [admin]);
 
+    useEffect(() => {
+        let timerInterval;
+        if (otp && otpTimer > 0) {
+            timerInterval = setInterval(() => {
+                setOtpTimer((prevTimer) => prevTimer - 1);
+            }, 1000);
+        } else if (otpTimer === 0) {
+            setLinkValid(false);
+            clearInterval(timerInterval);
+        }
+        return () => clearInterval(timerInterval);
+    }, [otp, otpTimer]);
+
     const fetchAdminDetails = (adminID) => {
         axios.get(`${import.meta.env.VITE_API_URL}/admin/${adminID}`)
             .then(response => setAdminDetails(response.data))
@@ -236,8 +249,10 @@ const SystemOverview = () => {
                         </Button>
                         {signupLink && linkValid && (
                             <Box sx={{ mt: 2 }}>
-                                <Typography>Admin Signup Link: <a href={signupLink} target="_blank" rel="noopener noreferrer">{signupLink}</a></Typography>
-                                <Typography>OTP: {otp}</Typography>
+                                <Typography sx={{ wordBreak: 'break-all' }}>
+                                    Admin Signup Link: <a href={signupLink} target="_blank" rel="noopener noreferrer">{signupLink}</a>
+                                </Typography><br />
+                                <Typography>OTP: {otp}</Typography><br />
                                 <Typography>OTP valid for: {otpTimer} seconds</Typography>
                                 <Button variant="outlined" onClick={handleRevokeLink} sx={{ mt: 1 }}>Revoke Link</Button>
                             </Box>

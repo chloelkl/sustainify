@@ -29,51 +29,58 @@ const Login = () => {
         e.preventDefault();
         setErrors([]);
         setLoading(true); // Start spinner
-
+        
+        console.log('Form Data:', formData); // Add this line
+    
         try {
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, formData);
-            const { userID, twoFactorAuthRequired } = response.data;
-
+            const { token, role, userID, pointsEarned, twoFactorAuthRequired } = response.data;
+        
             if (twoFactorAuthRequired) {
                 setUserID(userID);
                 setTwoFactorRequired(true);
             } else {
-                const { token, role, userID, pointsEarned } = response.data;
                 login(token, { role, userID, pointsEarned });
+                localStorage.setItem('pointsEarned', pointsEarned);
                 navigate(role === 'admin' ? '/account/admin/main' : '/account/user/main');
             }
         } catch (error) {
+            console.error('Login Error:', error.response ? error.response.data : error.message); // Add this line
             setErrors(error.response ? error.response.data.errors : [{ msg: 'Invalid credentials' }]);
         } finally {
             setTimeout(() => {
-                setLoading(false); // Stop spinner after a delay
-            }, 500); // Adding a delay of 500ms
+                setLoading(false);
+            }, 2000);
         }
     };
-
+    
+    
     const handle2FASubmit = async (e) => {
         e.preventDefault();
         setErrors([]);
-        setLoading(true); // Start spinner
-
+        setLoading(true);
+    
         try {
+            if (!userID) {
+                throw new Error("UserID is missing. Cannot verify 2FA.");
+            }
+    
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/verify-2fa`, {
                 userID,
-                token: twoFactorCode,
+                token: twoFactorCode.toString(),
             });
-            const { token, role, id } = response.data;
-            login(token, { role, userID: id });
+    
+            const { token, role, userID: returnedUserID } = response.data;
+            login(token, { role, userID: returnedUserID });
             navigate(role === 'admin' ? '/account/admin/main' : '/account/user/main');
         } catch (error) {
-            const errorMessages = error.response?.data?.errors || [{ msg: 'Invalid 2FA code' }];
-            setErrors(errorMessages);
+            console.error('2FA Verification Failed:', error.response ? error.response.data : error.message);
+            setErrors(error.response?.data?.errors || [{ msg: 'Invalid 2FA code' }]);
         } finally {
-            setTimeout(() => {
-                setLoading(false); // Stop spinner after a delay
-            }, 500); // Adding a delay of 500ms
+            setLoading(false);
         }
     };
-
+    
     {errors.length > 0 && (
         <div style={errorStyle}>
             {errors.map((error, index) => <p key={index}>{error.msg}</p>)}
@@ -95,7 +102,7 @@ const Login = () => {
     return (
         <div style={container}>
             <div style={leftContainer}>
-                <img src="/src/assets/DBrand_Wallpaper.jpg" alt="Login" style={imageStyle} />
+                <img src="/src/assets/Login.jpg" alt="Login" style={imageStyle} />
             </div>
             <div style={rightContainer}>
                 <h2 style={titleStyle}>Login</h2>

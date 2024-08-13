@@ -53,7 +53,16 @@ router.post('/signup', [
 
         const userID = await generateUserID();
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await User.create({ userID, username, email, password: hashedPassword, phoneNumber, countryCode, role: 'user' });
+        const newUser = await User.create({
+            userID,
+            username,
+            email,
+            password: hashedPassword,
+            passwordLength: password.length, // Store password length
+            phoneNumber,
+            countryCode,
+            role: 'user'
+        });
 
         const token = generateToken(newUser);
         res.status(201).json({ token, role: newUser.role, userID: newUser.userID });
