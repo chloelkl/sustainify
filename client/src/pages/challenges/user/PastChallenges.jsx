@@ -15,7 +15,8 @@ import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 const StyledContainer = styled('div')({
   margin: '5vh 2vw',
   display: 'flex',
-  justifyContent: 'space-around'
+  justifyContent: 'space-around',
+  padding: '0 3rem'
 });
 
 const Sidebar = styled('div')({
