@@ -1,6 +1,6 @@
 // client/src/components/Navbar.jsx
 import React from 'react';
-import { AppBar, Toolbar, Typography, IconButton } from '@mui/material';
+import { AppBar, Toolbar, Typography, IconButton, Icon } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { styled } from '@mui/system';
 import AccountCircle from '@mui/icons-material/AccountCircle';
@@ -50,9 +50,12 @@ function Navbar() {
     <AppBar position="fixed" style={{ zIndex: 1300, backgroundColor: '#84a9ac' }}>
       <StyledToolbar>
         <NavLinks>
+        <IconButton>
           <StyledLink to="/challenges">
             <Typography>CHALLENGES</Typography>
           </StyledLink>
+        </IconButton>
+          
           {(role === 'admin' || user) ? (
             <IconButton color="inherit" onClick={handleEventsClick}>
           <StyledLink >
