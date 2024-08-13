@@ -148,34 +148,53 @@ app.use("/userreward", userRewardRoute);
 const homepageRoute = require('./routes/homepage');
 app.use("/homepage", homepageRoute);
 
-// Start server after synchronizing the DB files under models folder
 const db = require('./models');
 
 async function syncDatabase() {
     try {
-        // Sync the Users model first
+        console.log('Synchronizing Users model...');
         if (db.User) await db.User.sync();
-
-        // Sync the Challenges model next as it is referenced in forums
+        
+        console.log('Synchronizing Challenges model...');
         if (db.Challenge) await db.Challenge.sync();
 
-        // Sync the Forums model after Users and Challenges
-        if (db.Forum) await db.Forum.sync();
+        console.log('Synchronizing Events model...');
+        if (db.Event) {
+            try {
+                await db.Event.sync();
+                console.log('Event model synchronized successfully.');
+            } catch (err) {
+                console.error('Error synchronizing Event model:', err);
+                throw err;
+            }
+        }
 
-        // Sync the Events model before EventEmails
-        if (db.Event) await db.Event.sync();
-
-        // Sync the EventEmails model next
-        if (db.EventEmail) await db.EventEmail.sync();
+        console.log('Synchronizing EventEmails model...');
+        if (db.EventEmail) {
+            try {
+                await db.EventEmail.sync();
+                console.log('EventEmail model synchronized successfully.');
+            } catch (err) {
+                console.error('Error synchronizing EventEmail model:', err);
+                throw err;
+            }
+        }
 
         // Sync the rest of the models
         const modelsToSync = Object.keys(db).filter(modelName => 
-            !['User', 'Challenge', 'Forum', 'Event', 'EventEmail'].includes(modelName)
+            !['User', 'Challenge', 'Event', 'EventEmail', 'Forum'].includes(modelName)
         );
 
         for (const modelName of modelsToSync) {
+            console.log(`Synchronizing ${modelName} model...`);
             if (db[modelName].sync) {
-                await db[modelName].sync();
+                try {
+                    await db[modelName].sync();
+                    console.log(`${modelName} model synchronized successfully.`);
+                } catch (err) {
+                    console.error(`Error synchronizing ${modelName} model:`, err);
+                    throw err;
+                }
             }
         }
 
@@ -187,11 +206,12 @@ async function syncDatabase() {
 
 syncDatabase()
     .then(() => {
-        let port = process.env.APP_PORT || 3001;
+        let port = process.env.PORT || 3001;
         server.listen(port, () => {
             console.log(`⚡ Server running on http://localhost:${port}`);
         });
     })
     .catch((err) => {
-        console.log(err);
+        console.log('Error during server startup:', err);
     });
+
