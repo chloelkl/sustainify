@@ -223,8 +223,41 @@ router.put('/friend-request/accept', verifyToken, async (req, res) => {
     }
 });
 
+// Delete a friend request
+router.delete('/friend-request', verifyToken, async (req, res) => {
+    try {
+        const { requesterID, recipientID } = req.body;
+
+        // Find the friend request to delete
+        const request = await FriendRequests.findOne({
+            where: {
+                requesterID,
+                recipientID,
+                status: 'Pending'
+            }
+        });
+
+        if (!request) {
+            return res.status(404).json({ error: 'Friend request not found.' });
+        }
+
+        // Delete the friend request
+        await request.destroy();
+
+        res.json({ message: 'Friend request cancelled successfully.' });
+    } catch (error) {
+        console.error('Error cancelling friend request:', error);
+        res.status(500).json({ error: 'Failed to cancel friend request.' });
+    }
+});
+
 router.get('/search', verifyToken, async (req, res) => {
     const { username } = req.query;
+    const currentUserID = req.user.userID; // Assuming req.user is populated by your verifyToken middleware
+
+    // Log the currentUserID to verify it's being captured correctly
+    console.log('Current User ID:', currentUserID);
+
     if (!username) {
         return res.status(400).json({ error: 'Username query parameter is required' });
     }
@@ -234,9 +267,15 @@ router.get('/search', verifyToken, async (req, res) => {
             where: {
                 username: {
                     [Op.like]: `%${username}%`
+                },
+                userID: {
+                    [Op.ne]: currentUserID // Exclude the currently logged-in user
                 }
             }
         });
+
+        // Log the users found
+        console.log('Users found (excluding current user):', users);
 
         res.json(users);
     } catch (error) {
@@ -244,6 +283,7 @@ router.get('/search', verifyToken, async (req, res) => {
         res.status(500).json({ error: 'Failed to search for users' });
     }
 });
+
 
 router.get('/:userID/friends', verifyToken, async (req, res) => {
     try {

@@ -14,39 +14,46 @@ import {
     Divider,
     ListItemAvatar,
     Avatar,
+    Snackbar,
+    Alert,
+    IconButton
 } from '@mui/material';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 const ChatWithFriends = () => {
     const { user } = useAuth();
     const [friends, setFriends] = useState([]);
-    const [incomingRequests, setIncomingRequests] = useState([]);
+    const [friendRequests, setFriendRequests] = useState([]);
     const [selectedFriend, setSelectedFriend] = useState(null);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     const [socket, setSocket] = useState(null);
     const [searchResults, setSearchResults] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [sentRequests, setSentRequests] = useState([]); // Track sent friend requests
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
 
     useEffect(() => {
         let ws;
 
         const connectWebSocket = () => {
             const ws = new WebSocket('ws://localhost:3001');
-    
+
             ws.onopen = () => {
                 console.log('WebSocket connection established');
                 ws.send(JSON.stringify({ type: 'connect', userID: user.userID }));
             };
-    
+
             ws.onmessage = (event) => {
                 const message = JSON.parse(event.data);
                 setMessages((prevMessages) => [...prevMessages, message]);
             };
-    
+
             ws.onerror = (error) => {
                 console.error('WebSocket error:', error);
             };
-    
+
             ws.onclose = (event) => {
                 console.log('WebSocket connection closed:', event);
                 if (!event.wasClean) {
@@ -54,24 +61,23 @@ const ChatWithFriends = () => {
                     setTimeout(connectWebSocket, 1000); // Retry connection after 1 second
                 }
             };
-    
+
             setSocket(ws); // Set the WebSocket instance to state
         };
-    
+
         connectWebSocket();
-    
+
         return () => {
             if (ws) {
                 ws.close();
             }
         };
-    }, [user?.userID]); 
-    
+    }, [user?.userID]);
 
     useEffect(() => {
         if (user?.userID) {
             fetchFriends();
-            fetchIncomingRequests();
+            fetchFriendRequests();
         }
     }, [user?.userID]);
 
@@ -85,23 +91,24 @@ const ChatWithFriends = () => {
             setFriends([]); // Set friends to an empty array on error
         }
     };
-    
-    const fetchIncomingRequests = async () => {
+
+    const fetchFriendRequests = async () => {
         try {
             const response = await axios.get(`${import.meta.env.VITE_API_URL}/user/${user.userID}/friend-requests`);
-            console.log('Incoming requests response:', response.data);
-            setIncomingRequests(Array.isArray(response.data) ? response.data : []);
+            console.log('Friend requests fetched:', response.data);
+            setFriendRequests(Array.isArray(response.data) ? response.data : []);
         } catch (error) {
             console.error('There was an error fetching the friend requests!', error);
-            setIncomingRequests([]); // Set requests to an empty array on error
+            setFriendRequests([]); // Set requests to an empty array on error
         }
     };
-    
+
     const handleSearch = async () => {
         try {
             const response = await axios.get(`${import.meta.env.VITE_API_URL}/user/search?username=${searchQuery}`);
-            console.log('Search response:', response.data);
-            setSearchResults(Array.isArray(response.data) ? response.data : []);
+            const filteredResults = response.data.filter((result) => result.userID !== user.userID); // Filter out current user
+            console.log('Search response:', filteredResults);
+            setSearchResults(Array.isArray(filteredResults) ? filteredResults : []);
         } catch (error) {
             console.error('Error searching for users:', error);
             setSearchResults([]);
@@ -110,61 +117,52 @@ const ChatWithFriends = () => {
 
     const handleSendFriendRequest = async (recipientID) => {
         const requesterID = user?.userID;
-        console.log('User object:', user);
-        console.log('Requester ID:', requesterID);
-        console.log('Recipient ID:', recipientID);
 
         try {
             await axios.post(`${import.meta.env.VITE_API_URL}/user/friend-request`, { requesterID, recipientID });
             console.log('Friend request sent');
-            fetchFriends();
+
+            // Add to sent requests to disable the button
+            setSentRequests([...sentRequests, recipientID]);
+
+            // Move to friend requests with pending status
+            const recipient = searchResults.find(user => user.userID === recipientID);
+            setFriendRequests([...friendRequests, { ...recipient, id: Date.now(), status: 'Pending' }]);
+
+            setSnackbarMessage('Friend request sent!');
+            setSnackbarOpen(true); // Show the Snackbar
         } catch (error) {
             console.error('Error sending friend request:', error);
+            if (error.response) {
+                console.error('Server response:', error.response.data); // Log server response
+            }
         }
     };
 
-    const handleAcceptFriendRequest = async (requestID) => {
+    const handleCancelFriendRequest = async (recipientID, username) => {
         try {
-            console.log('Accepting friend request with ID:', requestID); // Log the requestID
-            await axios.put(`${import.meta.env.VITE_API_URL}/user/friend-request/accept`, { id: requestID });
-            console.log('Friend request accepted');
-            fetchFriends();
-            fetchIncomingRequests(); // Refresh the list of incoming requests
+            await axios.delete(`${import.meta.env.VITE_API_URL}/user/friend-request`, { data: { requesterID: user.userID, recipientID } });
+            console.log('Friend request canceled');
+
+            // Remove from friend requests list
+            setFriendRequests(friendRequests.filter(request => request.userID !== recipientID));
+
+            // Re-enable the "Add Friend" button by removing from sentRequests
+            setSentRequests(sentRequests.filter(id => id !== recipientID));
+
+            // Show cancellation Snackbar with the correct username
+            setSnackbarMessage(`Friend request for ${username} has been cancelled!`);
+            setSnackbarOpen(true);
         } catch (error) {
-            console.error('Error accepting friend request:', error);
-        }
-    };    
-
-    const fetchMessages = async (friendID) => {
-        try {
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/user/${user.userID}/messages/${friendID}`);
-            setMessages(Array.isArray(response.data) ? response.data : []);
-        } catch (error) {
-            console.error("There was an error fetching the messages!", error);
-            setMessages([]); // Set messages to an empty array on error
+            console.error('Error canceling friend request:', error);
         }
     };
 
-    const handleSendMessage = () => {
-        if (socket && selectedFriend) {
-            const message = {
-                type: 'message',
-                senderID: user.userID, // The logged-in user's ID
-                recipientID: selectedFriend.userID, // The selected friend's ID
-                content: newMessage,
-            };
-            socket.send(JSON.stringify(message));
-            setMessages(prevMessages => [...prevMessages, message]);
-            setNewMessage('');
-        }
+    const handleSnackbarClose = () => {
+        setSnackbarOpen(false);
+        setSnackbarMessage(''); // Clear message after closing
     };
 
-    const handleFriendClick = (friend) => {
-        setSelectedFriend(friend);
-        fetchMessages(friend.userID);
-    };
-    
-    
     return (
         <Box sx={{ display: 'flex', height: '100%' }}>
             <Grid container spacing={2}>
@@ -186,20 +184,33 @@ const ChatWithFriends = () => {
                             {searchResults.map(user => (
                                 <ListItem key={user.userID}>
                                     <ListItemText primary={user.fullName || user.username} />
-                                    <Button onClick={() => handleSendFriendRequest(user.userID)}>Add Friend</Button>
+                                    <Button
+                                        onClick={() => handleSendFriendRequest(user.userID)}
+                                        disabled={sentRequests.includes(user.userID)} // Disable if request has been sent
+                                        sx={{
+                                            backgroundColor: sentRequests.includes(user.userID) ? '#d3d3d3' : 'primary.main',
+                                            color: sentRequests.includes(user.userID) ? '#7d7d7d' : 'white',
+                                            cursor: sentRequests.includes(user.userID) ? 'not-allowed' : 'pointer',
+                                        }}
+                                    >
+                                        {sentRequests.includes(user.userID) ? 'Request Sent' : 'Add Friend'}
+                                    </Button>
                                 </ListItem>
                             ))}
                         </List>
                         <Divider sx={{ my: 2 }} />
-                        <Typography variant="h6">Incoming Friend Requests</Typography>
+                        <Typography variant="h6">Friend Requests</Typography>
                         <List>
-                            {incomingRequests.length === 0 ? (
-                                <Typography>No incoming friend requests.</Typography>
+                            {friendRequests.length === 0 ? (
+                                <Typography>No pending friend requests.</Typography>
                             ) : (
-                                incomingRequests.map(request => (
+                                friendRequests.map(request => (
                                     <ListItem key={request.id}>
-                                        <ListItemText primary={request.Requester?.fullName || request.Requester?.username || 'Unknown'} />
-                                        <Button onClick={() => handleAcceptFriendRequest(request.id)}>Accept</Button>
+                                        <ListItemText primary={request.fullName || request.username || 'Unknown'} />
+                                        <Typography variant="body2" sx={{ marginLeft: 2 }}>{request.status}</Typography>
+                                        <IconButton onClick={() => handleCancelFriendRequest(request.userID, request.username)} sx={{ marginLeft: 1 }}>
+                                            <CancelIcon />
+                                        </IconButton>
                                     </ListItem>
                                 ))
                             )}
@@ -211,7 +222,7 @@ const ChatWithFriends = () => {
                                 friends.map((friend) => (
                                     <ListItem key={friend.userID} button onClick={() => handleFriendClick(friend)}>
                                         <ListItemAvatar>
-                                            <Avatar>{friend.fullName[0]}</Avatar>
+                                            <Avatar>{friend.fullName ? friend.fullName[0] : friend.username ? friend.username[0] : 'U'}</Avatar>
                                         </ListItemAvatar>
                                         <ListItemText primary={friend.fullName || friend.username} />
                                     </ListItem>
@@ -225,12 +236,12 @@ const ChatWithFriends = () => {
                 <Grid item xs={8}>
                     {selectedFriend ? (
                         <Paper sx={{ padding: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
-                            <Typography variant="h6">Chat with {selectedFriend.fullName}</Typography>
+                            <Typography variant="h6">Chat with {selectedFriend.fullName || selectedFriend.username}</Typography>
                             <Box sx={{ flexGrow: 1, overflowY: 'auto', marginBottom: 2, border: 1, borderColor: 'divider', padding: 2 }}>
                                 {messages.map((message, index) => (
                                     <Box key={index} sx={{ marginBottom: 1 }}>
                                         <Typography variant="body2" color="textSecondary">
-                                            <strong>{message.from === user.userID ? 'You' : selectedFriend.fullName}:</strong> {message.content}
+                                            <strong>{message.from === user.userID ? 'You' : selectedFriend.fullName || selectedFriend.username}:</strong> {message.content}
                                         </Typography>
                                     </Box>
                                 ))}
@@ -257,6 +268,15 @@ const ChatWithFriends = () => {
                     )}
                 </Grid>
             </Grid>
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={handleSnackbarClose}
+            >
+                <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };
