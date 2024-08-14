@@ -32,7 +32,7 @@ router.post('/send-email', verifyToken, async (req, res) => {
             }
         });
 
-        let info = await transporter.sendMail({
+        await transporter.sendMail({
             from: admin.email,
             to: emailAddresses.join(','),
             subject: subject,
@@ -48,7 +48,7 @@ router.post('/send-email', verifyToken, async (req, res) => {
             sentAt: new Date()
         });
 
-        res.json({ message: 'Emails sent successfully!' });
+        res.json({ success: true });
     } catch (error) {
         console.error('Error sending emails:', error);
         res.status(500).json({ error: 'Failed to send emails.' });
@@ -76,7 +76,7 @@ router.delete('/sent-emails/:emailID', verifyToken, async (req, res) => {
             return res.status(404).json({ error: 'Email not found.' });
         }
 
-        res.json({ message: 'Email deleted successfully!' });
+        res.json({ success: true });
     } catch (error) {
         console.error('Error deleting email:', error);
         res.status(500).json({ error: 'Failed to delete email.' });

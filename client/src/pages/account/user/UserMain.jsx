@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '/src/context/AuthContext';
 import UserProfile from './UserProfile';
 import UserSettings from './UserSettings';
@@ -7,15 +7,22 @@ import UserAnalytics from './UserAnalytics';
 import ChatWithFriends from './ChatWithFriends';
 
 const UserMain = () => {
-    const [selectedSection, setSelectedSection] = useState(null);
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { logout } = useAuth();
+    
+    // Extract the section from the URL query parameter
+    const queryParams = new URLSearchParams(location.search);
+    const initialSection = queryParams.get('section') || null;
+
+    const [selectedSection, setSelectedSection] = useState(initialSection);
     const [isMorphed, setIsMorphed] = useState(false);
     const [showContainer, setShowContainer] = useState(false);
     const [showSectionTitles, setShowSectionTitles] = useState(true);
-    const navigate = useNavigate();
-    const { logout } = useAuth();
 
     const handleSectionClick = (section) => {
         setSelectedSection(section);
+        navigate(`?section=${section}`); // Update the URL with the selected section
         setIsMorphed(false);
         setShowContainer(false);
         setShowSectionTitles(false);
@@ -26,6 +33,7 @@ const UserMain = () => {
 
     const handleBackClick = () => {
         setSelectedSection(null);
+        navigate('?'); // Clear the section from the URL
         setTimeout(() => {
             setShowSectionTitles(true);
         }, 250);
@@ -39,8 +47,18 @@ const UserMain = () => {
         }
     }, [isMorphed]);
 
+    useEffect(() => {
+        if (selectedSection) {
+            setShowSectionTitles(false);
+            setTimeout(() => {
+                setIsMorphed(true);
+            }, 250);
+        }
+    }, [selectedSection]);
+
     const handleLogout = () => {
         logout();
+        navigate('/account/login');
     };
 
     const renderSection = () => {

@@ -169,9 +169,12 @@ router.delete('/delete', verifyToken, async (req, res) => {
 
         const isMatch = await bcrypt.compare(password, admin.password);
         if (!isMatch) {
-            console.error('Incorrect password provided for admin ID:', id);
+            console.error('Incorrect password provided for admin ID:', adminID);
             return res.status(401).json({ error: 'Incorrect password.' });
         }
+
+        // Fetch the total number of admins before attempting deletion
+        const totalAdmins = await Admin.count();
 
         await Admin.destroy({ where: { adminID } });
 

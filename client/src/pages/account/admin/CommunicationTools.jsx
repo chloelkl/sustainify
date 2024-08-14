@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
     Grid,
-    Box,
-    Button,
     Container,
     Typography,
     TextField,
@@ -13,20 +11,21 @@ import {
     ListItem,
     ListItemText,
     ListItemSecondaryAction,
-    ListSubheader,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    Divider,
+    Snackbar,
+    Alert,
+    Button,
 } from '@mui/material';
 import { Delete } from '@mui/icons-material';
+import Spinner from '../../../components/Spinner';
 
 const CommunicationTools = () => {
     const [formData, setFormData] = useState({ subject: '', message: '' });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [sentEmails, setSentEmails] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState(''); // State to hold Snackbar message
 
     useEffect(() => {
         fetchSentEmails();
@@ -49,20 +48,26 @@ const CommunicationTools = () => {
         e.preventDefault();
         setError('');
         setSuccess('');
+        setIsLoading(true); // Show spinner
 
         try {
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/communication/send-email`, formData);
             setSuccess(response.data.message);
+            setSnackbarMessage('Email has been sent successfully!');
+            setSnackbarOpen(true); // Show Snackbar on success
             fetchSentEmails();
         } catch (error) {
             setError(error.response ? error.response.data.error : 'An error occurred.');
+        } finally {
+            setIsLoading(false); // Hide spinner after the request is complete
         }
     };
 
     const handleDeleteEmail = async (emailID) => {
         try {
             await axios.delete(`${import.meta.env.VITE_API_URL}/communication/sent-emails/${emailID}`);
-            setSuccess('Email deleted successfully!');
+            setSnackbarMessage('Email deleted successfully!');
+            setSnackbarOpen(true); // Show Snackbar on success
             fetchSentEmails(); // Refresh the list of emails after deletion
         } catch (error) {
             console.error('Failed to delete email:', error.response ? error.response.data : error.message);
@@ -70,8 +75,13 @@ const CommunicationTools = () => {
         }
     };
 
+    const handleSnackbarClose = () => {
+        setSnackbarOpen(false);
+    };
+
     return (
         <Container>
+            {isLoading && <Spinner />}
             <Grid container spacing={4}>
                 <Grid item xs={12} md={6}>
                     <Paper elevation={3} sx={{ p: 2, borderRadius: '10px' }}>
@@ -100,7 +110,7 @@ const CommunicationTools = () => {
                             </Button>
                         </form>
                         {error && <Typography color="error">{error}</Typography>}
-                        {success && <Typography color="success">{success}</Typography>}
+                        {success && <Typography color="success.main">{success}</Typography>}
                     </Paper>
                 </Grid>
                 <Grid item xs={12} md={6}>
@@ -112,7 +122,22 @@ const CommunicationTools = () => {
                                     <ListItem key={email.emailID} divider>
                                         <ListItemText
                                             primary={email.subject}
-                                            secondary={`Sent by: ${email.senderEmail} | Sent to: ${email.recipientEmails} | Date: ${new Date(email.sentAt).toLocaleString()}`}
+                                            secondary={
+                                                <>
+                                                    <Typography variant="body2" gutterBottom>
+                                                        <strong>Message:</strong> {email.message}
+                                                    </Typography>
+                                                    <Typography variant="body2" gutterBottom>
+                                                        <strong>Sent by:</strong> {email.senderEmail}
+                                                    </Typography>
+                                                    <Typography variant="body2" gutterBottom>
+                                                        <strong>Sent to:</strong> {email.recipientEmails.split(',').join(', ')}
+                                                    </Typography>
+                                                    <Typography variant="body2" gutterBottom>
+                                                        <strong>Date:</strong> {new Date(email.sentAt).toLocaleString()}
+                                                    </Typography>
+                                                </>
+                                            }
                                         />
                                         <ListItemSecondaryAction>
                                             <IconButton edge="end" onClick={() => handleDeleteEmail(email.emailID)}>
@@ -128,6 +153,15 @@ const CommunicationTools = () => {
                     </Paper>
                 </Grid>
             </Grid>
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={handleSnackbarClose}
+            >
+                <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: '100%' }}>
+                    {snackbarMessage} {/* Display the dynamic Snackbar message */}
+                </Alert>
+            </Snackbar>
         </Container>
     );
 };

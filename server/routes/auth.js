@@ -21,7 +21,7 @@ router.get('/verify', verifyToken, (req, res) => {
     try {
         const idKey = req.user.role === 'admin' ? 'adminID' : 'userID';
         res.json({
-            user: req.user,
+            ...req.user,
             role: req.user.role,
             [idKey]: req.user[idKey],
         });
@@ -64,8 +64,7 @@ router.post('/signup', [
             role: 'user'
         });
 
-        const token = generateToken(newUser);
-        res.status(201).json({ token, role: newUser.role, userID: newUser.userID });
+        res.status(201).json({ message: 'Account created successfully, please login.' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ errors: [{ msg: 'Server error' }] });
@@ -121,8 +120,7 @@ router.post('/admin-signup', [
             countryCode
         });
 
-        const adminToken = generateToken(newAdmin);
-        res.status(201).json({ token: adminToken, role: newAdmin.role, adminID: newAdmin.adminID });
+        res.status(201).json({ message: 'Admin account created successfully, please login.' });
     } catch (error) {
         console.error('Error during admin signup:', error);
         res.status(500).json({ errors: [{ msg: 'Server error' }] });

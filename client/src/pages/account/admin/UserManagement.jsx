@@ -15,7 +15,13 @@ import {
     InputLabel,
     Select,
     MenuItem,
-    Paper
+    Paper,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Snackbar,
+    Alert,
 } from '@mui/material';
 import { RemoveCircleOutline, Visibility } from '@mui/icons-material';
 
@@ -25,6 +31,11 @@ const UserManagement = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [error, setError] = useState(null);
     const [searchBy, setSearchBy] = useState('name');
+    const [openDialog, setOpenDialog] = useState(false);
+    const [confirmUsername, setConfirmUsername] = useState('');
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
     useEffect(() => {
         fetchUsers();
@@ -40,19 +51,45 @@ const UserManagement = () => {
         }
     };
 
-    const handleRemoveUser = async (userID) => {
+    const handleOpenDialog = (user) => {
+        setSelectedUser(user);
+        setOpenDialog(true);
+    };
+
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+        setConfirmUsername('');
+    };
+
+    const handleRemoveUser = async () => {
+        if (confirmUsername !== selectedUser.username) {
+            setSnackbarSeverity('error');
+            setSnackbarMessage('Username does not match. Please try again.');
+            setSnackbarOpen(true);
+            return;
+        }
         try {
-            await axios.delete(`${import.meta.env.VITE_API_URL}/user/${userID}`);
+            await axios.delete(`${import.meta.env.VITE_API_URL}/user/${selectedUser.userID}`);
             fetchUsers();
             setSelectedUser(null);
+            handleCloseDialog();
+            setSnackbarSeverity('success');
+            setSnackbarMessage('User deleted successfully.');
+            setSnackbarOpen(true);
         } catch (error) {
             console.error("There was an error removing the user!", error);
-            setError('Failed to remove user.');
+            setSnackbarSeverity('error');
+            setSnackbarMessage('Failed to remove user.');
+            setSnackbarOpen(true);
         }
     };
 
     const handleViewData = (user) => {
         setSelectedUser(user);
+    };
+
+    const handleSnackbarClose = () => {
+        setSnackbarOpen(false);
     };
 
     return (
@@ -98,7 +135,7 @@ const UserManagement = () => {
                                 </IconButton>
                                 <IconButton
                                     edge="end"
-                                    onClick={() => handleRemoveUser(user.userID)}
+                                    onClick={() => handleOpenDialog(user)}
                                     sx={{ color: '#e74c3c', ml: 2 }}
                                 >
                                     <RemoveCircleOutline />
@@ -115,7 +152,42 @@ const UserManagement = () => {
                         {/* Add more fields as necessary */}
                     </Paper>
                 )}
+
+                {/* Confirmation Dialog */}
+                <Dialog open={openDialog} onClose={handleCloseDialog}>
+                    <DialogTitle>Confirm Deletion</DialogTitle>
+                    <DialogContent>
+                        <Typography>
+                            Are you sure you want to delete <strong>{selectedUser?.username}</strong>?
+                        </Typography>
+                        <TextField
+                            label={`Type ${selectedUser?.username} to confirm`}
+                            fullWidth
+                            value={confirmUsername}
+                            onChange={(e) => setConfirmUsername(e.target.value)}
+                            sx={{ mt: 2 }}
+                        />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCloseDialog} color="secondary">
+                            Cancel
+                        </Button>
+                        <Button onClick={handleRemoveUser} color="error">
+                            Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </Paper>
+
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={handleSnackbarClose}
+            >
+                <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </Container>
     );
 };

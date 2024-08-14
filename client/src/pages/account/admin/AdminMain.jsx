@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '/src/context/AuthContext';
 import Dashboard from './Dashboard';
 import SystemOverview from './SystemOverview';
@@ -7,15 +7,22 @@ import CommunicationTools from './CommunicationTools';
 import UserManagement from './UserManagement';
 
 const AdminMain = () => {
-    const [selectedSection, setSelectedSection] = useState(null);
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { logout } = useAuth();
+    
+    // Extract the section from the URL query parameter
+    const queryParams = new URLSearchParams(location.search);
+    const initialSection = queryParams.get('section') || null;
+
+    const [selectedSection, setSelectedSection] = useState(initialSection);
     const [isMorphed, setIsMorphed] = useState(false);
     const [showContainer, setShowContainer] = useState(false);
     const [showSectionTitles, setShowSectionTitles] = useState(true);
-    const navigate = useNavigate();
-    const { logout } = useAuth();
 
     const handleSectionClick = (section) => {
         setSelectedSection(section);
+        navigate(`?section=${section}`); // Update the URL with the selected section
         setIsMorphed(false);
         setShowContainer(false);
         setShowSectionTitles(false); // Hide section titles immediately
@@ -26,6 +33,7 @@ const AdminMain = () => {
 
     const handleBackClick = () => {
         setSelectedSection(null);
+        navigate('?'); // Clear the section from the URL
         setTimeout(() => {
             setShowSectionTitles(true); // Show section titles after a delay
         }, 250); // Match this delay with the morphing animation duration
@@ -39,8 +47,19 @@ const AdminMain = () => {
         }
     }, [isMorphed]);
 
+    useEffect(() => {
+        // Handle the case where the page is refreshed and a section is already selected
+        if (selectedSection) {
+            setShowSectionTitles(false);
+            setTimeout(() => {
+                setIsMorphed(true);
+            }, 250);
+        }
+    }, [selectedSection]);
+
     const handleLogout = () => {
         logout();
+        navigate('/account/login');
     };
 
     const renderSection = () => {

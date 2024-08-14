@@ -5,30 +5,37 @@ import {
     Box,
     Button,
     Container,
-    Typography,
-    TextField,
-    Select,
-    MenuItem,
-    FormControl,
-    InputLabel,
     Grid,
     Paper,
+    TextField,
+    Typography,
     IconButton,
     List,
     ListItem,
     ListItemText,
     ListItemSecondaryAction,
     ListSubheader,
-    Divider
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
+    Snackbar,
+    Alert,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle
 } from '@mui/material';
 import { Delete, Backup } from '@mui/icons-material';
 
 const SystemOverview = () => {
     const { admin } = useAuth();
+    const [originalAdminDetails, setOriginalAdminDetails] = useState({});
     const [adminDetails, setAdminDetails] = useState({
         fullName: '',
         email: '',
-        password: '',
+        passwordLength: 0, // Store the length of the password
         location: '',
         username: '',
         phoneNumber: '',
@@ -43,12 +50,18 @@ const SystemOverview = () => {
     const [backupType, setBackupType] = useState('full');
     const [fileFormat, setFileFormat] = useState('csv');
     const [backupHistory, setBackupHistory] = useState([]);
+    const [editMode, setEditMode] = useState(false);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [deletionDialogOpen, setDeletionDialogOpen] = useState(false);
+    const [deletionAdminID, setDeletionAdminID] = useState('');
+    const [passwordInput, setPasswordInput] = useState('');
 
     useEffect(() => {
         if (admin && admin.adminID) {
             fetchAdminDetails(admin.adminID);
         }
-
         fetchAdmins();
     }, [admin]);
 
@@ -65,10 +78,20 @@ const SystemOverview = () => {
         return () => clearInterval(timerInterval);
     }, [otp, otpTimer]);
 
-    const fetchAdminDetails = (adminID) => {
-        axios.get(`${import.meta.env.VITE_API_URL}/admin/${adminID}`)
-            .then(response => setAdminDetails(response.data))
-            .catch(error => console.error('Failed to fetch admin details:', error));
+    const fetchAdminDetails = async (adminID) => {
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/admin/${adminID}`);
+            setAdminDetails({
+                ...response.data,
+                password: '*'.repeat(response.data.passwordLength), // Display asterisks based on actual password length
+            });
+            setOriginalAdminDetails({
+                ...response.data,
+                password: '*'.repeat(response.data.passwordLength),
+            });
+        } catch (error) {
+            console.error('Failed to fetch admin details:', error);
+        }
     };
 
     const fetchAdmins = () => {
@@ -89,33 +112,28 @@ const SystemOverview = () => {
             .catch(error => console.error('Failed to fetch backup history:', error));
     };
 
-    const handleDeleteAdmin = (adminID) => {
-        const password = prompt('Enter admin password to confirm deletion');
-        axios.delete(`${import.meta.env.VITE_API_URL}/admin/delete`, { data: { adminID: adminID, password } })
-        .then(response => {
-            console.log(response.data.message);
-            // Handle successful deletion
-            setAdmins(prevAdmins => prevAdmins.filter(admin => admin.adminID !== adminID));
-            fetchAdmins();
-        })
-        .catch(error => {
-            console.error('Failed to delete admin:', error);
-            // Handle errors
-        });
-    
-    };
+    const handleSaveChanges = async () => {
+        try {
+            const updatedDetails = {};
 
-    const handleSaveChanges = () => {    
-        axios.put(`${import.meta.env.VITE_API_URL}/admin/${admin.adminID}`, adminDetails)
-            .then(response => {
-                console.log('Profile updated successfully:', response.data);
-                fetchAdminDetails(admin.adminID);
-                alert('Profile updated successfully.');
-            })
-            .catch(error => {
-                console.error('Failed to update profile:', error.response ? error.response.data : error.message);
-                alert('Failed to update profile.');
+            // Check each field to see if it was changed and only include those in the update
+            Object.keys(adminDetails).forEach(key => {
+                if (adminDetails[key] !== originalAdminDetails[key] && key !== 'password') {
+                    updatedDetails[key] = adminDetails[key];
+                }
             });
+
+            // Only send the update request if there's something to update
+            await axios.put(`${import.meta.env.VITE_API_URL}/admin/${admin.adminID}`, updatedDetails);
+            setSnackbarMessage('Profile updated successfully.');
+            setSnackbarOpen(true);
+            setEditMode(false);
+            fetchAdminDetails(admin.adminID);
+        } catch (error) {
+            console.error('Failed to update profile:', error.response ? error.response.data : error.message);
+            setSnackbarMessage('Failed to update profile.');
+            setSnackbarOpen(true);
+        }
     };
 
     const handleGenerateAdminSignupLink = () => {
@@ -125,26 +143,50 @@ const SystemOverview = () => {
                 setOtp(response.data.otp);
                 setOtpTimer(300);
                 setLinkValid(true);
+                setSnackbarMessage('Admin signup link generated successfully.');
+                setSnackbarOpen(true);
             })
-            .catch(error => console.error('Failed to generate admin signup link:', error));
+            .catch(error => {
+                console.error('Failed to generate admin signup link:', error);
+                setSnackbarMessage('Failed to generate admin signup link.');
+                setSnackbarOpen(true);
+            });
     };
 
     const handleRevokeLink = () => {
         setSignupLink('');
         setOtp('');
         setLinkValid(false);
+        setSnackbarMessage('Admin signup link revoked.');
+        setSnackbarOpen(true);
     };
 
     const handleBackupNow = () => {
         axios.post(`${import.meta.env.VITE_API_URL}/admin/backup`, { type: backupType, format: fileFormat })
-            .then(() => fetchBackupHistory())
-            .catch(error => console.error('Failed to create backup:', error));
+            .then(() => {
+                fetchBackupHistory();
+                setSnackbarMessage('Backup created successfully.');
+                setSnackbarOpen(true);
+            })
+            .catch(error => {
+                console.error('Failed to create backup:', error);
+                setSnackbarMessage('Failed to create backup.');
+                setSnackbarOpen(true);
+            });
     };
 
     const handleDeleteBackup = (id) => {
         axios.delete(`${import.meta.env.VITE_API_URL}/admin/backup/${id}`)
-            .then(() => fetchBackupHistory())
-            .catch(error => console.error('Failed to delete backup:', error));
+            .then(() => {
+                fetchBackupHistory();
+                setSnackbarMessage('Backup deleted successfully.');
+                setSnackbarOpen(true);
+            })
+            .catch(error => {
+                console.error('Failed to delete backup:', error);
+                setSnackbarMessage('Failed to delete backup.');
+                setSnackbarOpen(true);
+            });
     };
 
     const handleInputChange = (e) => {
@@ -153,6 +195,27 @@ const SystemOverview = () => {
             ...prevDetails,
             [name]: value
         }));
+    };
+
+    const handleDeleteAdmin = (adminID) => {
+        setDeletionAdminID(adminID);
+        setDeletionDialogOpen(true);
+    };
+
+    const confirmDeleteAdmin = async () => {
+        try {
+            await axios.delete(`${import.meta.env.VITE_API_URL}/admin/delete`, { data: { adminID: deletionAdminID, password: passwordInput } });
+            setSnackbarMessage('Admin deleted successfully.');
+            setSnackbarOpen(true);
+            setSnackbarSeverity('success');  // Set severity to success for successful deletion
+            setDeletionDialogOpen(false);
+            fetchAdmins();
+        } catch (error) {
+            console.error('Failed to delete admin:', error);
+            setSnackbarMessage('Failed to delete admin. Incorrect password.');
+            setSnackbarSeverity('error');  // Set severity to error for incorrect password
+            setSnackbarOpen(true);
+        }
     };
 
     return (
@@ -168,6 +231,7 @@ const SystemOverview = () => {
                             onChange={handleInputChange}
                             fullWidth
                             sx={{ mb: 2 }}
+                            disabled={!editMode}
                         />
                         <TextField
                             label="Email address"
@@ -176,15 +240,16 @@ const SystemOverview = () => {
                             onChange={handleInputChange}
                             fullWidth
                             sx={{ mb: 2 }}
+                            disabled={!editMode}
                         />
                         <TextField
                             label="Password"
                             name="password"
                             type="password"
-                            value={adminDetails.password}
-                            onChange={handleInputChange}
+                            value={'*'.repeat(adminDetails.passwordLength)} // Show asterisks based on actual password length
                             fullWidth
                             sx={{ mb: 2 }}
+                            disabled
                         />
                         <TextField
                             label="Location"
@@ -193,6 +258,7 @@ const SystemOverview = () => {
                             onChange={handleInputChange}
                             fullWidth
                             sx={{ mb: 2 }}
+                            disabled={!editMode}
                         />
                         <TextField
                             label="Username"
@@ -201,6 +267,7 @@ const SystemOverview = () => {
                             onChange={handleInputChange}
                             fullWidth
                             sx={{ mb: 2 }}
+                            disabled={!editMode}
                         />
                         <TextField
                             label="Phone Number"
@@ -209,6 +276,7 @@ const SystemOverview = () => {
                             onChange={handleInputChange}
                             fullWidth
                             sx={{ mb: 2 }}
+                            disabled={!editMode}
                         />
                         <TextField
                             label="Country Code"
@@ -217,9 +285,14 @@ const SystemOverview = () => {
                             onChange={handleInputChange}
                             fullWidth
                             sx={{ mb: 2 }}
+                            disabled={!editMode}
                         />
-                        <Button variant="contained" color="primary" onClick={handleSaveChanges}>
-                            Save changes
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={editMode ? handleSaveChanges : () => setEditMode(true)}
+                        >
+                            {editMode ? 'Save changes' : 'Edit Profile'}
                         </Button>
                     </Paper>
                 </Grid>
@@ -297,6 +370,44 @@ const SystemOverview = () => {
                     </Paper>
                 </Grid>
             </Grid>
+
+            {/* Password confirmation dialog for deletion */}
+            <Dialog open={deletionDialogOpen} onClose={() => setDeletionDialogOpen(false)}>
+                <DialogTitle>Confirm Admin Deletion</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Please enter your password to confirm the deletion of the admin.
+                    </DialogContentText>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Password"
+                        type="password"
+                        fullWidth
+                        value={passwordInput}
+                        onChange={(e) => setPasswordInput(e.target.value)}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setDeletionDialogOpen(false)} color="secondary">
+                        Cancel
+                    </Button>
+                    <Button onClick={confirmDeleteAdmin} color="primary">
+                        Confirm
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Snackbar for messages */}
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={() => setSnackbarOpen(false)}
+            >
+                <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </Container>
     );
 };
