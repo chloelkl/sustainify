@@ -251,6 +251,28 @@ router.delete('/friend-request', verifyToken, async (req, res) => {
     }
 });
 
+// Remove a friend
+router.delete('/friend-remove', verifyToken, async (req, res) => {
+    try {
+        const { userID, friendID } = req.body;
+
+        // Remove the friendship in both directions
+        await Friends.destroy({
+            where: {
+                [Op.or]: [
+                    { userID, friendID },
+                    { userID: friendID, friendID: userID },
+                ]
+            }
+        });
+
+        res.json({ message: 'Friend removed successfully.' });
+    } catch (error) {
+        console.error('Error removing friend:', error);
+        res.status(500).json({ error: 'Failed to remove friend.' });
+    }
+});
+
 router.get('/search', verifyToken, async (req, res) => {
     const { username } = req.query;
     const currentUserID = req.user.userID; // Assuming req.user is populated by your verifyToken middleware

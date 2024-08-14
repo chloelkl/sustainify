@@ -31,6 +31,7 @@ const ChatWithFriends = () => {
     const [searchResults, setSearchResults] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [sentRequests, setSentRequests] = useState([]); // Track sent friend requests
+    const [incomingRequests, setIncomingRequests] = useState([]); // Track incoming friend requests
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
 
@@ -47,7 +48,33 @@ const ChatWithFriends = () => {
 
             ws.onmessage = (event) => {
                 const message = JSON.parse(event.data);
-                setMessages((prevMessages) => [...prevMessages, message]);
+                
+                // Handle friend requests and updates in real-time
+                if (message.type === 'friend-request') {
+                    if (message.action === 'sent') {
+                        // If the current user sent the request, update the sent requests
+                        if (message.data.requesterID === user.userID) {
+                            setSentRequests([...sentRequests, message.data.recipientID]);
+                        }
+                        // If the current user received the request, update incoming requests
+                        if (message.data.recipientID === user.userID) {
+                            setIncomingRequests([...incomingRequests, message.data]);
+                        }
+                    } else if (message.action === 'accepted') {
+                        // Update friends list if a request was accepted
+                        if (message.data.recipientID === user.userID || message.data.requesterID === user.userID) {
+                            fetchFriends();
+                            fetchFriendRequests();
+                        }
+                    } else if (message.action === 'canceled') {
+                        // Handle request cancellation in real-time
+                        if (message.data.requesterID === user.userID || message.data.recipientID === user.userID) {
+                            fetchFriendRequests();
+                        }
+                    }
+                } else if (message.type === 'message') {
+                    setMessages((prevMessages) => [...prevMessages, message.data]);
+                }
             };
 
             ws.onerror = (error) => {
@@ -96,7 +123,13 @@ const ChatWithFriends = () => {
         try {
             const response = await axios.get(`${import.meta.env.VITE_API_URL}/user/${user.userID}/friend-requests`);
             console.log('Friend requests fetched:', response.data);
-            setFriendRequests(Array.isArray(response.data) ? response.data : []);
+
+            // Separate incoming and sent friend requests
+            const incoming = response.data.filter(request => request.Requester.userID !== user.userID);
+            const sent = response.data.filter(request => request.Requester.userID === user.userID);
+
+            setIncomingRequests(incoming);
+            setSentRequests(sent.map(req => req.recipientID));
         } catch (error) {
             console.error('There was an error fetching the friend requests!', error);
             setFriendRequests([]); // Set requests to an empty array on error
@@ -108,7 +141,18 @@ const ChatWithFriends = () => {
             const response = await axios.get(`${import.meta.env.VITE_API_URL}/user/search?username=${searchQuery}`);
             const filteredResults = response.data.filter((result) => result.userID !== user.userID); // Filter out current user
             console.log('Search response:', filteredResults);
-            setSearchResults(Array.isArray(filteredResults) ? filteredResults : []);
+
+            // Check if the searched user is already in friends or requests list
+            const updatedResults = filteredResults.map(result => {
+                if (friends.some(friend => friend.userID === result.userID)) {
+                    return { ...result, status: 'In Friends List' };
+                } else if (sentRequests.includes(result.userID)) {
+                    return { ...result, status: 'Friend Request Sent' };
+                }
+                return result;
+            });
+
+            setSearchResults(updatedResults);
         } catch (error) {
             console.error('Error searching for users:', error);
             setSearchResults([]);
@@ -119,15 +163,31 @@ const ChatWithFriends = () => {
         const requesterID = user?.userID;
 
         try {
-            await axios.post(`${import.meta.env.VITE_API_URL}/user/friend-request`, { requesterID, recipientID });
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/user/friend-request`, { requesterID, recipientID });
             console.log('Friend request sent');
 
             // Add to sent requests to disable the button
             setSentRequests([...sentRequests, recipientID]);
 
+            // Emit WebSocket event for real-time update
+            socket.send(JSON.stringify({
+                type: 'friend-request',
+                action: 'sent',
+                data: { requesterID, recipientID, Requester: user }
+            }));
+
             // Move to friend requests with pending status
             const recipient = searchResults.find(user => user.userID === recipientID);
             setFriendRequests([...friendRequests, { ...recipient, id: Date.now(), status: 'Pending' }]);
+
+            // Update the search result immediately
+            const updatedSearchResults = searchResults.map(result => {
+                if (result.userID === recipientID) {
+                    return { ...result, status: 'Friend Request Sent' };
+                }
+                return result;
+            });
+            setSearchResults(updatedSearchResults);
 
             setSnackbarMessage('Friend request sent!');
             setSnackbarOpen(true); // Show the Snackbar
@@ -143,18 +203,93 @@ const ChatWithFriends = () => {
         try {
             await axios.delete(`${import.meta.env.VITE_API_URL}/user/friend-request`, { data: { requesterID: user.userID, recipientID } });
             console.log('Friend request canceled');
-
-            // Remove from friend requests list
-            setFriendRequests(friendRequests.filter(request => request.userID !== recipientID));
-
-            // Re-enable the "Add Friend" button by removing from sentRequests
+    
+            // Emit WebSocket event for real-time update
+            socket.send(JSON.stringify({
+                type: 'friend-request',
+                action: 'canceled',
+                data: { requesterID: user.userID, recipientID }
+            }));
+    
+            // Remove from sent requests list
             setSentRequests(sentRequests.filter(id => id !== recipientID));
-
+    
+            // Update the search result immediately to show 'Add Friend' again
+            const updatedSearchResults = searchResults.map(result => {
+                if (result.userID === recipientID) {
+                    return { ...result, status: null }; // Reset status to null or undefined
+                }
+                return result;
+            });
+            setSearchResults(updatedSearchResults);
+    
             // Show cancellation Snackbar with the correct username
             setSnackbarMessage(`Friend request for ${username} has been cancelled!`);
             setSnackbarOpen(true);
         } catch (error) {
             console.error('Error canceling friend request:', error);
+        }
+    };
+
+    const handleRejectFriendRequest = async (requestID, requesterID, username) => {
+        try {
+            await axios.delete(`${import.meta.env.VITE_API_URL}/user/friend-request`, { data: { requesterID, recipientID: user.userID } });
+            console.log('Friend request rejected');
+
+            // Remove from incoming requests list
+            setIncomingRequests(incomingRequests.filter(request => request.Requester.userID !== requesterID));
+
+            // Show rejection Snackbar with the correct username
+            setSnackbarMessage(`Friend request from ${username} has been rejected!`);
+            setSnackbarOpen(true);
+        } catch (error) {
+            console.error('Error rejecting friend request:', error);
+        }
+    };
+
+    const handleAcceptFriendRequest = async (requestID, requesterID) => {
+        try {
+            await axios.put(`${import.meta.env.VITE_API_URL}/user/friend-request/accept`, { id: requestID });
+            console.log('Friend request accepted');
+
+            // Emit WebSocket event for real-time update
+            socket.send(JSON.stringify({
+                type: 'friend-request',
+                action: 'accepted',
+                data: { requesterID, recipientID: user.userID }
+            }));
+
+            // Move the user from the requests to the friends list
+            const acceptedFriend = incomingRequests.find(request => request.Requester.userID === requesterID);
+            setFriends([...friends, acceptedFriend.Requester]);
+            setIncomingRequests(incomingRequests.filter(request => request.Requester.userID !== requesterID));
+
+            setSnackbarMessage('Friend request accepted!');
+            setSnackbarOpen(true);
+        } catch (error) {
+            console.error('Error accepting friend request:', error);
+        }
+    };
+
+    const handleRemoveFriend = async (friendID) => {
+        try {
+            await axios.delete(`${import.meta.env.VITE_API_URL}/user/friend-remove`, { data: { userID: user.userID, friendID } });
+            console.log('Friend removed');
+
+            // Emit WebSocket event for real-time update
+            socket.send(JSON.stringify({
+                type: 'friend-request',
+                action: 'removed',
+                data: { userID: user.userID, friendID }
+            }));
+
+            // Remove friend from list
+            setFriends(friends.filter(friend => friend.userID !== friendID));
+
+            setSnackbarMessage('Friend removed successfully.');
+            setSnackbarOpen(true);
+        } catch (error) {
+            console.error('Error removing friend:', error);
         }
     };
 
@@ -184,35 +319,93 @@ const ChatWithFriends = () => {
                             {searchResults.map(user => (
                                 <ListItem key={user.userID}>
                                     <ListItemText primary={user.fullName || user.username} />
-                                    <Button
-                                        onClick={() => handleSendFriendRequest(user.userID)}
-                                        disabled={sentRequests.includes(user.userID)} // Disable if request has been sent
-                                        sx={{
-                                            backgroundColor: sentRequests.includes(user.userID) ? '#d3d3d3' : 'primary.main',
-                                            color: sentRequests.includes(user.userID) ? '#7d7d7d' : 'white',
-                                            cursor: sentRequests.includes(user.userID) ? 'not-allowed' : 'pointer',
-                                        }}
-                                    >
-                                        {sentRequests.includes(user.userID) ? 'Request Sent' : 'Add Friend'}
-                                    </Button>
+                                    {user.status === 'In Friends List' ? (
+                                        <Button
+                                            variant="outlined"
+                                            disabled
+                                            sx={{
+                                                cursor: 'not-allowed',
+                                                color: '#7d7d7d',
+                                                borderColor: '#7d7d7d',
+                                                '&:hover': {
+                                                    backgroundColor: 'transparent',
+                                                },
+                                            }}
+                                        >
+                                            In Friends List
+                                        </Button>
+                                    ) : user.status === 'Friend Request Sent' ? (
+                                        <Button
+                                            variant="outlined"
+                                            disabled
+                                            sx={{
+                                                cursor: 'not-allowed',
+                                                color: '#7d7d7d',
+                                                borderColor: '#7d7d7d',
+                                                '&:hover': {
+                                                    backgroundColor: 'transparent',
+                                                },
+                                            }}
+                                        >
+                                            Friend Request Sent
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            onClick={() => handleSendFriendRequest(user.userID)}
+                                            sx={{
+                                                backgroundColor: 'primary.main',
+                                                color: 'white',
+                                                '&:hover': {
+                                                    backgroundColor: '#0056b3',
+                                                },
+                                            }}
+                                        >
+                                            Add Friend
+                                        </Button>
+                                    )}
                                 </ListItem>
                             ))}
                         </List>
                         <Divider sx={{ my: 2 }} />
                         <Typography variant="h6">Friend Requests</Typography>
                         <List>
-                            {friendRequests.length === 0 ? (
+                            {incomingRequests.length === 0 && sentRequests.length === 0 ? (
                                 <Typography>No pending friend requests.</Typography>
                             ) : (
-                                friendRequests.map(request => (
-                                    <ListItem key={request.id}>
-                                        <ListItemText primary={request.fullName || request.username || 'Unknown'} />
-                                        <Typography variant="body2" sx={{ marginLeft: 2 }}>{request.status}</Typography>
-                                        <IconButton onClick={() => handleCancelFriendRequest(request.userID, request.username)} sx={{ marginLeft: 1 }}>
-                                            <CancelIcon />
-                                        </IconButton>
-                                    </ListItem>
-                                ))
+                                <>
+                                    {incomingRequests.map(request => (
+                                        <ListItem key={request.id}>
+                                            <ListItemText primary={request.Requester.fullName || request.Requester.username || 'Unknown'} />
+                                            <Button
+                                                onClick={() => handleAcceptFriendRequest(request.id, request.Requester.userID)}
+                                                sx={{
+                                                    backgroundColor: 'primary.main',
+                                                    color: 'white',
+                                                    '&:hover': {
+                                                        backgroundColor: '#0056b3',
+                                                    },
+                                                }}
+                                            >
+                                                Accept
+                                            </Button>
+                                            <IconButton onClick={() => handleRejectFriendRequest(request.id, request.Requester.userID, request.Requester.username)} sx={{ marginLeft: 1 }}>
+                                                <CancelIcon />
+                                            </IconButton>
+                                        </ListItem>
+                                    ))}
+                                    {sentRequests.map(requestID => {
+                                        const recipient = searchResults.find(user => user.userID === requestID) || {};
+                                        return (
+                                            <ListItem key={requestID}>
+                                                <ListItemText primary={recipient.fullName || recipient.username || 'Unknown'} />
+                                                <Typography variant="body2" sx={{ marginLeft: 2, color: '#7d7d7d' }}>Pending</Typography>
+                                                <IconButton onClick={() => handleCancelFriendRequest(requestID, recipient.username)} sx={{ marginLeft: 1 }}>
+                                                    <CancelIcon />
+                                                </IconButton>
+                                            </ListItem>
+                                        );
+                                    })}
+                                </>
                             )}
                         </List>
                         <Divider sx={{ my: 2 }} />
@@ -225,6 +418,18 @@ const ChatWithFriends = () => {
                                             <Avatar>{friend.fullName ? friend.fullName[0] : friend.username ? friend.username[0] : 'U'}</Avatar>
                                         </ListItemAvatar>
                                         <ListItemText primary={friend.fullName || friend.username} />
+                                        <Button
+                                            onClick={() => handleRemoveFriend(friend.userID)}
+                                            sx={{
+                                                backgroundColor: 'error.main',
+                                                color: 'white',
+                                                '&:hover': {
+                                                    backgroundColor: '#d32f2f',
+                                                },
+                                            }}
+                                        >
+                                            Remove Friend
+                                        </Button>
                                     </ListItem>
                                 ))
                             ) : (
